@@ -44,17 +44,14 @@ class TestHandlers:
         assert "file1.py" in self.ctx['diff']
 
     def test_get_readme(self, tmp_path):
-        """Test reading README file contents."""
+        """Test reading README file contents and file not exist case."""
         readme = tmp_path / "README.md"
         readme.write_text("hello")
         self.ctx['readme_path'] = str(readme)
         mod.get_readme(self.ctx)
         assert self.ctx['readme'] == "hello"
-
-    def test_get_readme_file_not_exist(self, tmp_path):
-        """Test get_readme sets empty string if file does not exist."""
-        readme = tmp_path / "README_DOES_NOT_EXIST.md"
-        self.ctx['readme_path'] = str(readme)
+        # Now test file not exist
+        self.ctx['readme_path'] = str(tmp_path / "README_DOES_NOT_EXIST.md")
         mod.get_readme(self.ctx)
         assert self.ctx['readme'] == ""
 
@@ -81,9 +78,10 @@ class TestHandlers:
         assert self.ctx['readme_tokens'] == 3
 
     def test_ai_enrich(self, monkeypatch):
-        """Test ai_enrich sets ai_suggestion from OpenAI response."""
+        """Test ai_enrich sets ai_suggestion from OpenAI response and handles exception."""
         self.ctx['diff'] = 'd'
         self.ctx['readme'] = 'r'
+        # Normal case
         class FakeClient:
             class chat:
                 class completions:
@@ -95,41 +93,19 @@ class TestHandlers:
         monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key: FakeClient)
         mod.ai_enrich(self.ctx)
         assert self.ctx['ai_suggestion'] == "SUGGESTION"
-
-    def test_ai_enrich_exception(self, monkeypatch):
-        """Test ai_enrich exits on OpenAI API exception."""
-        self.ctx['diff'] = 'd'
-        self.ctx['readme'] = 'r'
-        class FakeClient:
+        # Exception case
+        class FakeClientFail:
             class chat:
                 class completions:
                     @staticmethod
                     def create(model, messages):
                         raise Exception("fail")
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key: FakeClient)
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key: FakeClientFail)
         with pytest.raises(SystemExit):
             mod.ai_enrich(self.ctx)
 
-    def test_write_enrichment(self, tmp_path, monkeypatch):
-        """Test write_enrichment appends suggestion and stages README."""
-        readme = tmp_path / "README.md"
-        readme.write_text("start")
-        self.ctx['ai_suggestion'] = 'SUG'
-        self.ctx['readme_path'] = str(readme)
-        monkeypatch.setattr(mod.subprocess, "run", lambda *a, **k: None)
-        mod.write_enrichment(self.ctx)
-        content = readme.read_text()
-        assert "SUG" in content
-
-    def test_write_enrichment_no_changes(self, capsys):
-        """Test write_enrichment prints message if no enrichment needed."""
-        self.ctx['ai_suggestion'] = 'NO CHANGES'
-        mod.write_enrichment(self.ctx)
-        out = capsys.readouterr().out
-        assert "No enrichment needed" in out
-
-    def test_write_enrichment_prints_and_stages(self, tmp_path, monkeypatch, capsys):
-        """Test write_enrichment prints and calls subprocess.run when enriching."""
+    def test_write_enrichment(self, tmp_path, monkeypatch, capsys):
+        """Test write_enrichment appends suggestion, stages README, and handles no changes."""
         readme = tmp_path / "README.md"
         readme.write_text("start")
         self.ctx['ai_suggestion'] = 'SUG'
@@ -139,9 +115,16 @@ class TestHandlers:
             called['ran'] = True
         monkeypatch.setattr(mod.subprocess, "run", fake_run)
         mod.write_enrichment(self.ctx)
+        content = readme.read_text()
+        assert "SUG" in content
         out = capsys.readouterr().out
         assert "enriched and staged with AI suggestions" in out
         assert called.get('ran')
+        # No changes case
+        self.ctx['ai_suggestion'] = 'NO CHANGES'
+        mod.write_enrichment(self.ctx)
+        out = capsys.readouterr().out
+        assert "No enrichment needed" in out
 
 class TestCLI:
     """Test CLI and command dispatch logic in ai_commit_and_readme.main."""
