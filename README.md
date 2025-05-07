@@ -227,3 +227,35 @@ When applying AI-based enrichment to the README, the system will display feedbac
 
 1. If the enrichment is applied successfully and staged, you'll see a confirmation message.
 2. If no changes are necessary, the system will notify that no enrichment was needed.
+
+# AI-suggested enrichment:
+## New Makefile Targets
+
+### Documentation
+
+Generate markdown documentation for the project using `pdocs` and prepare the wiki:
+
+```sh
+make docs
+```
+
+This command will:
+
+- Remove existing `wiki` and `docs` directories if they exist.
+- Generate markdown documentation for the project using `pdocs`.
+- Move the generated documentation from the `docs` directory to the `wiki` directory.
+
+### Deploy Wiki
+
+Deploy the generated documentation to the project's GitHub wiki:
+
+```sh
+make deploy-wiki
+```
+
+This command will:
+
+- Clone the GitHub wiki repository into a temporary directory `tmp_wiki`.
+- Copy the content from the local `wiki` directory to the `tmp_wiki` directory.
+- Commit and push the updated documentation to the GitHub wiki.
+- Remove the temporary directory after the operation is completed.

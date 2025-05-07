@@ -1,4 +1,4 @@
-.PHONY: install lint format test clean aicommit venv cm coverage
+.PHONY: install lint format test clean aicommit venv cm coverage docs deploy-wiki
 
 install:
 	pip install .
@@ -33,3 +33,14 @@ coverage:
 	coverage run -m pytest
 	coverage report
 	coverage html
+
+docs:
+	rm -rf wiki docs
+	pdocs as_markdown ai_commit_and_readme
+	mv docs wiki
+
+deploy-wiki:
+	git clone https://github.com/auraz/ai_commit_and_readme.wiki.git tmp_wiki
+	cp -r wiki/* tmp_wiki/
+	cd tmp_wiki && git add . && git commit -m "Update wiki docs" && git push
+	rm -rf tmp_wiki
