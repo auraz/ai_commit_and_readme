@@ -21,6 +21,7 @@ class TestHandlers:
     def test_check_api_key_missing(self, monkeypatch):
         """Test that missing API key causes exit."""
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        self.ctx.pop('api_key', None)  # Remove api_key from ctx
         with pytest.raises(SystemExit):
             mod.check_api_key(self.ctx)
 
