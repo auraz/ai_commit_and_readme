@@ -10,90 +10,115 @@ import os
 import sys
 import tiktoken
 
+AI_ENRICH_PROMPT = (
+    "You are an expert software documenter. "
+    "Suggest additional content or improvements for the following README.md based on these code changes. "
+    "Only output new or updated sections, not the full README. "
+    "If nothing should be changed, reply with 'NO CHANGES'. "
+    "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
+    "Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
+)
 
-def enrich_readme(readme_path="README.md", api_key=None, model="gpt-4o"):
-    """
-    Enrich the README.md file with AI-generated suggestions based on the current staged git diff.
-    - Uses OpenAI API to generate suggestions.
-    - Appends suggestions to README.md if applicable and stages the file.
-    Args:
-        readme_path (str): Path to the README file to enrich.
-        api_key (str): OpenAI API key. If None, uses OPENAI_API_KEY env var.
-        model (str): OpenAI model to use.
-    """
-    if api_key is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("OPENAI_API_KEY not set. Skipping README update.")
-        sys.exit(0)
+def chain_handler(func):
+    """Decorator to ensure handler returns ctx for chaining."""
+    def wrapper(ctx, *args, **kwargs):
+        func(ctx, *args, **kwargs)
+        return ctx
+    return wrapper
 
-    client = openai.OpenAI(api_key=api_key)
+@chain_handler
+def check_api_key(ctx):
+    """Check for the presence of the OpenAI API key in context or environment."""
+    ctx['api_key'] = ctx.get('api_key') or os.getenv("OPENAI_API_KEY")
+    if not ctx['api_key']: print("OPENAI_API_KEY not set. Skipping README update.") or sys.exit(0)
 
-    try:
-        diff = subprocess.check_output(["git", "diff", "--cached", "-U1"]).decode()
-    except Exception as e:
-        print(f"Error getting staged diff: {e}")
-        sys.exit(1)
+@chain_handler
+def get_diff(ctx, diff_args=None):
+    """Retrieve the staged git diff (or file list) and store it in context."""
+    ctx['diff'] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
 
-    if not diff.strip():
-        sys.exit(0)
+@chain_handler
+def check_diff_empty(ctx):
+    """Exit if the diff is empty."""
+    if not ctx['diff'].strip(): sys.exit(0)
 
-    print(f"[INFO] Diff size: {len(diff)} characters")
-    enc = tiktoken.encoding_for_model(model)
-    diff_tokens = len(enc.encode(diff))
+@chain_handler
+def print_diff_info(ctx):
+    """Print the size of the diff in characters and tokens."""
+    print(f"[INFO] Diff size: {len(ctx['diff'])} characters")
+    enc = tiktoken.encoding_for_model(ctx['model'])
+    diff_tokens = len(enc.encode(ctx['diff']))
     print(f"[INFO] Diff size: {diff_tokens} tokens")
+    ctx['diff_tokens'] = diff_tokens
 
-    if len(diff) > 100000:
-        print(
-            "[WARNING] Diff is too large (>100000 characters). Falling back to 'git diff --cached --name-only'."
-        )
-        try:
-            diff = subprocess.check_output(
-                ["git", "diff", "--cached", "--name-only"]
-            ).decode()
-        except Exception as e:
-            print(f"Error getting staged diff file list: {e}")
-            sys.exit(1)
-        print(f"[INFO] Using file list as diff: {diff.strip()}")
+@chain_handler
+def fallback_large_diff(ctx):
+    """Fallback to file list if the diff is too large."""
+    if len(ctx['diff']) > 100000:
+        print("[WARNING] Diff is too large (>100000 characters). Falling back to 'git diff --cached --name-only'.")
+        get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
+        print(f"[INFO] Using file list as diff: {ctx['diff'].strip()}")
 
-    if os.path.exists(readme_path):
-        with open(readme_path, "r") as f:
-            readme = f.read()
-    else:
-        readme = ""
+@chain_handler
+def get_readme(ctx):
+    """Read the README file and store its contents in context."""
+    path = ctx['readme_path']
+    ctx['readme'] = open(path).read() if os.path.exists(path) else ""
 
-    print(f"[INFO] README size: {len(readme)} characters")
-    enc = tiktoken.encoding_for_model(model)
-    readme_tokens = len(enc.encode(readme))
+@chain_handler
+def print_readme_info(ctx):
+    """Print the size of the README in characters and tokens."""
+    print(f"[INFO] README size: {len(ctx['readme'])} characters")
+    enc = tiktoken.encoding_for_model(ctx['model'])
+    readme_tokens = len(enc.encode(ctx['readme']))
     print(f"[INFO] README size: {readme_tokens} tokens")
+    ctx['readme_tokens'] = readme_tokens
 
-    prompt = (
-        "You are an expert software documenter. "
-        "Suggest additional content or improvements for the following README.md based on these code changes. "
-        "Only output new or updated sections, not the full README. "
-        "If nothing should be changed, reply with 'NO CHANGES'. "
-        "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
-        f"Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
-    )
-
+@chain_handler
+def ai_enrich(ctx):
+    """Call the OpenAI API to get README enrichment suggestions."""
+    prompt = AI_ENRICH_PROMPT.format(diff=ctx['diff'], readme=ctx['readme'])
+    client = openai.OpenAI(api_key=ctx['api_key'])
     try:
         response = client.chat.completions.create(
-            model=model, messages=[{"role": "user", "content": prompt}]
+            model=ctx['model'], messages=[{"role": "user", "content": prompt}]
         )
     except Exception as e:
         print(f"Error from OpenAI API: {e}")
         sys.exit(1)
-
     ai_suggestion = response.choices[0].message.content.strip()
+    ctx['ai_suggestion'] = ai_suggestion
 
-    if ai_suggestion != "NO CHANGES":
-        with open(readme_path, "a") as f:
+@chain_handler
+def write_enrichment(ctx):
+    """Write AI suggestions to the README and stage the file if needed."""
+    if ctx['ai_suggestion'] != "NO CHANGES":
+        with open(ctx['readme_path'], "a") as f:
             f.write("\n\n# AI-suggested enrichment:\n")
-            f.write(ai_suggestion)
-        subprocess.run(["git", "add", readme_path])
-        print(f"{readme_path} enriched and staged with AI suggestions.")
-    else:
-        print("No enrichment needed for README.md.")
+            f.write(ctx['ai_suggestion'])
+        print(f"{ctx['readme_path']} enriched and staged with AI suggestions.")
+        subprocess.run(["git", "add", ctx['readme_path']])
+    else: print("No enrichment needed for README.md.")
+
+def enrich_readme(readme_path="README.md", api_key=None, model="gpt-4o"):
+    """Enrich the README.md file with AI-generated suggestions using a handler chain."""
+    ctx = {
+        'readme_path': readme_path,
+        'api_key': api_key,
+        'model': model,
+    }
+    for handler in [
+        check_api_key,
+        get_diff,
+        check_diff_empty,
+        print_diff_info,
+        fallback_large_diff,
+        get_readme,
+        print_readme_info,
+        ai_enrich,
+        write_enrichment,
+    ]:
+        ctx = handler(ctx)
 
 
 def main():
