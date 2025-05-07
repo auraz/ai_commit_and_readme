@@ -35,9 +35,7 @@ coverage:
 	coverage html
 
 docs:
-	rm -rf wiki docs
-	pdocs as_markdown ai_commit_and_readme
-	mv docs wiki
+	#todo
 
 deploy-wiki:
 	git clone https://github.com/auraz/ai_commit_and_readme.wiki.git tmp_wiki
