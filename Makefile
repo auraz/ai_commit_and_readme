@@ -1,4 +1,4 @@
-.PHONY: install lint format test clean aicommit venv cm coverage coverage-report
+.PHONY: install lint format test clean aicommit venv cm coverage
 
 install:
 	pip install .
@@ -31,7 +31,5 @@ venv:
 
 coverage:
 	coverage run -m pytest
-
-coverage-report:
 	coverage report
 	coverage html
