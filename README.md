@@ -1,3 +1,22 @@
+# ai_commit_and_readme
+
+**ai_commit_and_readme** automates commit message generation and README enrichment using AI, integrating seamlessly with your development workflow.
+
+## Quick Start
+
+1. Clone the repository and install dependencies:
+   ```sh
+   git clone https://github.com/auraz/ai_commit_and_readme.git
+   cd ai_commit_and_readme
+   make install
+   ```
+2. Configure your environment as described in the [wiki](https://github.com/auraz/ai_commit_and_readme/wiki/Configuration).
+3. Use the provided Makefile commands to lint, test, format, and commit with AI assistance.
+
+## Documentation
+
+Full documentation, including installation, usage, configuration, and contributing guidelines, is available in the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki).
+
 ## Creating a Virtual Environment
 
 It is recommended to use a Python virtual environment for development:
@@ -79,7 +98,7 @@ This will:
 # AI-suggested enrichment:
 ## Virtual Environment
 
-In the `Creating a Virtual Environment` section, add an instruction to ensure that the virtual environment's `bin` directory is in your `PATH` to easily access installed packages in the environment. 
+In the `Creating a Virtual Environment` section, add an instruction to ensure that the virtual environment's `bin` directory is in your `PATH` to easily access installed packages in the environment.
 
 ```sh
 export PATH="$PWD/.venv/bin:$PATH"
@@ -156,7 +175,7 @@ When applying AI-based enrichment to the README, the system will display feedbac
 # AI-suggested enrichment:
 ## Virtual Environment
 
-In the `Creating a Virtual Environment` section, add an instruction to ensure that the virtual environment's `bin` directory is in your `PATH` to easily access installed packages in the environment. 
+In the `Creating a Virtual Environment` section, add an instruction to ensure that the virtual environment's `bin` directory is in your `PATH` to easily access installed packages in the environment.
 
 ```sh
 export PATH="$PWD/.venv/bin:$PATH"

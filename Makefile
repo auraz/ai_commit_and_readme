@@ -34,9 +34,6 @@ coverage:
 	coverage report
 	coverage html
 
-docs:
-	#todo
-
 deploy-wiki:
 	git clone https://github.com/auraz/ai_commit_and_readme.wiki.git tmp_wiki
 	cp -r wiki/* tmp_wiki/

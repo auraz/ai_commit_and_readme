@@ -1,5 +1,5 @@
 # API Reference
 
-This section can include a hand-written or generated API reference for **ai_commit_and_readme**.
+This project focuses on workflow automation and AI integration for commit messages and README enrichment. Direct API usage is minimal for most users.
 
-You may use tools like `pdoc` to generate API documentation, or write summaries of key classes and functions here manually.
+If you need detailed API reference, you can generate it with tools like `pdoc`, or document key classes and functions here manually.
