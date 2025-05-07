@@ -106,3 +106,21 @@ make coverage-report
 ```
 
 The command above will display a summary in the terminal and generate an HTML report in the `htmlcov` directory for more detailed insights. Open the `index.html` file in a browser to explore the coverage report.
+
+# AI-suggested enrichment:
+## AI Commit and Push
+
+The process of committing and pushing changes has been refined for user feedback. Now, when no changes are staged, a message will be displayed:
+
+```sh
+make cm
+```
+
+This will:
+
+- Add all changes to git
+- Use `aicommit` to generate a commit message
+- Automatically push the commit to your remote repository
+- Display "No staged changes detected. Nothing to enrich." if there are no changes to commit
+
+Consider this message when no changes are staged to avoid confusion.

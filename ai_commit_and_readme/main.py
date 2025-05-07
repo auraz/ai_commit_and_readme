@@ -38,8 +38,10 @@ def get_diff(ctx, diff_args=None):
 
 @chain_handler
 def check_diff_empty(ctx):
-    """Exit if the diff is empty."""
-    if not ctx['diff'].strip(): sys.exit(0)
+    """Exit if the diff is empty, with a message."""
+    if not ctx['diff'].strip():
+        print("No staged changes detected. Nothing to enrich.")
+        sys.exit(0)
 
 @chain_handler
 def print_diff_info(ctx):

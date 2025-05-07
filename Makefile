@@ -22,7 +22,7 @@ clean:
 
 cm:
 	git add .
-	python -m ai_commit_and_readme.main
+	ai-commit-and-readme
 	aicommit
 	git push
 
