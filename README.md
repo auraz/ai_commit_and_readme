@@ -229,3 +229,29 @@ Example:
 ```sh
 python enrich_wiki_and_readme.py Usage new_usage.md wiki/Usage.md README.md https://github.com/auraz/ai_commit_and_readme/wiki/Usage
 ```
+
+# AI-suggested enrichment:
+## New Features
+
+### Enriching Wiki and README
+
+The project now supports automated enrichment of both the Wiki and README with AI-generated suggestions through new commands:
+
+- `enrich-all`: Automates the enrichment process for both the Wiki and README, selecting relevant sections and applying AI-generated content improvements. It updates both the Wiki and the README with summaries and relevant links.
+
+Use this new command as follows:
+
+```sh
+python main.py enrich-all --wiki-dir <wiki_directory> --wiki-url-base <wiki_url_base> --readme <readme_file>
+```
+
+### Improved Handling
+
+The new functionality includes improved handling for:
+
+- **Wiki and README Enrichment**: If AI suggestions are implemented, the README is updated with a summary of changes and a link to the enriched Wiki section.
+- **Feedback Messages**: Enhanced user feedback with clear messages when updates to Wiki and README are successfully implemented.
+
+### Deprecated Script
+
+The `enrich_wiki_and_readme.py` script has been removed and its functionality incorporated into the main script through enhanced commands. Users are encouraged to use these new commands for a streamlined workflow.

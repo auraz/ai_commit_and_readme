@@ -10,6 +10,31 @@ import os
 import sys
 import tiktoken
 import glob
+from pathlib import Path
+
+WIKI_PROMPT = (
+    "You are an expert software documenter. "
+    "Suggest additional content or improvements for the following Wiki article based on these code changes. "
+    "Only output new or updated sections, not the full article. "
+    "If nothing should be changed, reply with 'NO CHANGES'. "
+    "Do NOT consider any prior conversation or chat history—only use the code diff and current Wiki content below.\n\n"
+    "Code changes:\n{diff}\n\nCurrent Wiki article:\n{wiki}\n"
+)
+"""
+WIKI_PROMPT: Used to instruct the AI to suggest improvements for a Wiki article based on code changes.
+"""
+
+README_PROMPT = (
+    "You are an expert software documenter. "
+    "Suggest additional content or improvements for the following README.md based on these code changes. "
+    "Only output new or updated sections, not the full README. "
+    "If nothing should be changed, reply with 'NO CHANGES'. "
+    "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
+    "Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
+)
+"""
+README_PROMPT: Used to instruct the AI to suggest improvements for the README.md based on code changes.
+"""
 
 AI_ENRICH_PROMPT = (
     "You are an expert software documenter. "
@@ -129,7 +154,7 @@ def write_wiki_enrichment(ctx):
         with open(ctx['wiki_path'], "a") as f:
             f.write("\n\n---\n\n# AI-suggested enrichment:\n")
             f.write(ctx['ai_suggestion'])
-        print(f"{ctx['wiki_path']} enriched with AI suggestions.")
+        print(f"\n[INFO] Wiki page enriched: {ctx['wiki_path']}")
         # Optionally update README with summary and link
         if ctx.get('readme_path') and ctx.get('wiki_url') and ctx.get('section'):
             import re
@@ -145,7 +170,7 @@ def write_wiki_enrichment(ctx):
                 new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
             with open(readme_path, "w") as f:
                 f.write(new_content)
-            print(f"{readme_path} updated with summary and link to wiki.")
+            print(f"[INFO] README updated with summary and link to wiki.")
     else:
         print("No enrichment needed for wiki.")
 
@@ -177,9 +202,9 @@ def select_wiki_article(ctx):
     wiki_files = [f for f in glob.glob(f"{wiki_dir}/*.md") if not f.endswith('Home.md')]
     article_list = '\n'.join([os.path.basename(f) for f in wiki_files])
     prompt = (
-        AI_ENRICH_PROMPT +
-        f"\nHere are the available wiki articles (filenames):\n{article_list}\n"
-        "Based on the code changes, which article should be extended? Reply with the filename only."
+        f"Here are the available wiki articles (filenames):\n{article_list}\n"
+        "Based on the code changes, which article should be extended? Reply with the filename only.\n" +
+        AI_ENRICH_PROMPT
     )
     client = openai.OpenAI(api_key=ctx['api_key'])
     try:
@@ -222,6 +247,83 @@ def enrich_wiki_auto(wiki_dir, wiki_url_base, readme_path="README.md", api_key=N
     ]:
         ctx = handler(ctx)
 
+def enrich_all(wiki_dir, wiki_url_base, readme_path="README.md", api_key=None, model="gpt-4o"):
+    ctx = {
+        'wiki_dir': wiki_dir,
+        'wiki_url_base': wiki_url_base,
+        'readme_path': readme_path,
+        'api_key': api_key,
+        'model': model,
+    }
+    # Handler chain up to AI suggestion and wiki selection
+    for handler in [
+        check_api_key,
+        get_diff,
+        check_diff_empty,
+        print_diff_info,
+        fallback_large_diff,
+        get_readme,
+        print_readme_info,
+        select_wiki_article,
+        ai_enrich,
+    ]:
+        ctx = handler(ctx)
+    # Write enrichment to wiki
+    if ctx['ai_suggestion'] != "NO CHANGES":
+        with open(ctx['wiki_path'], "a") as f:
+            f.write("\n\n---\n\n# AI-suggested enrichment:\n")
+            f.write(ctx['ai_suggestion'])
+        print(f"\n[INFO] Wiki page enriched: {ctx['wiki_path']}")
+        # Update README with summary and link
+        import re
+        readme_path = ctx['readme_path']
+        wiki_url = ctx['wiki_url']
+        section = ctx['section']
+        summary = ctx['ai_suggestion'].strip().split('\n\n')[0]
+        content = open(readme_path).read()
+        pattern = rf"## {section}.*?(?=## |\Z)"
+        replacement = f"## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+        new_content, n = re.subn(pattern, replacement, content, flags=re.DOTALL)
+        if n == 0:
+            new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+        with open(readme_path, "w") as f:
+            f.write(new_content)
+        print(f"[INFO] README updated with summary and link to wiki.")
+    else:
+        print("No enrichment needed for wiki or README.")
+
+def update_wiki(wiki_file, enrichment_text):
+    wiki_path = Path(wiki_file)
+    content = wiki_path.read_text(encoding='utf-8')
+    # Simple append; customize as needed
+    content += f"\n\n---\n\n{enrichment_text}\n"
+    wiki_path.write_text(content, encoding='utf-8')
+
+def update_readme(readme_file, section, summary, wiki_url):
+    readme_path = Path(readme_file)
+    content = readme_path.read_text(encoding='utf-8')
+    # Replace or insert section with summary and link
+    import re
+    pattern = rf"## {section}.*?(?=## |\Z)"
+    replacement = f"## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+    new_content, n = re.subn(pattern, replacement, content, flags=re.DOTALL)
+    if n == 0:
+        # Section not found, append at end
+        new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+    readme_path.write_text(new_content, encoding='utf-8')
+
+def enrich_wiki_and_readme_script():
+    if len(sys.argv) == 6:
+        section, enrichment_file, wiki_file, readme_file, wiki_url = sys.argv[1:6]
+        enrichment_text = Path(enrichment_file).read_text(encoding='utf-8')
+        # For README, use the first paragraph as summary
+        summary = enrichment_text.strip().split('\n\n')[0]
+        update_wiki(wiki_file, enrichment_text)
+        update_readme(readme_file, section, summary, wiki_url)
+        print(f"Updated {wiki_file} and {readme_file} for section '{section}'.")
+        sys.exit(0)
+    # ... existing code ...
+
 def main():
     """
     Command-line interface for the AI Commit and README tool.
@@ -233,7 +335,7 @@ def main():
         nargs="?",
         default="enrich-readme",
         help="Subcommand to run (default: enrich-readme)",
-        choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto"],
+        choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto", "enrich-all"],
     )
     parser.add_argument(
         "--readme",
@@ -298,6 +400,13 @@ def main():
             model=args.model,
         ),
         "enrich-wiki-auto": lambda: enrich_wiki_auto(
+            wiki_dir=args.wiki_dir,
+            wiki_url_base=args.wiki_url_base,
+            readme_path=args.readme,
+            api_key=args.api_key,
+            model=args.model,
+        ),
+        "enrich-all": lambda: enrich_all(
             wiki_dir=args.wiki_dir,
             wiki_url_base=args.wiki_url_base,
             readme_path=args.readme,
