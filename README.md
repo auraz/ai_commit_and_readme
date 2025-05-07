@@ -10,12 +10,20 @@
    cd ai_commit_and_readme
    make install
    ```
-2. Configure your environment as described in the [wiki](https://github.com/auraz/ai_commit_and_readme/wiki/Configuration).
-3. Use the provided Makefile commands to lint, test, format, and commit with AI assistance.
+2. Configure your environment ([see full guide in the Wiki](https://github.com/auraz/ai_commit_and_readme/wiki/Configuration))
+3. Use Makefile commands ([see all commands in the Wiki](https://github.com/auraz/ai_commit_and_readme/wiki/Usage))
 
 ## Documentation
 
-Full documentation, including installation, usage, configuration, and contributing guidelines, is available in the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki).
+Full documentation is available in the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki):
+
+- [Installation](https://github.com/auraz/ai_commit_and_readme/wiki/Installation)
+- [Usage](https://github.com/auraz/ai_commit_and_readme/wiki/Usage)
+- [Configuration](https://github.com/auraz/ai_commit_and_readme/wiki/Configuration)
+- [FAQ](https://github.com/auraz/ai_commit_and_readme/wiki/FAQ)
+- [Contributing](https://github.com/auraz/ai_commit_and_readme/wiki/Contributing)
+- [Changelog](https://github.com/auraz/ai_commit_and_readme/wiki/Changelog)
+- [API Reference](https://github.com/auraz/ai_commit_and_readme/wiki/API)
 
 ## Creating a Virtual Environment
 
@@ -181,100 +189,43 @@ In the `Creating a Virtual Environment` section, add an instruction to ensure th
 export PATH="$PWD/.venv/bin:$PATH"
 ```
 
-This will ensure that all commands are executed with the context of the created virtual environment.
-
-## Coverage
-
-Include a new section to describe how to run the test coverage analysis:
-
-### Test Coverage
-
-You can use the `coverage` tool to measure the code coverage of your tests. Run the following command to execute the tests with coverage:
-
-```sh
-make coverage
-```
-
-To generate a detailed report, use:
-
-```sh
-make coverage-report
-```
-
-The command above will display a summary in the terminal and generate an HTML report in the `htmlcov` directory for more detailed insights. Open the `index.html` file in a browser to explore the coverage report.
-
-## AI Commit and Push
-
-The process of committing and pushing changes has been refined for user feedback. Now, when no changes are staged, a message will be displayed:
-
-```sh
-make cm
-```
-
-This will:
-
-- Add all changes to git
-- Use `aicommit` to generate a commit message
-- Automatically push the commit to your remote repository
-- Display "No staged changes detected. Nothing to enrich." if there are no changes to commit
-
-Consider this message when no changes are staged to avoid confusion.
-
-## Testing
-
-The project now includes a comprehensive test suite using `pytest`. Ensure that all tests pass by running:
-
-```sh
-make test
-```
-
-This suite includes tests for verifying API key presence, handling large diffs, enriching READMEs with AI suggestions, and testing the entire `enrich_readme` workflow, among others.
-
-## Error Handling
-
-### API Key Error
-
-If the OpenAI API key is not set or is incorrect, the program will catch this and exit gracefully. Ensure the `OPENAI_API_KEY` environment variable is correctly set for successful execution.
-
-### File Handling
-
-In the case where the specified README file does not exist, the program will default to an empty string without halting execution. This ensures robustness in environments where the README file might be optional or created dynamically.
-
-## Feedback & Enrichment
-
-When applying AI-based enrichment to the README, the system will display feedback:
-
-1. If the enrichment is applied successfully and staged, you'll see a confirmation message.
-2. If no changes are necessary, the system will notify that no enrichment was needed.
 
 # AI-suggested enrichment:
-## New Makefile Targets
+## New Features
 
-### Documentation
+### Enriching Wiki and README
 
-Generate markdown documentation for the project using `pdocs` and prepare the wiki:
+The project now supports automated enrichment of both the Wiki and README with AI-generated suggestions. There are new commands to facilitate this:
 
-```sh
-make docs
-```
+- `enrich-wiki`: Manually enrich a specified Wiki markdown file and update the README with a summary and link.
+- `enrich-wiki-auto`: Automatically select the appropriate Wiki article to enrich based on code changes and update the README with an AI-generated summary and link.
 
-This command will:
-
-- Remove existing `wiki` and `docs` directories if they exist.
-- Generate markdown documentation for the project using `pdocs`.
-- Move the generated documentation from the `docs` directory to the `wiki` directory.
-
-### Deploy Wiki
-
-Deploy the generated documentation to the project's GitHub wiki:
+Use these commands as follows:
 
 ```sh
-make deploy-wiki
+python main.py enrich-wiki --wiki <wiki_file> --section <section_name> --wiki-url <wiki_url>
 ```
 
-This command will:
+This command updates the specified wiki page with enrichment and modifies the README to include a summary and link to the full section.
 
-- Clone the GitHub wiki repository into a temporary directory `tmp_wiki`.
-- Copy the content from the local `wiki` directory to the `tmp_wiki` directory.
-- Commit and push the updated documentation to the GitHub wiki.
-- Remove the temporary directory after the operation is completed.
+```sh
+python main.py enrich-wiki-auto --wiki-dir <wiki_directory> --wiki-url-base <wiki_url_base>
+```
+
+This command automatically selects which Wiki article to enrich based on the code diff and updates the README with the suggested changes.
+
+### New Script: enrich_wiki_and_readme
+
+A new script, `enrich_wiki_and_readme.py`, is available to facilitate manual enrichment of Wiki and README content. Use it to append AI-generated enrichment text to a Wiki page and create a summary in the README with a link to the Wiki page.
+
+To run this script:
+
+```sh
+python enrich_wiki_and_readme.py <section> <enrichment_file> <wiki_file> <readme_file> <wiki_url>
+```
+
+Example:
+
+```sh
+python enrich_wiki_and_readme.py Usage new_usage.md wiki/Usage.md README.md https://github.com/auraz/ai_commit_and_readme/wiki/Usage
+```

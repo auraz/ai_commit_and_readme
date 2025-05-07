@@ -9,6 +9,7 @@ import subprocess
 import os
 import sys
 import tiktoken
+import glob
 
 AI_ENRICH_PROMPT = (
     "You are an expert software documenter. "
@@ -121,6 +122,105 @@ def enrich_readme(readme_path="README.md", api_key=None, model="gpt-4o"):
     ]:
         ctx = handler(ctx)
 
+def write_wiki_enrichment(ctx):
+    """Write AI suggestions to the wiki file and optionally update README with a summary and link."""
+    if ctx['ai_suggestion'] != "NO CHANGES":
+        # Append to wiki file
+        with open(ctx['wiki_path'], "a") as f:
+            f.write("\n\n---\n\n# AI-suggested enrichment:\n")
+            f.write(ctx['ai_suggestion'])
+        print(f"{ctx['wiki_path']} enriched with AI suggestions.")
+        # Optionally update README with summary and link
+        if ctx.get('readme_path') and ctx.get('wiki_url') and ctx.get('section'):
+            import re
+            readme_path = ctx['readme_path']
+            wiki_url = ctx['wiki_url']
+            section = ctx['section']
+            summary = ctx['ai_suggestion'].strip().split('\n\n')[0]
+            content = open(readme_path).read()
+            pattern = rf"## {section}.*?(?=## |\Z)"
+            replacement = f"## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+            new_content, n = re.subn(pattern, replacement, content, flags=re.DOTALL)
+            if n == 0:
+                new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
+            with open(readme_path, "w") as f:
+                f.write(new_content)
+            print(f"{readme_path} updated with summary and link to wiki.")
+    else:
+        print("No enrichment needed for wiki.")
+
+def enrich_wiki(wiki_path, section, readme_path=None, wiki_url=None, api_key=None, model="gpt-4o"):
+    ctx = {
+        'wiki_path': wiki_path,
+        'section': section,
+        'readme_path': readme_path,
+        'wiki_url': wiki_url,
+        'api_key': api_key,
+        'model': model,
+    }
+    for handler in [
+        check_api_key,
+        get_diff,
+        check_diff_empty,
+        print_diff_info,
+        fallback_large_diff,
+        get_readme,
+        print_readme_info,
+        ai_enrich,
+        write_wiki_enrichment,
+    ]:
+        ctx = handler(ctx)
+
+def select_wiki_article(ctx):
+    """Ask the AI which wiki article to extend based on the diff and README."""
+    wiki_dir = ctx['wiki_dir']
+    wiki_files = [f for f in glob.glob(f"{wiki_dir}/*.md") if not f.endswith('Home.md')]
+    article_list = '\n'.join([os.path.basename(f) for f in wiki_files])
+    prompt = (
+        AI_ENRICH_PROMPT +
+        f"\nHere are the available wiki articles (filenames):\n{article_list}\n"
+        "Based on the code changes, which article should be extended? Reply with the filename only."
+    )
+    client = openai.OpenAI(api_key=ctx['api_key'])
+    try:
+        response = client.chat.completions.create(
+            model=ctx['model'], messages=[{"role": "user", "content": prompt}]
+        )
+    except Exception as e:
+        print(f"Error from OpenAI API: {e}")
+        sys.exit(1)
+    filename = response.choices[0].message.content.strip()
+    # Validate filename
+    if filename not in [os.path.basename(f) for f in wiki_files]:
+        print(f"AI selected invalid wiki article: {filename}. Defaulting to Usage.md.")
+        filename = "Usage.md"
+    ctx['wiki_path'] = os.path.join(wiki_dir, filename)
+    ctx['section'] = os.path.splitext(filename)[0]
+    ctx['wiki_url'] = ctx['wiki_url_base'] + filename.replace('.md', '')
+    print(f"AI selected wiki article: {filename}")
+    return ctx
+
+def enrich_wiki_auto(wiki_dir, wiki_url_base, readme_path="README.md", api_key=None, model="gpt-4o"):
+    ctx = {
+        'wiki_dir': wiki_dir,
+        'wiki_url_base': wiki_url_base,
+        'readme_path': readme_path,
+        'api_key': api_key,
+        'model': model,
+    }
+    for handler in [
+        check_api_key,
+        get_diff,
+        check_diff_empty,
+        print_diff_info,
+        fallback_large_diff,
+        get_readme,
+        print_readme_info,
+        select_wiki_article,
+        ai_enrich,
+        write_wiki_enrichment,
+    ]:
+        ctx = handler(ctx)
 
 def main():
     """
@@ -133,13 +233,31 @@ def main():
         nargs="?",
         default="enrich-readme",
         help="Subcommand to run (default: enrich-readme)",
-        choices=["enrich-readme"],
+        choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto"],
     )
     parser.add_argument(
         "--readme",
         type=str,
         default="README.md",
         help="Path to README.md (default: README.md)",
+    )
+    parser.add_argument(
+        "--wiki",
+        type=str,
+        default=None,
+        help="Path to wiki markdown file (for enrich-wiki)",
+    )
+    parser.add_argument(
+        "--section",
+        type=str,
+        default=None,
+        help="Section name for README summary (for enrich-wiki)",
+    )
+    parser.add_argument(
+        "--wiki-url",
+        type=str,
+        default=None,
+        help="URL to the wiki page (for enrich-wiki)",
     )
     parser.add_argument(
         "--api-key",
@@ -153,12 +271,38 @@ def main():
         default="gpt-4o",
         help="OpenAI model (default: gpt-4o)",
     )
+    parser.add_argument(
+        "--wiki-dir",
+        type=str,
+        default=None,
+        help="Path to wiki directory (for enrich-wiki-auto)",
+    )
+    parser.add_argument(
+        "--wiki-url-base",
+        type=str,
+        default=None,
+        help="Base URL to the wiki (for enrich-wiki-auto, e.g. https://github.com/auraz/ai_commit_and_readme/wiki/)",
+    )
     args = parser.parse_args()
 
-    # Dispatcher dictionary
     command_dispatcher = {
         "enrich-readme": lambda: enrich_readme(
             readme_path=args.readme, api_key=args.api_key, model=args.model
+        ),
+        "enrich-wiki": lambda: enrich_wiki(
+            wiki_path=args.wiki,
+            section=args.section,
+            readme_path=args.readme,
+            wiki_url=args.wiki_url,
+            api_key=args.api_key,
+            model=args.model,
+        ),
+        "enrich-wiki-auto": lambda: enrich_wiki_auto(
+            wiki_dir=args.wiki_dir,
+            wiki_url_base=args.wiki_url_base,
+            readme_path=args.readme,
+            api_key=args.api_key,
+            model=args.model,
         ),
     }
 
