@@ -72,3 +72,6 @@ Pipfile.lock
 # Virtual environment
 .venv/
 venv/
+
+# Environment variables
+.env
