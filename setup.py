@@ -13,7 +13,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "ai-commit-and-readme=ai_commit_and_readme.cli:main"
+            "ai-commit-and-readme=ai_commit_and_readme.main:main"
         ]
     },
     python_requires=">=3.7",

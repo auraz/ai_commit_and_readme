@@ -18,7 +18,6 @@ AI_ENRICH_PROMPT = (
     "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
     "Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
 )
-
 def chain_handler(func):
     """Decorator to ensure handler returns ctx for chaining."""
     def wrapper(ctx, *args, **kwargs):
@@ -165,3 +164,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
