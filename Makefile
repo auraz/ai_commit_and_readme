@@ -1,4 +1,4 @@
-.PHONY: install lint format test clean aicommit
+.PHONY: install lint format test clean aicommit venv cm coverage coverage-report
 
 install:
 	pip install .
@@ -8,7 +8,7 @@ aicommit:
 	brew install aicommit
 
 lint:
-	ruff ai_commit_and_readme
+	ruff check .
 
 format:
 	ruff format ai_commit_and_readme
@@ -21,4 +21,17 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 cm:
-	git add . && aicommit --autopush
+	git add .
+	python -m ai_commit_and_readme.main
+	aicommit
+	git push
+
+venv:
+	python3 -m venv .venv
+
+coverage:
+	coverage run -m pytest
+
+coverage-report:
+	coverage report
+	coverage html

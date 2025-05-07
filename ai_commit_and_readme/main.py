@@ -12,7 +12,7 @@ if not openai_api_key:
 client = openai.OpenAI(api_key=openai_api_key)
 
 try:
-    diff = subprocess.check_output(['git', 'diff', '--cached', '-U1']).decode()
+    diff = subprocess.check_output(["git", "diff", "--cached", "-U1"]).decode()
 except Exception as e:
     print(f"Error getting staged diff: {e}")
     sys.exit(1)
@@ -26,6 +26,7 @@ print(f"[INFO] Diff size: {len(diff)} characters")
 # Try to print diff size in tokens (if tiktoken is available)
 try:
     import tiktoken
+
     enc = tiktoken.encoding_for_model("gpt-4o")
     diff_tokens = len(enc.encode(diff))
     print(f"[INFO] Diff size: {diff_tokens} tokens")
@@ -36,9 +37,13 @@ except Exception as e:
 
 # Fallback to --name-only if diff is too large
 if len(diff) > 100000:
-    print("[WARNING] Diff is too large (>100000 characters). Falling back to 'git diff --cached --name-only'.")
+    print(
+        "[WARNING] Diff is too large (>100000 characters). Falling back to 'git diff --cached --name-only'."
+    )
     try:
-        diff = subprocess.check_output(['git', 'diff', '--cached', '--name-only']).decode()
+        diff = subprocess.check_output(
+            ["git", "diff", "--cached", "--name-only"]
+        ).decode()
     except Exception as e:
         print(f"Error getting staged diff file list: {e}")
         sys.exit(1)
@@ -57,6 +62,7 @@ print(f"[INFO] README size: {len(readme)} characters")
 # Try to print README size in tokens (if tiktoken is available)
 try:
     import tiktoken
+
     enc = tiktoken.encoding_for_model("gpt-4o")
     readme_tokens = len(enc.encode(readme))
     print(f"[INFO] README size: {readme_tokens} tokens")
@@ -77,8 +83,7 @@ prompt = (
 
 try:
     response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
+        model="gpt-4o", messages=[{"role": "user", "content": prompt}]
     )
 except Exception as e:
     print(f"Error from OpenAI API: {e}")
@@ -90,7 +95,7 @@ if ai_suggestion != "NO CHANGES":
     with open(readme_path, "a") as f:
         f.write("\n\n# AI-suggested enrichment:\n")
         f.write(ai_suggestion)
-    subprocess.run(['git', 'add', readme_path])
+    subprocess.run(["git", "add", readme_path])
     print("README.md enriched and staged with AI suggestions.")
 else:
     print("No enrichment needed for README.md.")
