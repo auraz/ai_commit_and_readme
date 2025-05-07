@@ -124,3 +124,31 @@ This will:
 - Display "No staged changes detected. Nothing to enrich." if there are no changes to commit
 
 Consider this message when no changes are staged to avoid confusion.
+
+# AI-suggested enrichment:
+## Testing
+
+The project now includes a comprehensive test suite using `pytest`. Ensure that all tests pass by running:
+
+```sh
+make test
+```
+
+This suite includes tests for verifying API key presence, handling large diffs, enriching READMEs with AI suggestions, and testing the entire `enrich_readme` workflow, among others.
+
+## Error Handling
+
+### API Key Error
+
+If the OpenAI API key is not set or is incorrect, the program will catch this and exit gracefully. Ensure the `OPENAI_API_KEY` environment variable is correctly set for successful execution.
+
+### File Handling
+
+In the case where the specified README file does not exist, the program will default to an empty string without halting execution. This ensures robustness in environments where the README file might be optional or created dynamically.
+
+## Feedback & Enrichment
+
+When applying AI-based enrichment to the README, the system will display feedback:
+
+1. If the enrichment is applied successfully and staged, you'll see a confirmation message.
+2. If no changes are necessary, the system will notify that no enrichment was needed.
