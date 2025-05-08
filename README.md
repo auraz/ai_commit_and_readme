@@ -121,3 +121,16 @@ Ensure to monitor the log output when running the application to gather insights
   ```sh
   make superusage
   ```
+
+
+## Usage
+
+The Makefile has been updated with a new command named `new_command`. Here is the additional usage information:
+
+- **new_command**: This command executes the `ai_commit_and_readme.main` module using Python 3 with the help flag. It also includes placeholder or debug lines like `lol!` and `sdsdsdds`.
+
+To run this command, use:
+
+```bash
+make new_command
+```

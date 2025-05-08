@@ -124,3 +124,19 @@ make usage
 ```
 
 This will run the command `python3 -m ai_commit_and_readme.main --help`, providing details on how to use the module.
+
+## Available Commands in the Makefile
+
+### new_command
+This command is used to run a Python module and additional experimental commands. It can be executed as follows:
+
+```bash
+make new_command
+```
+
+The current implementation of `new_command` involves:
+
+- Running a Python module (`ai_commit_and_readme.main`) with the `--help` flag to display usage help.
+- It includes additional commands represented by placeholder text (`lol!` and `sdsdsdds`) which might be for testing or demonstration purposes.
+
+Please ensure to review and update this section once the placeholder commands are replaced with actual functionality.

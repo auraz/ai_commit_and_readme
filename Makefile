@@ -29,8 +29,10 @@ deploy-wiki:
 	cd tmp_wiki && git add . && git commit -m "Update wiki docs" && git push
 	rm -rf tmp_wiki
 
-superusage:
+new_command:
 	python3 -m ai_commit_and_readme.main --help
 	lol!
+	sdsdsdds
+
 
 
