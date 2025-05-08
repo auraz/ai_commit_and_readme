@@ -6,12 +6,6 @@ install:
 	pip install .
 	brew install aicommit
 
-lint:
-	ruff check --fix .
-
-format:
-	ruff format
-
 clean:
 	rm -rf dist build *.egg-info .pytest_cache .mypy_cache .ruff_cache
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -22,8 +16,9 @@ cm:
 	aicommit
 	git push
 
-
 coverage:
+	ruff check --fix .
+	ruff format
 	coverage run -m pytest
 	coverage report
 	coverage html
