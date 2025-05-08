@@ -12,10 +12,12 @@ import sys
 import openai
 import tiktoken
 
+from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
 
 @chain_handler
 def check_api_key(ctx):
@@ -25,10 +27,12 @@ def check_api_key(ctx):
         logging.warning("OPENAI_API_KEY not set. Skipping README update.")
         sys.exit(0)
 
+
 @chain_handler
 def get_diff(ctx, diff_args=None):
     """Retrieve the staged git diff (or file list) and store it in context."""
     ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
+
 
 @chain_handler
 def check_diff_empty(ctx):
@@ -36,6 +40,7 @@ def check_diff_empty(ctx):
     if not ctx["diff"].strip():
         logging.info("No staged changes detected. Nothing to enrich.")
         sys.exit(0)
+
 
 @chain_handler
 def print_diff_info(ctx):
@@ -46,6 +51,7 @@ def print_diff_info(ctx):
     logging.info(f"Diff size: {diff_tokens} tokens")
     ctx["diff_tokens"] = diff_tokens
 
+
 @chain_handler
 def fallback_large_diff(ctx):
     """Fallback to file list if the diff is too large."""
@@ -53,6 +59,7 @@ def fallback_large_diff(ctx):
         logging.warning('Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
         get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
         logging.info(f"Using file list as diff: {ctx['diff'].strip()}")
+
 
 @chain_handler
 def get_file(ctx, file_key, path_key):
@@ -63,6 +70,7 @@ def get_file(ctx, file_key, path_key):
     else:
         ctx[file_key] = ""
 
+
 @chain_handler
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file in characters and tokens."""
@@ -72,6 +80,7 @@ def print_file_info(ctx, file_key, model_key):
     tokens = len(enc.encode(content))
     logging.info(f"{file_key} size: {tokens} tokens")
     ctx[f"{file_key}_tokens"] = tokens
+
 
 def get_ai_response(prompt, ctx=None):
     """Return an OpenAI client response for the given prompt and model."""
@@ -84,6 +93,7 @@ def get_ai_response(prompt, ctx=None):
         sys.exit(1)
     return response
 
+
 @chain_handler
 def ai_enrich(ctx, filename):
     """Call the OpenAI API to get enrichment suggestions for any file."""
@@ -92,6 +102,7 @@ def ai_enrich(ctx, filename):
     ai_suggestion = response.choices[0].message.content.strip()
     ctx["ai_suggestions"][filename] = ai_suggestion
     return ctx
+
 
 def select_wiki_articles(ctx):
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
@@ -107,9 +118,11 @@ def select_wiki_articles(ctx):
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
 
+
 def enrich_readme(ctx):
     """Enrich the README file with AI suggestions."""
     return ai_enrich(ctx, "README.md")
+
 
 def enrich_selected_wikis(ctx):
     """Enrich the selected wiki articles."""
@@ -119,6 +132,7 @@ def enrich_selected_wikis(ctx):
         suggestion_ctx = ai_enrich(ctx, filename)
         ctx["ai_suggestions"]["wiki"][filename] = suggestion_ctx["ai_suggestions"][filename]
     return ctx
+
 
 def append_suggestion_and_stage(file_path, ai_suggestion, label):
     """Append AI suggestion to file and stage it with git."""
@@ -130,6 +144,7 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
     else:
         logging.info(f"No enrichment needed for {file_path}.")
 
+
 def write_enrichment_outputs(ctx):
     """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
     file_path = ctx["file_paths"]["README.md"]
@@ -139,17 +154,20 @@ def write_enrichment_outputs(ctx):
         file_path = ctx["file_paths"]["wiki"][filename]
         append_suggestion_and_stage(file_path, ai_suggestion, filename)
 
+
 def print_selected_wiki_files(ctx):
     """Print file info for each selected wiki article."""
     for filename in ctx["selected_wiki_articles"]:
         print_file_info(ctx, filename, "model")
     return ctx
 
+
 def get_selected_wiki_files(ctx):
     """Read each selected wiki file and store its contents in the context."""
     for filename in ctx["selected_wiki_articles"]:
         get_file(ctx, filename, ctx["wiki_file_paths"][filename])
     return ctx
+
 
 def enrich():
     """Handler chain for enriching wiki and readme (multi-wiki support)."""

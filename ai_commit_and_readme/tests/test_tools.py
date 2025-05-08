@@ -1,4 +1,5 @@
 """Tests for ai_commit_and_readme.tools utility functions."""
+
 import pytest
 
 import ai_commit_and_readme.tools as tools
@@ -6,12 +7,15 @@ import ai_commit_and_readme.tools as tools
 
 class TestChainHandler:
     """Tests for the chain_handler decorator."""
+
     def test_chain_handler_populates_ctx(self, monkeypatch):
         """chain_handler should populate context with defaults and call the wrapped function."""
+
         @tools.chain_handler
         def dummy(ctx):
             """Dummy function for testing chain_handler."""
             ctx["touched"] = True
+
         ctx = {}
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
         dummy(ctx)
@@ -24,8 +28,10 @@ class TestChainHandler:
         assert ctx["chain_handler_initialized"] is True
         assert ctx["file_paths"]["wiki"] == {"A.md": "wiki/A.md"}
 
+
 class TestWikiFiles:
     """Tests for get_wiki_files utility function."""
+
     def test_get_wiki_files(self, tmp_path, monkeypatch):
         """get_wiki_files should return all markdown files and their paths."""
         wiki_dir = tmp_path / "wiki"
@@ -38,8 +44,10 @@ class TestWikiFiles:
         assert set(file_paths.keys()) == {"Home.md", "Other.md"}
         assert all(str(wiki_dir) in v for v in file_paths.values())
 
+
 class TestPromptTemplate:
     """Tests for get_prompt_template and prompt template error handling."""
+
     def test_get_prompt_template(self, tmp_path, monkeypatch):
         """get_prompt_template should extract correct sections from prompt.md."""
         prompt_path = tmp_path / "prompt.md"
@@ -66,4 +74,3 @@ select_articles section content
         monkeypatch.setattr(tools, "PROMPT_PATH", "nonexistent_prompt.md")
         with pytest.raises(RuntimeError):
             tools.get_prompt_template("enrich")
-

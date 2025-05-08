@@ -1,6 +1,7 @@
 """
 Utility functions for documentation enrichment and other helpers.
 """
+
 import glob
 import os
 from pathlib import Path
@@ -12,6 +13,7 @@ PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
 def chain_handler(func):
     """Decorator to ensure handler returns ctx for chaining and populates ctx with constants if not set."""
+
     def wrapper(ctx, *args, **kwargs):
         if "chain_handler_initialized" not in ctx:
             defaults = [
@@ -32,6 +34,7 @@ def chain_handler(func):
             ctx["chain_handler_initialized"] = True
         func(ctx, *args, **kwargs)
         return ctx
+
     return wrapper
 
 
@@ -64,4 +67,3 @@ def get_prompt_template(section: str) -> str:
     if section_lines:
         return "".join(section_lines).strip()
     raise ValueError(f'Prompt section "{section}" not found in prompt.md')
-

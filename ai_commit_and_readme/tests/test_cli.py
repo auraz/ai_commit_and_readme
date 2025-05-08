@@ -23,10 +23,17 @@ class TestCLI:
         monkeypatch.setattr(mod, "README_PATH", str(readme_path))
         monkeypatch.setattr(tools_mod, "WIKI_PATH", str(wiki_dir))
         monkeypatch.setattr(tools_mod, "README_PATH", str(readme_path))
-        monkeypatch.setattr(tools_mod, "get_wiki_files", lambda: (["API.md", "Usage.md"], {
-            "API.md": str(api_file),
-            "Usage.md": str(usage_file),
-        }))
+        monkeypatch.setattr(
+            tools_mod,
+            "get_wiki_files",
+            lambda: (
+                ["API.md", "Usage.md"],
+                {
+                    "API.md": str(api_file),
+                    "Usage.md": str(usage_file),
+                },
+            ),
+        )
         # Patch subprocess.run to avoid actual git commands
         monkeypatch.setattr(mod.subprocess, "run", lambda *_a, **_k: None)
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff content")

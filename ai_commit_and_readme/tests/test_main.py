@@ -1,4 +1,5 @@
 """Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
+
 import uuid
 from typing import ClassVar  # For annotating mutable class attributes in tests
 from unittest import mock
@@ -20,10 +21,11 @@ def make_ctx(**kwargs):
         "wiki_file_paths": {"Usage.md": "wiki/Usage.md"},
         "selected_wiki_articles": ["Usage.md"],
         "README.md": "r",  # Add README.md content for ai_enrich
-        "Usage.md": "u",    # Add Usage.md content for ai_enrich
+        "Usage.md": "u",  # Add Usage.md content for ai_enrich
     }
     ctx.update(kwargs)
     return ctx
+
 
 class TestHandlers:
     """Tests for handler functions in ai_commit_and_readme.main."""
@@ -90,20 +92,18 @@ class TestHandlers:
         mod.get_file(ctx, filename, f"{filename}_path")
         assert ctx[filename] == ""
 
-    @pytest.mark.parametrize("filename,model_key,content", [
-        ("README.md", "model", "abc"),
-        ("Usage.md", "model", "abc")
-    ])
-    def test_print_file_info(self, monkeypatch, capsys, filename, model_key, content):
-        """Should print file info and set token count in context."""
+    @pytest.mark.parametrize("filename,model_key,content", [("README.md", "model", "abc"), ("Usage.md", "model", "abc")])
+    def test_print_file_info(self, monkeypatch, caplog, filename, model_key, content):
+        """Should log file info and set token count in context."""
         ctx = make_ctx(**{filename: content})
         fake_enc = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
         monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
-        mod.print_file_info(ctx, filename, model_key)
-        out = capsys.readouterr().out
-        assert f"[INFO] {filename} size:" in out
+        with caplog.at_level("INFO"):
+            mod.print_file_info(ctx, filename, model_key)
+        assert f"{filename} size:" in caplog.text
         assert ctx[f"{filename}_tokens"] == 3
+
 
 class TestAIEnrich:
     """Tests for ai_enrich and related AI logic."""
@@ -115,64 +115,74 @@ class TestAIEnrich:
 
     def test_ai_enrich_success(self, monkeypatch):
         """Should set ai_suggestions from OpenAI response."""
+
         class FakeClient:
-            class Chat:
-                class Completions:
+            class chat:  # noqa: N801
+                class completions:  # noqa: N801
                     @staticmethod
-                    def create(_model, _messages):
+                    def create(*args, **kwargs):  # noqa: ARG004
                         class R:
                             # 'choices' is a mutable class attribute, so we annotate it as ClassVar to satisfy linter RUF012
                             choices: ClassVar = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
+
                         return R()
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda _api_key=None: FakeClient)
+
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
         self.ctx["README.md"] = "r"
         mod.ai_enrich(self.ctx, "README.md")
         assert self.ctx["ai_suggestions"]["README.md"] == "SUGGESTION"
 
     def test_ai_enrich_exception(self, monkeypatch):
         """Should exit on OpenAI API exception."""
+
         class FakeClientFail:
             class Chat:
                 class Completions:
                     @staticmethod
                     def create(_model, _messages):
                         raise Exception("fail")
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda _api_key=None: FakeClientFail)
+
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClientFail)  # noqa: ARG005
         self.ctx["README.md"] = "r"
         with pytest.raises(SystemExit):
             mod.ai_enrich(self.ctx, "README.md")
 
+
 class TestFileOps:
     """Tests for file operations like append_suggestion_and_stage."""
 
-    def test_append_suggestion_and_stage(self, tmp_path, monkeypatch, capsys):
+    def test_append_suggestion_and_stage(self, tmp_path, monkeypatch, caplog):
         """Should append suggestion to file and stage it with git."""
         file_path = tmp_path / "README.md"
         file_path.write_text("start")
         called = {}
+
         def fake_run(_cmd):
             """Fake subprocess.run for git add."""
             called["ran"] = True
+
         monkeypatch.setattr(mod.subprocess, "run", fake_run)
-        mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
+        with caplog.at_level("INFO"):
+            mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
         content = file_path.read_text()
         assert "SUG" in content
         assert called.get("ran")
-        out = capsys.readouterr().out
-        assert "enriched and staged" in out
+        assert "enriched and staged" in caplog.text
 
-    def test_append_suggestion_and_stage_no_changes(self, tmp_path, monkeypatch, capsys):
+    def test_append_suggestion_and_stage_no_changes(self, tmp_path, monkeypatch, caplog):
         """Should not append or stage if suggestion is "NO CHANGES"."""
         file_path = tmp_path / "README.md"
         file_path.write_text("start")
         called = {}
+
         def fake_run(_cmd):
             """Fake subprocess.run for git add."""
             called["ran"] = True
+
         monkeypatch.setattr(mod.subprocess, "run", fake_run)
-        mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
+        with caplog.at_level("INFO"):
+            mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
         content = file_path.read_text()
         assert "NO CHANGES" not in content
-        out = capsys.readouterr().out
-        assert "No enrichment needed" in out
+        assert "No enrichment needed" in caplog.text
         assert not called.get("ran", False)
