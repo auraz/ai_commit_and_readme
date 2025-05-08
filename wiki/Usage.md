@@ -86,3 +86,42 @@ aicommit --help
 ## Advanced Usage
 
 Describe advanced workflows, options, or integrations here. For example, how to automate commit messages and README updates in your workflow.
+### Logging Configuration
+
+- The application now includes logging to provide insight into its operations. The default logging level is set to `INFO`. You can modify the logging level by configuring the `logging.basicConfig(level=<desired level>)` in `main.py`.
+
+### Exception Handling
+
+- The error handling for missing `PROMPT_PATH` in `tools.get_prompt_template()` has been improved. It now raises a `RuntimeError` with additional context from the original `FileNotFoundError`.
+
+### Function Updates
+
+1. **`check_api_key(ctx)`**:
+   - Now logs a warning if `OPENAI_API_KEY` is not set instead of printing directly to the console.
+
+2. **`check_diff_empty(ctx)`**:
+   - Logs an info message if no staged changes are detected.
+
+3. **`print_diff_info(ctx)`**:
+   - Replaces print statements with logging for displaying the size of the diff in characters and tokens.
+
+4. **`fallback_large_diff(ctx)`**:
+   - Uses logging to warn about large diffs and info when using a file list as diff.
+
+5. **`get_file(ctx, file_key, path_key)`**:
+   - Improves file reading with context management and fallback for non-existing paths.
+
+6. **`print_file_info(ctx, file_key, model_key)`**:
+   - Uses logging to display file size information in characters and tokens.
+
+7. **`get_ai_response(prompt, ctx=None)`**:
+   - Provides clearer logging upon exceptions during API calls.
+
+8. **`ai_enrich(ctx, filename)`**:
+   - No longer requires `model` as a function argument; `ctx` should include necessary context.
+
+9. **`select_wiki_articles(ctx)`**:
+   - Utilizes logging to inform when no valid wiki articles are selected.
+
+10. **`append_suggestion_and_stage(file_path, ai_suggestion, label)`**:
+    - Utilizes logging to indicate whether a file has been enriched and staged, or if no enrichment was needed.

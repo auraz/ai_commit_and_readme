@@ -102,3 +102,13 @@ See [Feedback & Enrichment in the Wiki](https://github.com/auraz/ai_commit_and_r
 ## New Features
 
 See [New Features in the Wiki](https://github.com/auraz/ai_commit_and_readme/wiki/Changelog)
+## Logging
+
+The code now includes logging functionality using Python's `logging` module instead of direct `print` statements. The logging is configured at the INFO level, providing consistent logging of information and warnings across the application. This change enhances the reporting of the application state and errors, especially useful for tracking the behavior during execution and debugging. 
+
+### Key Logger Levels Used:
+- `logging.info`: Used for informational messages that highlight the progress of the application at a coarse-grained level.
+- `logging.warning`: Used for warnings about potentially harmful situations.
+- `logging.error`: Used for error messages when exceptions occur in the application.
+
+Ensure to monitor the log output when running the application to gather insights into its operation and to troubleshoot any issues that may arise.

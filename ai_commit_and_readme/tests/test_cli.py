@@ -28,8 +28,8 @@ class TestCLI:
             "Usage.md": str(usage_file),
         }))
         # Patch subprocess.run to avoid actual git commands
-        monkeypatch.setattr(mod.subprocess, "run", lambda *a, **k: None)
-        monkeypatch.setattr(mod.subprocess, "check_output", lambda *a, **k: b"diff content")
+        monkeypatch.setattr(mod.subprocess, "run", lambda *_a, **_k: None)
+        monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff content")
         sys_argv = sys.argv
         sys.argv = ["prog", "enrich"]
         try:

@@ -1,5 +1,6 @@
 """Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
 import uuid
+from typing import ClassVar  # For annotating mutable class attributes in tests
 from unittest import mock
 
 import pytest
@@ -46,7 +47,7 @@ class TestHandlers:
         ctx = make_ctx(api_key=None)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", None)
-        monkeypatch.setattr("os.getenv", lambda key, default=None: None)
+        monkeypatch.setattr("os.getenv", lambda _key, _default=None: None)
         with pytest.raises(SystemExit):
             mod.check_api_key(ctx)
 
@@ -59,14 +60,14 @@ class TestHandlers:
     def test_get_diff(self, monkeypatch):
         """Should set diff from subprocess output."""
         ctx = make_ctx()
-        monkeypatch.setattr(mod.subprocess, "check_output", lambda *a, **k: b"diff")
+        monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff")
         mod.get_diff(ctx)
         assert ctx["diff"] == "diff"
 
     def test_fallback_large_diff(self, monkeypatch):
         """Should fallback to file list if diff is too large."""
         ctx = make_ctx(diff="x" * 100001)
-        monkeypatch.setattr(mod, "get_diff", lambda ctx, diff_args=None: ctx.update({"diff": "file1.py\nfile2.py\n"}))
+        monkeypatch.setattr(mod, "get_diff", lambda ctx, _diff_args=None: ctx.update({"diff": "file1.py\nfile2.py\n"}))
         mod.fallback_large_diff(ctx)
         assert "file1.py" in ctx["diff"]
 
@@ -98,7 +99,7 @@ class TestHandlers:
         ctx = make_ctx(**{filename: content})
         fake_enc = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
-        monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda model: fake_enc)
+        monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
         mod.print_file_info(ctx, filename, model_key)
         out = capsys.readouterr().out
         assert f"[INFO] {filename} size:" in out
@@ -115,14 +116,15 @@ class TestAIEnrich:
     def test_ai_enrich_success(self, monkeypatch):
         """Should set ai_suggestions from OpenAI response."""
         class FakeClient:
-            class chat:
-                class completions:
+            class Chat:
+                class Completions:
                     @staticmethod
-                    def create(model, messages):
+                    def create(_model, _messages):
                         class R:
-                            choices = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
+                            # 'choices' is a mutable class attribute, so we annotate it as ClassVar to satisfy linter RUF012
+                            choices: ClassVar = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
                         return R()
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key=None: FakeClient)
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda _api_key=None: FakeClient)
         self.ctx["README.md"] = "r"
         mod.ai_enrich(self.ctx, "README.md")
         assert self.ctx["ai_suggestions"]["README.md"] == "SUGGESTION"
@@ -130,12 +132,12 @@ class TestAIEnrich:
     def test_ai_enrich_exception(self, monkeypatch):
         """Should exit on OpenAI API exception."""
         class FakeClientFail:
-            class chat:
-                class completions:
+            class Chat:
+                class Completions:
                     @staticmethod
-                    def create(model, messages):
+                    def create(_model, _messages):
                         raise Exception("fail")
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key=None: FakeClientFail)
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda _api_key=None: FakeClientFail)
         self.ctx["README.md"] = "r"
         with pytest.raises(SystemExit):
             mod.ai_enrich(self.ctx, "README.md")
@@ -148,7 +150,7 @@ class TestFileOps:
         file_path = tmp_path / "README.md"
         file_path.write_text("start")
         called = {}
-        def fake_run(cmd):
+        def fake_run(_cmd):
             """Fake subprocess.run for git add."""
             called["ran"] = True
         monkeypatch.setattr(mod.subprocess, "run", fake_run)
@@ -160,11 +162,11 @@ class TestFileOps:
         assert "enriched and staged" in out
 
     def test_append_suggestion_and_stage_no_changes(self, tmp_path, monkeypatch, capsys):
-        """Should not append or stage if suggestion is 'NO CHANGES'."""
+        """Should not append or stage if suggestion is "NO CHANGES"."""
         file_path = tmp_path / "README.md"
         file_path.write_text("start")
         called = {}
-        def fake_run(cmd):
+        def fake_run(_cmd):
             """Fake subprocess.run for git add."""
             called["ran"] = True
         monkeypatch.setattr(mod.subprocess, "run", fake_run)

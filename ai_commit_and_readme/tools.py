@@ -44,12 +44,12 @@ def get_wiki_files():
 
 
 def get_prompt_template(section: str) -> str:
-    """Load a named prompt section from prompt.md by '## section' header (simple line scan)."""
+    """Load a named prompt section from prompt.md by \"## section\" header (simple line scan)."""
     try:
         with open(PROMPT_PATH, encoding="utf-8") as f:
             lines = f.readlines()
-    except FileNotFoundError:
-        raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}")
+    except FileNotFoundError as err:
+        raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}") from err
     section_header = f"## {section}"
     in_section = False
     section_lines = []
@@ -63,5 +63,5 @@ def get_prompt_template(section: str) -> str:
             section_lines.append(line)
     if section_lines:
         return "".join(section_lines).strip()
-    raise ValueError(f"Prompt section '{section}' not found in prompt.md")
+    raise ValueError(f'Prompt section "{section}" not found in prompt.md')
 

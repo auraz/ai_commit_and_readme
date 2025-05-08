@@ -4,6 +4,7 @@ AI Commit and README tool main module.
 Provides subcommands for enriching README.md with AI suggestions based on git diffs.
 """
 
+import logging
 import os
 import subprocess
 import sys
@@ -13,13 +14,15 @@ import tiktoken
 
 from .tools import chain_handler, get_prompt_template
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 @chain_handler
 def check_api_key(ctx):
     """Check for the presence of the OpenAI API key in context or environment."""
     ctx["api_key"] = ctx.get("api_key") or os.getenv("OPENAI_API_KEY")
     if not ctx["api_key"]:
-        print("OPENAI_API_KEY not set. Skipping README update.")
+        logging.warning("OPENAI_API_KEY not set. Skipping README update.")
         sys.exit(0)
 
 @chain_handler
@@ -31,49 +34,53 @@ def get_diff(ctx, diff_args=None):
 def check_diff_empty(ctx):
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
-        print("No staged changes detected. Nothing to enrich.")
+        logging.info("No staged changes detected. Nothing to enrich.")
         sys.exit(0)
 
 @chain_handler
 def print_diff_info(ctx):
     """Print the size of the diff in characters and tokens."""
-    print(f"[INFO] Diff size: {len(ctx['diff'])} characters")
+    logging.info(f"Diff size: {len(ctx['diff'])} characters")
     enc = tiktoken.encoding_for_model(ctx["model"])
     diff_tokens = len(enc.encode(ctx["diff"]))
-    print(f"[INFO] Diff size: {diff_tokens} tokens")
+    logging.info(f"Diff size: {diff_tokens} tokens")
     ctx["diff_tokens"] = diff_tokens
 
 @chain_handler
 def fallback_large_diff(ctx):
     """Fallback to file list if the diff is too large."""
     if len(ctx["diff"]) > 100000:
-        print("[WARNING] Diff is too large (>100000 characters). Falling back to 'git diff --cached --name-only'.")
+        logging.warning('Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
         get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
-        print(f"[INFO] Using file list as diff: {ctx['diff'].strip()}")
+        logging.info(f"Using file list as diff: {ctx['diff'].strip()}")
 
 @chain_handler
 def get_file(ctx, file_key, path_key):
     """Read the file at path_key and store its contents in ctx[file_key]."""
-    ctx[file_key] = open(path_key).read() if os.path.exists(path_key) else ""
+    if os.path.exists(path_key):
+        with open(path_key) as f:
+            ctx[file_key] = f.read()
+    else:
+        ctx[file_key] = ""
 
 @chain_handler
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file in characters and tokens."""
     content = ctx[file_key]
-    print(f"[INFO] {file_key} size: {len(content)} characters")
+    logging.info(f"{file_key} size: {len(content)} characters")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
-    print(f"[INFO] {file_key} size: {tokens} tokens")
+    logging.info(f"{file_key} size: {tokens} tokens")
     ctx[f"{file_key}_tokens"] = tokens
 
-def get_ai_response(prompt, model, ctx=None):
+def get_ai_response(prompt, ctx=None):
     """Return an OpenAI client response for the given prompt and model."""
     api_key = ctx["api_key"] if ctx and "api_key" in ctx else None
     client = openai.OpenAI(api_key=api_key)
     try:
         response = client.chat.completions.create(model=ctx["model"], messages=[{"role": "user", "content": prompt}])
     except Exception as e:
-        print(f"Error from OpenAI API: {e}")
+        logging.error(f"Error from OpenAI API: {e}")
         sys.exit(1)
     return response
 
@@ -81,7 +88,7 @@ def get_ai_response(prompt, model, ctx=None):
 def ai_enrich(ctx, filename):
     """Call the OpenAI API to get enrichment suggestions for any file."""
     prompt = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
-    response = get_ai_response(prompt, ctx["model"], ctx)
+    response = get_ai_response(prompt, ctx)
     ai_suggestion = response.choices[0].message.content.strip()
     ctx["ai_suggestions"][filename] = ai_suggestion
     return ctx
@@ -91,11 +98,11 @@ def select_wiki_articles(ctx):
     wiki_files = ctx["wiki_files"]
     article_list = "\n".join(wiki_files)
     prompt = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
-    response = get_ai_response(prompt, ctx["model"], ctx)
+    response = get_ai_response(prompt, ctx)
     filenames = [fn.strip() for fn in response.choices[0].message.content.split(",") if fn.strip()]
     valid_filenames = [fn for fn in filenames if fn in wiki_files]
     if not valid_filenames:
-        print("No valid wiki articles selected. Using Usage.md as fallback.")
+        logging.info("No valid wiki articles selected. Using Usage.md as fallback.")
         valid_filenames = ["Usage.md"]
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
@@ -118,10 +125,10 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
     if ai_suggestion and ai_suggestion != "NO CHANGES":
         with open(file_path, "a") as f:
             f.write(ai_suggestion)
-        print(f"{file_path} enriched and staged with AI suggestions for {label}.")
+        logging.info(f"{file_path} enriched and staged with AI suggestions for {label}.")
         subprocess.run(["git", "add", file_path])
     else:
-        print(f"No enrichment needed for {file_path}.")
+        logging.info(f"No enrichment needed for {file_path}.")
 
 def write_enrichment_outputs(ctx):
     """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
