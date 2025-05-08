@@ -111,3 +111,16 @@ Describe advanced workflows, options, or integrations here. For example, how to 
 
 10. **`append_suggestion_and_stage(file_path, ai_suggestion, label)`**:
     - Utilizes logging to indicate whether a file has been enriched and staged, or if no enrichment was needed.
+## Updated Sections for Usage.md
+
+### Makefile Commands
+
+#### usage
+
+To view the help information for the `ai_commit_and_readme` module, execute the following command:
+
+```bash
+make usage
+```
+
+This will run the command `python3 -m ai_commit_and_readme.main --help`, providing details on how to use the module.
