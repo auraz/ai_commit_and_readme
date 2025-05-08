@@ -1,3 +1,5 @@
+# ---
+# Prompt for enriching a single file (README.md, wiki article, etc.)
 You are an expert software documenter.
 Suggest additional content or improvements for the following {file_type} based on these code changes.
 Only output new or updated sections, not the full {file_type}.
@@ -9,3 +11,16 @@ Code changes:
 
 Current {file_type}:
 {{{file_var}}}
+
+# ---
+# Prompt for selecting which wiki articles to extend
+You are an expert software documenter.
+Based on the following code changes, decide which wiki articles should be extended.
+
+Code changes:
+{diff}
+
+Here are the available wiki articles (filenames):
+{article_list}
+
+Reply with a comma-separated list of filenames only, based on which articles should be extended. If none, reply with an empty string or 'NO CHANGES'.
