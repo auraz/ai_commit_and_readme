@@ -112,3 +112,12 @@ The code now includes logging functionality using Python's `logging` module inst
 - `logging.error`: Used for error messages when exceptions occur in the application.
 
 Ensure to monitor the log output when running the application to gather insights into its operation and to troubleshoot any issues that may arise.
+
+## Makefile Commands
+
+### Updated Commands
+- **superusage**: Replaces the previous `usage` command. This command provides help information for the `ai_commit_and_readme` module. Usage remains the same:
+
+  ```sh
+  make superusage
+  ```

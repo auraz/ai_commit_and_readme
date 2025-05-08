@@ -4,6 +4,7 @@ You are an expert software documenter.
 Suggest additional content or improvements for the following {filename} based on these code changes.
 If the code changes include updates to the Makefile, carefully review and update Usage.md or any documentation that describes project commands to ensure it reflects the latest Makefile changes.
 Only output new or updated sections, not the full {filename}.
+If you update an existing section, start with the section header (e.g., '## Section Title') followed by the new content for that section.
 If nothing should be changed, reply with 'NO CHANGES'.
 Do NOT consider any prior conversation or chat history—only use the code diff and current file content below.
 

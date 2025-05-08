@@ -8,6 +8,7 @@ import logging
 import os
 import subprocess
 import sys
+import re
 
 import openai
 import tiktoken
@@ -135,10 +136,27 @@ def enrich_selected_wikis(ctx):
 
 
 def append_suggestion_and_stage(file_path, ai_suggestion, label):
-    """Append AI suggestion to file and stage it with git."""
+    """Enrich the file by replacing the relevant section if possible, otherwise append, and stage it with git."""
     if ai_suggestion and ai_suggestion != "NO CHANGES":
-        with open(file_path, "a") as f:
-            f.write(ai_suggestion)
+        # Try to find a section header in the suggestion (e.g., '## Section Header')
+        section_header_match = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
+        if section_header_match:
+            section_header = section_header_match.group(1)
+            with open(file_path, "r", encoding="utf-8") as f:
+                file_content = f.read()
+            # Replace the section if it exists, otherwise append
+            pattern = rf"({re.escape(section_header)}\n)(.*?)(?=\n## |\Z)"
+            replacement = f"\\1{ai_suggestion.strip().split('\n', 1)[1].strip()}\n"
+            new_content, count = re.subn(pattern, replacement, file_content, flags=re.DOTALL)
+            if count == 0:
+                # Section not found, append at the end
+                new_content = file_content + f"\n\n{ai_suggestion.strip()}\n"
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+        else:
+            # No section header, just append
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(ai_suggestion)
         logging.info(f"{file_path} enriched and staged with AI suggestions for {label}.")
         subprocess.run(["git", "add", file_path])
     else:
