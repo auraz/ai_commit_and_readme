@@ -9,8 +9,6 @@ This project uses a Makefile to simplify common development tasks. Below are the
 | Command         | Description                                                                                   |
 |-----------------|-----------------------------------------------------------------------------------------------|
 | `make install`  | Create a virtual environment, install Python dependencies, and install `aicommit` (via Homebrew) |
-| `make lint`     | Run code linting with [ruff](https://github.com/astral-sh/ruff)                              |
-| `make format`   | Auto-format code with ruff                                                                   |
 | `make test`     | Run tests with pytest                                                                        |
 | `make clean`    | Remove build artifacts, caches, and `__pycache__` directories                                |
 | `make cm`       | Stage all changes, run `ai-commit-and-readme`, run `aicommit`, and push                      |
@@ -26,18 +24,6 @@ This project uses a Makefile to simplify common development tasks. Below are the
 make install
 ```
 - Sets up a virtual environment, installs Python dependencies, and installs `aicommit`.
-
-### Linting
-```sh
-make lint
-```
-- Runs [ruff](https://github.com/astral-sh/ruff) to check code style and quality.
-
-### Formatting
-```sh
-make format
-```
-- Automatically formats your code using ruff.
 
 ### Testing
 ```sh
