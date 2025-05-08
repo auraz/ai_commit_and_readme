@@ -75,3 +75,4 @@ venv/
 
 # Environment variables
 .env
+.editorconfig
