@@ -12,18 +12,9 @@ def main():
     Command-line interface for the AI Commit and README tool.
     """
     parser = argparse.ArgumentParser(description="AI Commit and README tool")
-    parser.add_argument("command", nargs="?", default="enrichc", help="Subcommand to run (default: enrich)", choices=["enrich"])
-
+    parser.add_argument("command", nargs="?", default="enrich", help="Default command", choices=["enrich"])
     args = parser.parse_args()
-
-    command_dispatcher = {
-        "enrich": lambda: enrich(
-            readme_path=args.readme,
-            api_key=args.api_key,
-            model=args.model,
-        ),
-    }
-
+    command_dispatcher = {"enrich": enrich}
     command_dispatcher[args.command]()
 
 

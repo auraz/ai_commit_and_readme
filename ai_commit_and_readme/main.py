@@ -131,8 +131,9 @@ def write_enrichment_outputs(ctx):
         file_path = ctx["file_paths"]["wiki"][filename]
         append_suggestion_and_stage(file_path, ai_suggestion, filename)
 
-def enrich_wiki_and_readme():
+def enrich():
     """Handler chain for enriching wiki and readme (multi-wiki support)"""
+    ctx = {}
     for handler in [
         check_api_key,
         get_diff,
@@ -142,7 +143,7 @@ def enrich_wiki_and_readme():
         get_file,
         print_file_info,
         select_wiki_articles,  # plural
-        enrich_readme,         # enrich README before wikis
+        enrich_readme,
         enrich_selected_wikis,
     ]:
         ctx = handler(ctx)
