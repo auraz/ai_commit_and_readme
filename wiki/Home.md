@@ -1,10 +1,3 @@
-# ai_commit_and_readme
-
-> **Documentation Workflow:**
-> - All detailed documentation lives in the wiki.
-> - The README is a summary with links to the wiki.
-> - When updating documentation, always update the relevant wiki page(s) and only add summaries/links to the README.
-
 Welcome to the **ai_commit_and_readme** wiki!
 
 - [Installation](Installation)
