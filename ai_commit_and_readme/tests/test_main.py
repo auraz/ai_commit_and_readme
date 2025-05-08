@@ -1,11 +1,10 @@
 """Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
-import sys
-import pytest
-from unittest import mock
-import ai_commit_and_readme.main as mod
-import ai_commit_and_readme.cli as cli_mod
-import ai_commit_and_readme.tools as tools_mod
 import uuid
+from unittest import mock
+
+import pytest
+
+import ai_commit_and_readme.main as mod
 
 
 def make_ctx(**kwargs):

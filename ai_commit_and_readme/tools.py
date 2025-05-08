@@ -1,9 +1,11 @@
 """
 Utility functions for documentation enrichment and other helpers.
 """
-import glob, os
+import glob
+import os
 from pathlib import Path
-from .constants import README_PATH, WIKI_PATH, API_KEY, WIKI_URL, WIKI_URL_BASE, MODEL
+
+from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
 PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
@@ -11,14 +13,14 @@ PROMPT_PATH = Path(__file__).parent / "prompt.md"
 def chain_handler(func):
     """Decorator to ensure handler returns ctx for chaining and populates ctx with constants if not set."""
     def wrapper(ctx, *args, **kwargs):
-        if 'chain_handler_initialized' not in ctx:
+        if "chain_handler_initialized" not in ctx:
             defaults = [
-                ('readme_path', README_PATH),
-                ('wiki_path', WIKI_PATH),
-                ('api_key', API_KEY),
-                ('wiki_url', WIKI_URL),
-                ('wiki_url_base', WIKI_URL_BASE),
-                ('model', MODEL),
+                ("readme_path", README_PATH),
+                ("wiki_path", WIKI_PATH),
+                ("api_key", API_KEY),
+                ("wiki_url", WIKI_URL),
+                ("wiki_url_base", WIKI_URL_BASE),
+                ("model", MODEL),
             ]
             for key, value in defaults:
                 ctx[key] = value
@@ -27,7 +29,7 @@ def chain_handler(func):
             ctx["ai_suggestions"] = {"README.md": None, "wiki": None}
             ctx["wiki_files"] = wiki_files
             ctx["wiki_file_paths"] = wiki_file_paths
-            ctx['chain_handler_initialized'] = True
+            ctx["chain_handler_initialized"] = True
         func(ctx, *args, **kwargs)
         return ctx
     return wrapper

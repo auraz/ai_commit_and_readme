@@ -4,16 +4,14 @@ AI Commit and README tool main module.
 Provides subcommands for enriching README.md with AI suggestions based on git diffs.
 """
 
-import argparse
-import openai
-import subprocess
 import os
+import subprocess
 import sys
+
+import openai
 import tiktoken
-import glob
-from pathlib import Path
+
 from .tools import chain_handler, get_prompt_template
-from .constants import README_PATH, WIKI_PATH
 
 
 @chain_handler
@@ -82,7 +80,7 @@ def get_ai_response(prompt, model, ctx=None):
 @chain_handler
 def ai_enrich(ctx, filename):
     """Call the OpenAI API to get enrichment suggestions for any file."""
-    prompt = get_prompt_template('enrich').format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
+    prompt = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
     response = get_ai_response(prompt, ctx["model"], ctx)
     ai_suggestion = response.choices[0].message.content.strip()
     ctx["ai_suggestions"][filename] = ai_suggestion
@@ -92,7 +90,7 @@ def select_wiki_articles(ctx):
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
     wiki_files = ctx["wiki_files"]
     article_list = "\n".join(wiki_files)
-    prompt = get_prompt_template('select_articles').format(diff=ctx["diff"], article_list=article_list)
+    prompt = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
     response = get_ai_response(prompt, ctx["model"], ctx)
     filenames = [fn.strip() for fn in response.choices[0].message.content.split(",") if fn.strip()]
     valid_filenames = [fn for fn in filenames if fn in wiki_files]

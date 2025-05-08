@@ -7,7 +7,7 @@ install:
 	brew install aicommit
 
 lint:
-	ruff check .
+	ruff check --fix .
 
 format:
 	ruff format

@@ -1,8 +1,9 @@
 import sys
-import pytest
-import ai_commit_and_readme.main as mod
+
 import ai_commit_and_readme.cli as cli_mod
+import ai_commit_and_readme.main as mod
 import ai_commit_and_readme.tools as tools_mod
+
 
 class TestCLI:
     """Test CLI and command dispatch logic in ai_commit_and_readme.main."""
@@ -22,7 +23,7 @@ class TestCLI:
         monkeypatch.setattr(mod, "README_PATH", str(readme_path))
         monkeypatch.setattr(tools_mod, "WIKI_PATH", str(wiki_dir))
         monkeypatch.setattr(tools_mod, "README_PATH", str(readme_path))
-        monkeypatch.setattr(tools_mod, 'get_wiki_files', lambda: (["API.md", "Usage.md"], {
+        monkeypatch.setattr(tools_mod, "get_wiki_files", lambda: (["API.md", "Usage.md"], {
             "API.md": str(api_file),
             "Usage.md": str(usage_file),
         }))

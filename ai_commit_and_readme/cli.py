@@ -4,6 +4,7 @@ CLI entry point for AI Commit and README tool.
 """
 
 import argparse
+
 from .main import enrich
 
 
