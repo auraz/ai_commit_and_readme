@@ -112,25 +112,24 @@ def enrich_selected_wikis(ctx):
         ctx["ai_suggestions"]["wiki"][filename] = suggestion_ctx["ai_suggestions"][filename]
     return ctx
 
-def write_enrichment_outputs(ctx):
-    """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
-    if ctx["ai_suggestions"].get("readme"):
-        file_path = ctx["file_paths"]["readme"]
-        ai_suggestion = ctx["ai_suggestions"]["readme"]
+def append_suggestion_and_stage(file_path, ai_suggestion, label):
+    """Append AI suggestion to file and stage it with git."""
+    if ai_suggestion and ai_suggestion != "NO CHANGES":
         with open(file_path, "a") as f:
             f.write(ai_suggestion)
-        print(f"{file_path} enriched and staged with AI suggestions for README.")
+        print(f"{file_path} enriched and staged with AI suggestions for {label}.")
         subprocess.run(["git", "add", file_path])
-    # Wikis
+    else:
+        print(f"No enrichment needed for {file_path}.")
+
+def write_enrichment_outputs(ctx):
+    """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
+    file_path = ctx["file_paths"]["readme"]
+    ai_suggestion = ctx["ai_suggestions"]["readme"]
+    append_suggestion_and_stage(file_path, ai_suggestion, "README")
     for filename, ai_suggestion in ctx["ai_suggestions"].get("wiki", {}).items():
         file_path = ctx["file_paths"]["wiki"][filename]
-        if ai_suggestion and ai_suggestion != "NO CHANGES":
-            with open(file_path, "a") as f:
-                f.write(ai_suggestion)
-            print(f"{file_path} enriched and staged with AI suggestions for {filename}.")
-            subprocess.run(["git", "add", file_path])
-        else:
-            print(f"No enrichment needed for {file_path}.")
+        append_suggestion_and_stage(file_path, ai_suggestion, filename)
 
 def enrich_wiki_and_readme():
     """Handler chain for enriching wiki and readme (multi-wiki support)"""
