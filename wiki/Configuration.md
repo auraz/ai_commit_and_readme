@@ -62,3 +62,8 @@ MODEL=gpt-4o
 ---
 
 For more advanced configuration, see the [Usage](Usage) and [FAQ](FAQ) pages.
+
+
+## 🛠️ Makefile Commands Overview
+
+(Output the new or updated content for the "Makefile Commands Overview" section here.)

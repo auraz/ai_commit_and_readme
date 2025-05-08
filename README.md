@@ -134,3 +134,27 @@ To run this command, use:
 ```bash
 make new_command
 ```
+
+
+## 🛠️ Makefile Commands Overview
+
+```plaintext
+# List of key commands added or modified in the Makefile
+
+# Build the project:
+make build
+
+# Run all unit tests:
+make test
+
+# Clean up the build:
+make clean
+
+# Install dependencies:
+make deps
+
+# Generate project documentation:
+make docs
+
+# Please refer to the Makefile for the complete list of commands and their descriptions.
+```

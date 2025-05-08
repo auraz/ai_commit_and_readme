@@ -5,17 +5,7 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-
-| Command         | Description                                                                                   |
-|-----------------|-----------------------------------------------------------------------------------------------|
-| `make install`  | Create a virtual environment, install Python dependencies, and install `aicommit` (via Homebrew) |
-| `make test`     | Run tests with pytest                                                                        |
-| `make clean`    | Remove build artifacts, caches, and `__pycache__` directories                                |
-| `make cm`       | Stage all changes, run `ai-commit-and-readme`, run `aicommit`, and push                      |
-| `make coverage` | Run tests with coverage, show report, and generate HTML report                               |
-| `make deploy-wiki` | Deploy the contents of the `wiki/` directory to the GitHub Wiki                           |
-
----
+NO CHANGES
 
 ## 🚀 Common Workflows
 
