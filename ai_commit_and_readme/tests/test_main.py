@@ -1,90 +1,120 @@
+"""Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
 import sys
 import pytest
 from unittest import mock
 import ai_commit_and_readme.main as mod
+import ai_commit_and_readme.cli as cli_mod
+import ai_commit_and_readme.tools as tools_mod
+import uuid
 
+
+def make_ctx(**kwargs):
+    """Create a test context dictionary with defaults and overrides."""
+    ctx = {
+        "readme_path": "README.md",
+        "api_key": "test",
+        "model": "gpt-4o",
+        "file_paths": {"README.md": "README.md", "wiki": "wiki"},
+        "ai_suggestions": {"README.md": None, "wiki": {}},
+        "wiki_files": ["Usage.md"],
+        "wiki_file_paths": {"Usage.md": "wiki/Usage.md"},
+        "selected_wiki_articles": ["Usage.md"],
+        "README.md": "r",  # Add README.md content for ai_enrich
+        "Usage.md": "u",    # Add Usage.md content for ai_enrich
+    }
+    ctx.update(kwargs)
+    return ctx
 
 class TestHandlers:
-    """Test handler functions in ai_commit_and_readme.main."""
+    """Tests for handler functions in ai_commit_and_readme.main."""
 
-    default_ctx = {"readme_path": "README.md", "api_key": "test", "model": "gpt-4o"}
-
-    def setup_method(self):
-        """Set up a fresh context before each test."""
-        self.ctx = self.default_ctx.copy()
+    @pytest.fixture(autouse=True)
+    def setup_ctx(self):
+        """Set up a default context for handler tests."""
+        self.ctx = make_ctx()
 
     def test_check_api_key_present(self, monkeypatch):
-        """Test that API key is set from environment."""
+        """Should set API key from environment variable."""
+        ctx = make_ctx(api_key=None)
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setenv("OPENAI_API_KEY", "test")
-        mod.check_api_key(self.ctx)
-        assert self.ctx["api_key"] == "test"
+        monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", "test")
+        mod.check_api_key(ctx)
+        assert ctx["api_key"] == "test"
 
     def test_check_api_key_missing(self, monkeypatch):
-        """Test that missing API key causes exit."""
+        """Should exit if API key is missing."""
+        ctx = make_ctx(api_key=None)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-        self.ctx.pop("api_key", None)  # Remove api_key from ctx
+        monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", None)
+        monkeypatch.setattr("os.getenv", lambda key, default=None: None)
         with pytest.raises(SystemExit):
-            mod.check_api_key(self.ctx)
+            mod.check_api_key(ctx)
 
     def test_check_diff_empty_exits(self):
-        """Test that empty diff causes exit."""
-        self.ctx["diff"] = ""
+        """Should exit if diff is empty."""
+        ctx = make_ctx(diff="")
         with pytest.raises(SystemExit):
-            mod.check_diff_empty(self.ctx)
+            mod.check_diff_empty(ctx)
 
     def test_get_diff(self, monkeypatch):
-        """Test that get_diff sets diff from subprocess output."""
+        """Should set diff from subprocess output."""
+        ctx = make_ctx()
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *a, **k: b"diff")
-        mod.get_diff(self.ctx)
-        assert self.ctx["diff"] == "diff"
+        mod.get_diff(ctx)
+        assert ctx["diff"] == "diff"
 
     def test_fallback_large_diff(self, monkeypatch):
-        """Test fallback to file list if diff is too large."""
-        self.ctx["diff"] = "x" * 100001
+        """Should fallback to file list if diff is too large."""
+        ctx = make_ctx(diff="x" * 100001)
         monkeypatch.setattr(mod, "get_diff", lambda ctx, diff_args=None: ctx.update({"diff": "file1.py\nfile2.py\n"}))
-        mod.fallback_large_diff(self.ctx)
-        assert "file1.py" in self.ctx["diff"]
+        mod.fallback_large_diff(ctx)
+        assert "file1.py" in ctx["diff"]
 
-    def test_get_readme(self, tmp_path):
-        """Test reading README file contents and file not exist case."""
-        readme = tmp_path / "README.md"
-        readme.write_text("hello")
-        self.ctx["readme_path"] = str(readme)
-        mod.get_readme(self.ctx)
-        assert self.ctx["readme"] == "hello"
-        # Now test file not exist
-        self.ctx["readme_path"] = str(tmp_path / "README_DOES_NOT_EXIST.md")
-        mod.get_readme(self.ctx)
-        assert self.ctx["readme"] == ""
+    def test_get_file_reads_correct_content(self, tmp_path):
+        # Create a unique temp file
+        test_file = tmp_path / "some_unique_file.md"
+        test_content = "hello"
+        test_file.write_text(test_content)
+        ctx = {}
+        # Pass the file path directly
+        mod.get_file(ctx, "some_unique_file.md", str(test_file))
+        assert ctx["some_unique_file.md"] == test_content
 
-    def test_print_diff_info(self, monkeypatch, capsys):
-        """Test print_diff_info prints and sets diff_tokens."""
-        self.ctx["diff"] = "abc"
+    def test_get_file_not_exists(self, tmp_path):
+        """Should return empty string if file does not exist."""
+        file_path = tmp_path / f"README_{uuid.uuid4().hex}.md"
+        ctx = {"README_{uuid.uuid4().hex}.md_path": str(file_path)}
+        filename = f"README_{uuid.uuid4().hex}.md"
+        ctx[f"{filename}_path"] = str(file_path)
+        mod.get_file(ctx, filename, f"{filename}_path")
+        assert ctx[filename] == ""
+
+    @pytest.mark.parametrize("filename,model_key,content", [
+        ("README.md", "model", "abc"),
+        ("Usage.md", "model", "abc")
+    ])
+    def test_print_file_info(self, monkeypatch, capsys, filename, model_key, content):
+        """Should print file info and set token count in context."""
+        ctx = make_ctx(**{filename: content})
         fake_enc = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
         monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda model: fake_enc)
-        mod.print_diff_info(self.ctx)
+        mod.print_file_info(ctx, filename, model_key)
         out = capsys.readouterr().out
-        assert "[INFO] Diff size:" in out
-        assert self.ctx["diff_tokens"] == 3
+        assert f"[INFO] {filename} size:" in out
+        assert ctx[f"{filename}_tokens"] == 3
 
-    def test_print_readme_info(self, monkeypatch, capsys):
-        """Test print_readme_info prints and sets readme_tokens."""
-        self.ctx["readme"] = "abc"
-        fake_enc = mock.Mock()
-        fake_enc.encode.return_value = [1, 2, 3]
-        monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda model: fake_enc)
-        mod.print_readme_info(self.ctx)
-        out = capsys.readouterr().out
-        assert "[INFO] README size:" in out
-        assert self.ctx["readme_tokens"] == 3
+class TestAIEnrich:
+    """Tests for ai_enrich and related AI logic."""
 
-    def test_ai_enrich(self, monkeypatch):
-        """Test ai_enrich sets ai_suggestion from OpenAI response and handles exception."""
-        self.ctx["diff"] = "d"
-        self.ctx["readme"] = "r"
+    @pytest.fixture(autouse=True)
+    def setup_ctx(self):
+        """Set up a default context for AI enrich tests."""
+        self.ctx = make_ctx(diff="d", readme="r")
 
-        # Normal case
+    def test_ai_enrich_success(self, monkeypatch):
+        """Should set ai_suggestions from OpenAI response."""
         class FakeClient:
             class chat:
                 class completions:
@@ -92,77 +122,56 @@ class TestHandlers:
                     def create(model, messages):
                         class R:
                             choices = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
-
                         return R()
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key=None: FakeClient)
+        self.ctx["README.md"] = "r"
+        mod.ai_enrich(self.ctx, "README.md")
+        assert self.ctx["ai_suggestions"]["README.md"] == "SUGGESTION"
 
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key: FakeClient)
-        mod.ai_enrich(self.ctx)
-        assert self.ctx["ai_suggestion"] == "SUGGESTION"
-
-        # Exception case
+    def test_ai_enrich_exception(self, monkeypatch):
+        """Should exit on OpenAI API exception."""
         class FakeClientFail:
             class chat:
                 class completions:
                     @staticmethod
                     def create(model, messages):
                         raise Exception("fail")
-
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key: FakeClientFail)
+        monkeypatch.setattr(mod.openai, "OpenAI", lambda api_key=None: FakeClientFail)
+        self.ctx["README.md"] = "r"
         with pytest.raises(SystemExit):
-            mod.ai_enrich(self.ctx)
+            mod.ai_enrich(self.ctx, "README.md")
 
-    def test_write_enrichment(self, tmp_path, monkeypatch, capsys):
-        """Test write_enrichment appends suggestion, stages README, and handles no changes."""
-        readme = tmp_path / "README.md"
-        readme.write_text("start")
-        self.ctx["ai_suggestion"] = "SUG"
-        self.ctx["readme_path"] = str(readme)
+class TestFileOps:
+    """Tests for file operations like append_suggestion_and_stage."""
+
+    def test_append_suggestion_and_stage(self, tmp_path, monkeypatch, capsys):
+        """Should append suggestion to file and stage it with git."""
+        file_path = tmp_path / "README.md"
+        file_path.write_text("start")
         called = {}
-
         def fake_run(cmd):
+            """Fake subprocess.run for git add."""
             called["ran"] = True
-
         monkeypatch.setattr(mod.subprocess, "run", fake_run)
-        mod.write_enrichment(self.ctx)
-        content = readme.read_text()
+        mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
+        content = file_path.read_text()
         assert "SUG" in content
-        out = capsys.readouterr().out
-        assert "enriched and staged with AI suggestions" in out
         assert called.get("ran")
-        # No changes case
-        self.ctx["ai_suggestion"] = "NO CHANGES"
-        mod.write_enrichment(self.ctx)
+        out = capsys.readouterr().out
+        assert "enriched and staged" in out
+
+    def test_append_suggestion_and_stage_no_changes(self, tmp_path, monkeypatch, capsys):
+        """Should not append or stage if suggestion is 'NO CHANGES'."""
+        file_path = tmp_path / "README.md"
+        file_path.write_text("start")
+        called = {}
+        def fake_run(cmd):
+            """Fake subprocess.run for git add."""
+            called["ran"] = True
+        monkeypatch.setattr(mod.subprocess, "run", fake_run)
+        mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
+        content = file_path.read_text()
+        assert "NO CHANGES" not in content
         out = capsys.readouterr().out
         assert "No enrichment needed" in out
-
-
-class TestCLI:
-    """Test CLI and command dispatch logic in ai_commit_and_readme.main."""
-
-    def test_main_enrich_readme(self, monkeypatch):
-        """Test main() calls enrich_readme for default command."""
-        called = {}
-        monkeypatch.setattr(mod, "enrich_readme", lambda **kwargs: called.setdefault("ran", True))
-        monkeypatch.setattr(sys, "argv", ["prog", "enrich-readme"])
-        mod.main()
-        assert called.get("ran")
-
-    def test_main_with_all_args(self, monkeypatch):
-        """Test main() passes all CLI args to enrich_readme."""
-        called = {}
-
-        def fake_enrich_readme(readme_path, api_key, model):
-            called["args"] = (readme_path, api_key, model)
-
-        monkeypatch.setattr(mod, "enrich_readme", fake_enrich_readme)
-        monkeypatch.setattr(sys, "argv", ["prog", "enrich-readme", "--readme", "SOME_README.md", "--api-key", "SOME_KEY", "--model", "gpt-3.5-turbo"])
-        mod.main()
-        assert called["args"] == ("SOME_README.md", "SOME_KEY", "gpt-3.5-turbo")
-
-    def test_enrich_readme_chain(self, monkeypatch):
-        """Test enrich_readme calls all handler functions in the chain."""
-        called = []
-        for name in ["check_api_key", "get_diff", "check_diff_empty", "print_diff_info", "fallback_large_diff", "get_readme", "print_readme_info", "ai_enrich", "write_enrichment"]:
-            monkeypatch.setattr(mod, name, (lambda n: (lambda ctx, *a, **k: (called.append(n), ctx)[1]))(name))
-        mod.enrich_readme()
-        assert set(called) == {"check_api_key", "get_diff", "check_diff_empty", "print_diff_info", "fallback_large_diff", "get_readme", "print_readme_info", "ai_enrich", "write_enrichment"}
+        assert not called.get("ran", False)

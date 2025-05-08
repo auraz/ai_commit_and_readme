@@ -76,3 +76,4 @@ venv/
 # Environment variables
 .env
 .editorconfig
+ruff.toml

@@ -6,10 +6,6 @@ from pathlib import Path
 from .constants import README_PATH, WIKI_PATH, API_KEY, WIKI_URL, WIKI_URL_BASE, MODEL
 
 PROMPT_PATH = Path(__file__).parent / "prompt.md"
-try:
-    PROMPT_TEMPLATE = PROMPT_PATH.read_text(encoding="utf-8")
-except FileNotFoundError:
-    raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}")
 
 
 def chain_handler(func):
@@ -26,9 +22,9 @@ def chain_handler(func):
             ]
             for key, value in defaults:
                 ctx[key] = value
-            ctx["file_paths"] = {"readme": README_PATH, "wiki": WIKI_PATH}
-            ctx["ai_suggestions"] = {"readme": None, "wiki": None}
             wiki_files, wiki_file_paths = get_wiki_files()
+            ctx["file_paths"] = {"README.md": README_PATH, "wiki": wiki_file_paths}
+            ctx["ai_suggestions"] = {"README.md": None, "wiki": None}
             ctx["wiki_files"] = wiki_files
             ctx["wiki_file_paths"] = wiki_file_paths
             ctx['chain_handler_initialized'] = True
@@ -46,13 +42,24 @@ def get_wiki_files():
 
 
 def get_prompt_template(section: str) -> str:
-    """ Load a named prompt section from prompt.md by section header, section: 'enrich' or 'select_wiki_articles'."""
-    with open(PROMPT_PATH, encoding="utf-8") as f:
-        content = f.read()
-    sections = content.split('# ---')
-    for s in sections:
-        if section == 'enrich' and 'enriching a single file' in s:
-            return s.strip()
-        elif section == 'select_wiki_articles' and 'selecting which wiki articles' in s:
-            return s.strip()
+    """Load a named prompt section from prompt.md by '## section' header (simple line scan)."""
+    try:
+        with open(PROMPT_PATH, encoding="utf-8") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}")
+    section_header = f"## {section}"
+    in_section = False
+    section_lines = []
+    for line in lines:
+        if line.strip().startswith("## "):
+            if in_section:
+                break
+            in_section = line.strip() == section_header
+            continue
+        if in_section:
+            section_lines.append(line)
+    if section_lines:
+        return "".join(section_lines).strip()
     raise ValueError(f"Prompt section '{section}' not found in prompt.md")
+
