@@ -171,8 +171,8 @@ def write_wiki_enrichment(ctx):
                 new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
             with open(readme_path, "w") as f:
                 f.write(new_content)
-            print(f"[INFO] README updated with summary and link to wiki.")
-            print(f"[INFO] README updated with summary and link to wiki.")
+            print("[INFO] README updated with summary and link to wiki.")
+            print("[INFO] README updated with summary and link to wiki.")
     else:
         print("No enrichment needed for wiki.")
 
@@ -204,9 +204,6 @@ def select_wiki_article(ctx):
     wiki_files = [f for f in glob.glob(f"{wiki_dir}/*.md") if not f.endswith('Home.md')]
     article_list = '\n'.join([os.path.basename(f) for f in wiki_files])
     prompt = (
-        f"Here are the available wiki articles (filenames):\n{article_list}\n"
-        "Based on the code changes, which article should be extended? Reply with the filename only.\n" +
-        AI_ENRICH_PROMPT
         f"Here are the available wiki articles (filenames):\n{article_list}\n"
         "Based on the code changes, which article should be extended? Reply with the filename only.\n" +
         AI_ENRICH_PROMPT
@@ -293,7 +290,7 @@ def enrich_all(wiki_dir, wiki_url_base, readme_path="README.md", api_key=None, m
             new_content = content + f"\n## {section}\n\n{summary}\n\nSee the [full {section} guide in the Wiki]({wiki_url}).\n"
         with open(readme_path, "w") as f:
             f.write(new_content)
-        print(f"[INFO] README updated with summary and link to wiki.")
+        print("[INFO] README updated with summary and link to wiki.")
     else:
         print("No enrichment needed for wiki or README.")
 
@@ -340,7 +337,6 @@ def main():
         nargs="?",
         default="enrich-readme",
         help="Subcommand to run (default: enrich-readme)",
-        choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto", "enrich-all"],
         choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto", "enrich-all"],
     )
     parser.add_argument(
@@ -406,13 +402,6 @@ def main():
             model=args.model,
         ),
         "enrich-wiki-auto": lambda: enrich_wiki_auto(
-            wiki_dir=args.wiki_dir,
-            wiki_url_base=args.wiki_url_base,
-            readme_path=args.readme,
-            api_key=args.api_key,
-            model=args.model,
-        ),
-        "enrich-all": lambda: enrich_all(
             wiki_dir=args.wiki_dir,
             wiki_url_base=args.wiki_url_base,
             readme_path=args.readme,

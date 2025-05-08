@@ -1,20 +1,13 @@
 .PHONY: install lint format test clean aicommit venv cm coverage docs deploy-wiki
 
 install:
+	python3 -m venv .venv
+	source .venv/bin/activate
 	pip install .
-	make aicommit
-
-aicommit:
 	brew install aicommit
 
 lint:
 	ruff check .
-
-format:
-	ruff format ai_commit_and_readme
-
-test:
-	pytest
 
 clean:
 	rm -rf dist build *.egg-info .pytest_cache .mypy_cache .ruff_cache
@@ -26,8 +19,6 @@ cm:
 	aicommit
 	git push
 
-venv:
-	python3 -m venv .venv
 
 coverage:
 	coverage run -m pytest
