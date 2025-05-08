@@ -11,45 +11,8 @@ import sys
 import tiktoken
 import glob
 from pathlib import Path
+from .tools import get_enrich_prompt, chain_handler
 
-WIKI_PROMPT = (
-    "You are an expert software documenter. "
-    "Suggest additional content or improvements for the following Wiki article based on these code changes. "
-    "Only output new or updated sections, not the full article. "
-    "If nothing should be changed, reply with 'NO CHANGES'. "
-    "Do NOT consider any prior conversation or chat history—only use the code diff and current Wiki content below.\n\n"
-    "Code changes:\n{diff}\n\nCurrent Wiki article:\n{wiki}\n"
-)
-"""
-WIKI_PROMPT: Used to instruct the AI to suggest improvements for a Wiki article based on code changes.
-"""
-
-README_PROMPT = (
-    "You are an expert software documenter. "
-    "Suggest additional content or improvements for the following README.md based on these code changes. "
-    "Only output new or updated sections, not the full README. "
-    "If nothing should be changed, reply with 'NO CHANGES'. "
-    "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
-    "Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
-)
-"""
-README_PROMPT: Used to instruct the AI to suggest improvements for the README.md based on code changes.
-"""
-
-AI_ENRICH_PROMPT = (
-    "You are an expert software documenter. "
-    "Suggest additional content or improvements for the following README.md based on these code changes. "
-    "Only output new or updated sections, not the full README. "
-    "If nothing should be changed, reply with 'NO CHANGES'. "
-    "Do NOT consider any prior conversation or chat history—only use the code diff and README below.\n\n"
-    "Code changes:\n{diff}\n\nCurrent README:\n{readme}\n"
-)
-def chain_handler(func):
-    """Decorator to ensure handler returns ctx for chaining."""
-    def wrapper(ctx, *args, **kwargs):
-        func(ctx, *args, **kwargs)
-        return ctx
-    return wrapper
 
 @chain_handler
 def check_api_key(ctx):
@@ -87,32 +50,26 @@ def fallback_large_diff(ctx):
         print(f"[INFO] Using file list as diff: {ctx['diff'].strip()}")
 
 @chain_handler
-def get_readme(ctx):
-    """Read the README file and store its contents in context."""
-    path = ctx['readme_path']
-    ctx['readme'] = open(path).read() if os.path.exists(path) else ""
+def get_file(ctx, file_key, path_key):
+    """Read the file at ctx[path_key] and store its contents in ctx[file_key]."""
+    path = ctx[path_key]
+    ctx[file_key] = open(path).read() if os.path.exists(path) else ""
 
 @chain_handler
-def print_readme_info(ctx):
-    """Print the size of the README in characters and tokens."""
-    print(f"[INFO] README size: {len(ctx['readme'])} characters")
-    enc = tiktoken.encoding_for_model(ctx['model'])
-    readme_tokens = len(enc.encode(ctx['readme']))
-    print(f"[INFO] README size: {readme_tokens} tokens")
-    ctx['readme_tokens'] = readme_tokens
+def print_file_info(ctx, file_key, model_key):
+    """Print the size of the file in characters and tokens."""
+    content = ctx[file_key]
+    print(f"[INFO] {file_key} size: {len(content)} characters")
+    enc = tiktoken.encoding_for_model(ctx[model_key])
+    tokens = len(enc.encode(content))
+    print(f"[INFO] {file_key} size: {tokens} tokens")
+    ctx[f'{file_key}_tokens'] = tokens
 
 @chain_handler
 def ai_enrich(ctx):
     """Call the OpenAI API to get README enrichment suggestions."""
-    prompt = AI_ENRICH_PROMPT.format(diff=ctx['diff'], readme=ctx['readme'])
-    client = openai.OpenAI(api_key=ctx['api_key'])
-    try:
-        response = client.chat.completions.create(
-            model=ctx['model'], messages=[{"role": "user", "content": prompt}]
-        )
-    except Exception as e:
-        print(f"Error from OpenAI API: {e}")
-        sys.exit(1)
+    prompt = get_enrich_prompt('README.md', 'readme').format(diff=ctx['diff'], readme=ctx['readme'])
+    response = get_ai_response(prompt, ctx['model'])
     ai_suggestion = response.choices[0].message.content.strip()
     ctx['ai_suggestion'] = ai_suggestion
 
@@ -127,41 +84,64 @@ def write_enrichment(ctx):
         subprocess.run(["git", "add", ctx['readme_path']])
     else: print("No enrichment needed for README.md.")
 
-def enrich_readme(readme_path="README.md", api_key=None, model="gpt-4o"):
-    """Enrich the README.md file with AI-generated suggestions using a handler chain."""
+def get_ai_response(prompt, model):
+    """Return an OpenAI client response for the given prompt and model."""
+    client = openai.OpenAI(api_key=api_key)
+    try:
+        response = client.chat.completions.create(
+            model=ctx['model'], messages=[{"role": "user", "content": prompt}]
+        )
+    except Exception as e:
+        print(f"Error from OpenAI API: {e}")
+        sys.exit(1)
+
+def enrich_docs(readme_path=None, wiki_path=None, section=None, wiki_url=None, api_key=None, model="gpt-4o"):
+    """
+    Enrich README.md, a wiki file, or both, with AI-generated suggestions using a handler chain.
+    If only readme_path is provided, enriches README only.
+    If only wiki_path (+section) is provided, enriches Wiki only.
+    If both are provided, enriches both.
+    """
     ctx = {
         'readme_path': readme_path,
+        'wiki_path': wiki_path,
+        'section': section,
+        'wiki_url': wiki_url,
         'api_key': api_key,
         'model': model,
     }
+    # Handler chain up to AI suggestion
     for handler in [
         check_api_key,
         get_diff,
         check_diff_empty,
         print_diff_info,
         fallback_large_diff,
-        get_readme,
-        print_readme_info,
+        get_file,
+        print_file_info,
         ai_enrich,
-        write_enrichment,
     ]:
         ctx = handler(ctx)
 
-def write_wiki_enrichment(ctx):
-    """Write AI suggestions to the wiki file and optionally update README with a summary and link."""
-    if ctx['ai_suggestion'] != "NO CHANGES":
-        # Append to wiki file
-        with open(ctx['wiki_path'], "a") as f:
+    # Write enrichment to README if path is provided
+    if readme_path and ctx.get('ai_suggestion') != "NO CHANGES":
+        with open(readme_path, "a") as f:
+            f.write("\n\n# AI-suggested enrichment:\n")
+            f.write(ctx['ai_suggestion'])
+        print(f"{readme_path} enriched and staged with AI suggestions.")
+        subprocess.run(["git", "add", readme_path])
+    elif readme_path:
+        print("No enrichment needed for README.md.")
+
+    # Write enrichment to Wiki if path is provided
+    if wiki_path and ctx.get('ai_suggestion') != "NO CHANGES":
+        with open(wiki_path, "a") as f:
             f.write("\n\n---\n\n# AI-suggested enrichment:\n")
             f.write(ctx['ai_suggestion'])
-        print(f"\n[INFO] Wiki page enriched: {ctx['wiki_path']}")
-        print(f"\n[INFO] Wiki page enriched: {ctx['wiki_path']}")
+        print(f"\n[INFO] Wiki page enriched: {wiki_path}")
         # Optionally update README with summary and link
-        if ctx.get('readme_path') and ctx.get('wiki_url') and ctx.get('section'):
+        if readme_path and wiki_url and section:
             import re
-            readme_path = ctx['readme_path']
-            wiki_url = ctx['wiki_url']
-            section = ctx['section']
             summary = ctx['ai_suggestion'].strip().split('\n\n')[0]
             content = open(readme_path).read()
             pattern = rf"## {section}.*?(?=## |\Z)"
@@ -172,31 +152,15 @@ def write_wiki_enrichment(ctx):
             with open(readme_path, "w") as f:
                 f.write(new_content)
             print("[INFO] README updated with summary and link to wiki.")
-            print("[INFO] README updated with summary and link to wiki.")
-    else:
+    elif wiki_path:
         print("No enrichment needed for wiki.")
 
+# Deprecated: Use enrich_docs instead
+def enrich_readme(readme_path="README.md", api_key=None, model="gpt-4o"):
+    enrich_docs(readme_path=readme_path, api_key=api_key, model=model)
+
 def enrich_wiki(wiki_path, section, readme_path=None, wiki_url=None, api_key=None, model="gpt-4o"):
-    ctx = {
-        'wiki_path': wiki_path,
-        'section': section,
-        'readme_path': readme_path,
-        'wiki_url': wiki_url,
-        'api_key': api_key,
-        'model': model,
-    }
-    for handler in [
-        check_api_key,
-        get_diff,
-        check_diff_empty,
-        print_diff_info,
-        fallback_large_diff,
-        get_readme,
-        print_readme_info,
-        ai_enrich,
-        write_wiki_enrichment,
-    ]:
-        ctx = handler(ctx)
+    enrich_docs(readme_path=readme_path, wiki_path=wiki_path, section=section, wiki_url=wiki_url, api_key=api_key, model=model)
 
 def select_wiki_article(ctx):
     """Ask the AI which wiki article to extend based on the diff and README."""
@@ -206,9 +170,9 @@ def select_wiki_article(ctx):
     prompt = (
         f"Here are the available wiki articles (filenames):\n{article_list}\n"
         "Based on the code changes, which article should be extended? Reply with the filename only.\n" +
-        AI_ENRICH_PROMPT
+        get_enrich_prompt('README.md', 'readme')
     )
-    client = openai.OpenAI(api_key=ctx['api_key'])
+    client = get_client(ctx['api_key'])
     try:
         response = client.chat.completions.create(
             model=ctx['model'], messages=[{"role": "user", "content": prompt}]
@@ -241,11 +205,11 @@ def enrich_wiki_auto(wiki_dir, wiki_url_base, readme_path="README.md", api_key=N
         check_diff_empty,
         print_diff_info,
         fallback_large_diff,
-        get_readme,
-        print_readme_info,
+        get_file,
+        print_file_info,
         select_wiki_article,
         ai_enrich,
-        write_wiki_enrichment,
+        enrich_docs,
     ]:
         ctx = handler(ctx)
 
@@ -264,8 +228,8 @@ def enrich_all(wiki_dir, wiki_url_base, readme_path="README.md", api_key=None, m
         check_diff_empty,
         print_diff_info,
         fallback_large_diff,
-        get_readme,
-        print_readme_info,
+        get_file,
+        print_file_info,
         select_wiki_article,
         ai_enrich,
     ]:
@@ -325,100 +289,4 @@ def enrich_wiki_and_readme_script():
         print(f"Updated {wiki_file} and {readme_file} for section '{section}'.")
         sys.exit(0)
     # ... existing code ...
-
-def main():
-    """
-    Command-line interface for the AI Commit and README tool.
-    Dispatches subcommands using a dispatcher dictionary.
-    """
-    parser = argparse.ArgumentParser(description="AI Commit and README tool")
-    parser.add_argument(
-        "command",
-        nargs="?",
-        default="enrich-readme",
-        help="Subcommand to run (default: enrich-readme)",
-        choices=["enrich-readme", "enrich-wiki", "enrich-wiki-auto", "enrich-all"],
-    )
-    parser.add_argument(
-        "--readme",
-        type=str,
-        default="README.md",
-        help="Path to README.md (default: README.md)",
-    )
-    parser.add_argument(
-        "--wiki",
-        type=str,
-        default=None,
-        help="Path to wiki markdown file (for enrich-wiki)",
-    )
-    parser.add_argument(
-        "--section",
-        type=str,
-        default=None,
-        help="Section name for README summary (for enrich-wiki)",
-    )
-    parser.add_argument(
-        "--wiki-url",
-        type=str,
-        default=None,
-        help="URL to the wiki page (for enrich-wiki)",
-    )
-    parser.add_argument(
-        "--api-key",
-        type=str,
-        default=None,
-        help="OpenAI API key (default: from env)",
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default="gpt-4o",
-        help="OpenAI model (default: gpt-4o)",
-    )
-    parser.add_argument(
-        "--wiki-dir",
-        type=str,
-        default=None,
-        help="Path to wiki directory (for enrich-wiki-auto)",
-    )
-    parser.add_argument(
-        "--wiki-url-base",
-        type=str,
-        default=None,
-        help="Base URL to the wiki (for enrich-wiki-auto, e.g. https://github.com/auraz/ai_commit_and_readme/wiki/)",
-    )
-    args = parser.parse_args()
-
-    command_dispatcher = {
-        "enrich-readme": lambda: enrich_readme(
-            readme_path=args.readme, api_key=args.api_key, model=args.model
-        ),
-        "enrich-wiki": lambda: enrich_wiki(
-            wiki_path=args.wiki,
-            section=args.section,
-            readme_path=args.readme,
-            wiki_url=args.wiki_url,
-            api_key=args.api_key,
-            model=args.model,
-        ),
-        "enrich-wiki-auto": lambda: enrich_wiki_auto(
-            wiki_dir=args.wiki_dir,
-            wiki_url_base=args.wiki_url_base,
-            readme_path=args.readme,
-            api_key=args.api_key,
-            model=args.model,
-        ),
-        "enrich-all": lambda: enrich_all(
-            wiki_dir=args.wiki_dir,
-            wiki_url_base=args.wiki_url_base,
-            readme_path=args.readme,
-            api_key=args.api_key,
-            model=args.model,
-        ),
-    }
-
-    command_dispatcher[args.command]()
-
-if __name__ == "__main__":
-    main()
 
