@@ -12,8 +12,13 @@ clean:
 
 cm:
 	git add .
-	ai-commit-and-readme
-	aicommit
+
+	if git diff --cached --quiet; then \
+		echo "No staged changes, skipping aicommit."; \
+	else \
+		ai-commit-and-readme; \
+        aicommit; \
+	fi
 	git push
 
 coverage:
