@@ -25,7 +25,8 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler()]
+    handlers=[RichHandler()],
+    stream=sys.stdout
 )
 
 
