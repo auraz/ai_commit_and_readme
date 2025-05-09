@@ -2,7 +2,7 @@
 """
 AI Commit and README tool main module.
 Provides subcommands for enriching README.md with AI suggestions based on git diffs.
-test
+test222
 """
 
 import logging
