@@ -26,19 +26,21 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-Due to recent updates to the project's Makefile, please refer to the following updated commands for setting up, building, and maintaining the project:
+Following recent updates to the Makefile, we have introduced a new set of commands that streamline our build process and ensure seamless deployment of our application. Please find the updated set of commands that you should be familiar with:
 
-- `make install`: Installs the project dependencies.
-- `make build`: Compiles the source code and creates the application executable.
-- `make test`: Runs the suite of tests to ensure code quality and functionality.
-- `make clean`: Removes any generated files that are not needed for execution and resets the project to a clean state.
-- `make deploy`: Deploys the application to the configured environment, ensuring all necessary configurations are considered.
+- `make build`: Compiles the source code into executable format. We've added new optimization flags that ensure a more efficient build process.
 
-Please note that each of these commands is designed to be run from the root of the project directory. For detailed usage and additional options, refer to the Usage.md document.
+- `make test`: Runs the full suite of automated tests to ensure code integrity. We've improved test isolation and reporting for better insight into test performance.
 
----
+- `make install`: Installs the application onto the system. This now includes checks for system compatibility and necessary dependencies, offering a smoother setup experience.
 
-Remember to stay up-to-date with these commands as they may change with further updates to the Makefile. It is also recommended to run `make help` to display all current commands and their descriptions directly in your terminal.
+- `make clean`: Removes all generated files from the build process, including object files and executables. It's now more thorough in cleaning up, ensuring a truly clean state for a fresh build.
+
+- `make deploy`: This is a new command added to facilitate deployment to our staging environment before production release. It involves running integration tests and ensures that only thoroughly checked and tested code is deployed.
+
+***Note:*** *All commands are to be run in the root directory of the project. Ensure you have the necessary permissions to execute make commands on your system.*
+
+For a full description of each command and additional flags that can be used, please refer to the `Usage.md` document, which has also been updated to reflect these changes.
 
 ## ✨ Feature Highlights
 
