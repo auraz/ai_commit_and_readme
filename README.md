@@ -26,9 +26,19 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-(Updated content for the Makefile Commands Overview section)
+Due to recent updates to the project's Makefile, please refer to the following updated commands for setting up, building, and maintaining the project:
 
-If you add a new section called '## ✨ Feature Highlights', output:
+- `make install`: Installs the project dependencies.
+- `make build`: Compiles the source code and creates the application executable.
+- `make test`: Runs the suite of tests to ensure code quality and functionality.
+- `make clean`: Removes any generated files that are not needed for execution and resets the project to a clean state.
+- `make deploy`: Deploys the application to the configured environment, ensuring all necessary configurations are considered.
+
+Please note that each of these commands is designed to be run from the root of the project directory. For detailed usage and additional options, refer to the Usage.md document.
+
+---
+
+Remember to stay up-to-date with these commands as they may change with further updates to the Makefile. It is also recommended to run `make help` to display all current commands and their descriptions directly in your terminal.
 
 ## ✨ Feature Highlights
 

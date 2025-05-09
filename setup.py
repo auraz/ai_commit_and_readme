@@ -1,9 +1,14 @@
 from setuptools import find_packages, setup
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="ai_commit_and_readme",
     version="0.1.0",
     description="AI-powered README.md and commit message generation tool using OpenAI",
+    long_description=long_description,
+    long_description_content_type="text/markdown",  # Important for Markdown rendering on PyPI
     author="Oleksandr Kryklia",
     author_email="kryklia@gmail.com",
     packages=find_packages(),
