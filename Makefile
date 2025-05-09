@@ -5,6 +5,16 @@ install:
 	source .venv/bin/activate
 	pip install .
 	brew install aicommit
+	@if [ ! -f README.md ]; then touch README.md; fi
+	@if [ ! -d wiki ]; then mkdir wiki; fi
+	@if [ ! -f wiki/Home.md ]; then touch wiki/Home.md; fi
+	@if [ ! -f wiki/Changelog.md ]; then touch wiki/Changelog.md; fi
+	@if [ ! -f wiki/Usage.md ]; then touch wiki/Usage.md; fi
+	@if [ ! -f wiki/Configuration.md ]; then touch wiki/Configuration.md; fi
+	@if [ ! -f wiki/FAQ.md ]; then touch wiki/FAQ.md; fi
+	@if [ ! -f wiki/Contributing.md ]; then touch wiki/Contributing.md; fi
+	@if [ ! -f wiki/API.md ]; then touch wiki/API.md; fi
+	@if [ ! -f wiki/Installation.md ]; then touch wiki/Installation.md; fi
 
 clean:
 	rm -rf dist build *.egg-info .pytest_cache .mypy_cache .ruff_cache

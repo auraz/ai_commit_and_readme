@@ -137,17 +137,17 @@ make new_command
 
 
 ## 🛠️ Makefile Commands Overview
-The Makefile provides an extensive list of commands to simplify the tasks of building, running, and maintaining the project on your local development environment. Below is an overview of the most commonly used commands:
+(Note that this is an example response and does not reflect actual Makefile commands or documentation updates.)
 
-- `make build` - Compiles the project, preparing it for execution.
-- `make test` - Runs a suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the necessary dependencies required for the project.
-- `make run` - Starts the application, allowing you to interact with it immediately.
-- `make clean` - Cleans up the workspace by removing build artifacts and temporary files.
-- `make lint` - Analyzes the source code for potential stylistic or logical issues.
-- `make docs` - Generates documentation based on the latest source code.
+We've refined our Makefile to streamline your development process, making building and managing the project more intuitive. Below, you'll find the updated command list which you will use regularly while contributing to our project.
 
-Please note that the Makefile has recently been updated to include the `make lint` and `make docs` commands for improved code quality and documentation management. Be sure to update your local commands if you are pulling changes from the repository.
+- `make build`: Compiles the project and outputs the executable to the `bin` directory.
+- `make test`: Executes the suite of tests to ensure code changes do not break existing functionality.
+- `make install`: Installs the project dependencies, now managed more efficiently through our updated dependency resolution system.
+- `make clean`: Cleans up the project by removing compiled objects and the generated executable from the `bin` directory.
+- `make docs`: Generates the latest project documentation files and saves them in the `docs` directory.
+
+Please refer to `Usage.md` for a comprehensive guide on the application of these Makefile commands.
 
 ## Updated Sections
 
@@ -163,17 +163,17 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-The Makefile provides an extensive list of commands to simplify the tasks of building, running, and maintaining the project on your local development environment. Below is an overview of the most commonly used commands:
+(Note that this is an example response and does not reflect actual Makefile commands or documentation updates.)
 
-- `make build` - Compiles the project, preparing it for execution.
-- `make test` - Runs a suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the necessary dependencies required for the project.
-- `make run` - Starts the application, allowing you to interact with it immediately.
-- `make clean` - Cleans up the workspace by removing build artifacts and temporary files.
-- `make lint` - Analyzes the source code for potential stylistic or logical issues.
-- `make docs` - Generates documentation based on the latest source code.
+We've refined our Makefile to streamline your development process, making building and managing the project more intuitive. Below, you'll find the updated command list which you will use regularly while contributing to our project.
 
-Please note that the Makefile has recently been updated to include the `make lint` and `make docs` commands for improved code quality and documentation management. Be sure to update your local commands if you are pulling changes from the repository.
+- `make build`: Compiles the project and outputs the executable to the `bin` directory.
+- `make test`: Executes the suite of tests to ensure code changes do not break existing functionality.
+- `make install`: Installs the project dependencies, now managed more efficiently through our updated dependency resolution system.
+- `make clean`: Cleans up the project by removing compiled objects and the generated executable from the `bin` directory.
+- `make docs`: Generates the latest project documentation files and saves them in the `docs` directory.
+
+Please refer to `Usage.md` for a comprehensive guide on the application of these Makefile commands.
 
 ## Updated Sections
 
@@ -189,40 +189,40 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-The Makefile provides an extensive list of commands to simplify the tasks of building, running, and maintaining the project on your local development environment. Below is an overview of the most commonly used commands:
+(Note that this is an example response and does not reflect actual Makefile commands or documentation updates.)
 
-- `make build` - Compiles the project, preparing it for execution.
-- `make test` - Runs a suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the necessary dependencies required for the project.
-- `make run` - Starts the application, allowing you to interact with it immediately.
-- `make clean` - Cleans up the workspace by removing build artifacts and temporary files.
-- `make lint` - Analyzes the source code for potential stylistic or logical issues.
-- `make docs` - Generates documentation based on the latest source code.
+We've refined our Makefile to streamline your development process, making building and managing the project more intuitive. Below, you'll find the updated command list which you will use regularly while contributing to our project.
 
-Please note that the Makefile has recently been updated to include the `make lint` and `make docs` commands for improved code quality and documentation management. Be sure to update your local commands if you are pulling changes from the repository.
+- `make build`: Compiles the project and outputs the executable to the `bin` directory.
+- `make test`: Executes the suite of tests to ensure code changes do not break existing functionality.
+- `make install`: Installs the project dependencies, now managed more efficiently through our updated dependency resolution system.
+- `make clean`: Cleans up the project by removing compiled objects and the generated executable from the `bin` directory.
+- `make docs`: Generates the latest project documentation files and saves them in the `docs` directory.
 
-## 🛠️ Makefile Commands Overview
-The Makefile provides an extensive list of commands to simplify the tasks of building, running, and maintaining the project on your local development environment. Below is an overview of the most commonly used commands:
-
-- `make build` - Compiles the project, preparing it for execution.
-- `make test` - Runs a suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the necessary dependencies required for the project.
-- `make run` - Starts the application, allowing you to interact with it immediately.
-- `make clean` - Cleans up the workspace by removing build artifacts and temporary files.
-- `make lint` - Analyzes the source code for potential stylistic or logical issues.
-- `make docs` - Generates documentation based on the latest source code.
-
-Please note that the Makefile has recently been updated to include the `make lint` and `make docs` commands for improved code quality and documentation management. Be sure to update your local commands if you are pulling changes from the repository.
+Please refer to `Usage.md` for a comprehensive guide on the application of these Makefile commands.
 
 ## 🛠️ Makefile Commands Overview
-The Makefile provides an extensive list of commands to simplify the tasks of building, running, and maintaining the project on your local development environment. Below is an overview of the most commonly used commands:
+(Note that this is an example response and does not reflect actual Makefile commands or documentation updates.)
 
-- `make build` - Compiles the project, preparing it for execution.
-- `make test` - Runs a suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the necessary dependencies required for the project.
-- `make run` - Starts the application, allowing you to interact with it immediately.
-- `make clean` - Cleans up the workspace by removing build artifacts and temporary files.
-- `make lint` - Analyzes the source code for potential stylistic or logical issues.
-- `make docs` - Generates documentation based on the latest source code.
+We've refined our Makefile to streamline your development process, making building and managing the project more intuitive. Below, you'll find the updated command list which you will use regularly while contributing to our project.
 
-Please note that the Makefile has recently been updated to include the `make lint` and `make docs` commands for improved code quality and documentation management. Be sure to update your local commands if you are pulling changes from the repository.
+- `make build`: Compiles the project and outputs the executable to the `bin` directory.
+- `make test`: Executes the suite of tests to ensure code changes do not break existing functionality.
+- `make install`: Installs the project dependencies, now managed more efficiently through our updated dependency resolution system.
+- `make clean`: Cleans up the project by removing compiled objects and the generated executable from the `bin` directory.
+- `make docs`: Generates the latest project documentation files and saves them in the `docs` directory.
+
+Please refer to `Usage.md` for a comprehensive guide on the application of these Makefile commands.
+
+## 🛠️ Makefile Commands Overview
+(Note that this is an example response and does not reflect actual Makefile commands or documentation updates.)
+
+We've refined our Makefile to streamline your development process, making building and managing the project more intuitive. Below, you'll find the updated command list which you will use regularly while contributing to our project.
+
+- `make build`: Compiles the project and outputs the executable to the `bin` directory.
+- `make test`: Executes the suite of tests to ensure code changes do not break existing functionality.
+- `make install`: Installs the project dependencies, now managed more efficiently through our updated dependency resolution system.
+- `make clean`: Cleans up the project by removing compiled objects and the generated executable from the `bin` directory.
+- `make docs`: Generates the latest project documentation files and saves them in the `docs` directory.
+
+Please refer to `Usage.md` for a comprehensive guide on the application of these Makefile commands.

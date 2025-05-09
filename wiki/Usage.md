@@ -5,17 +5,7 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-Based on the recent changes to the Makefile, we have refined the available commands to streamline your development process. Below is an updated overview of commands that you can use:
-
-- `make build`: Compiles the project, ensuring that all binaries are up to date.
-- `make test`: Runs the suite of unit tests to verify that the code meets all quality standards.
-- `make install`: Installs the project's binaries and dependencies on your local machine. This command now ensures compatibility with the latest operating systems and package managers.
-- `make clean`: Cleans up the build directory by removing all compiled objects, ensuring a fresh start for a new build.
-
-Additionally, we have introduced a new command:
-- `make deploy`: Packages the application and deploys it to a test environment. This is useful for simulating the application in a live setting without impacting production.
-
-Each command has been carefully crafted to provide a reliable and efficient workflow for developers at all levels. We suggest that you regularly run `make test` to maintain code quality throughout the development process.
+NO CHANGES
 
 ## 🚀 Common Workflows
 
@@ -142,10 +132,4 @@ The current implementation of `new_command` involves:
 Please ensure to review and update this section once the placeholder commands are replaced with actual functionality.
 ```
 ## 🛠️ Makefile Commands Overview
-
-- `make build`: Compiles the project, creating an executable file in the `/bin` directory.
-- `make test`: Runs the available tests to ensure the codebase maintains its functionality.
-- `make clean`: Removes any object files or binaries that were generated during the build process.
-- `make install`: Installs the application on the user's system, providing a quick way to start using it right away.
-- `make docs`: Generates the project's documentation, ensuring it's up-to-date and accessible.
-```
+NO CHANGES
