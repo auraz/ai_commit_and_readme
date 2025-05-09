@@ -169,7 +169,7 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
         logging.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
         subprocess.run(["git", "add", file_path])
     else:
-        logging.info(f"👍 No enrichment needed for {file_path}.")
+        logging.info(f"[cyan]👍 No enrichment needed for {file_path}.[/cyan]")
 
 
 def write_enrichment_outputs(ctx):
