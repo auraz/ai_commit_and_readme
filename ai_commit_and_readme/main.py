@@ -78,15 +78,9 @@ def get_file(ctx, file_key, path_key):
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file update in characters and tokens."""
     content = ctx[file_key]
-    # Legacy message for test compatibility
-    logging.info(f"{file_key} size: {len(content)} characters")
-    # New, more descriptive message
     logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
-    # Legacy message for test compatibility
-    logging.info(f"{file_key} size: {tokens} tokens")
-    # New, more descriptive message
     logging.info(f"🔢 That's {tokens:,} tokens in update to {file_key}!")
     ctx[f"{file_key}_tokens"] = tokens
 
