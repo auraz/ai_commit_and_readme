@@ -5,15 +5,7 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-The Makefile provides a collection of commands to simplify the build and deployment process for developers. Each command can be executed by running `make <command>` from the terminal. Below is an overview of the most commonly used commands and their descriptions:
-
-- `make build`: Compiles the source code and produces the output binaries. It's the primary command to get your code running.
-- `make test`: Runs defined automated tests to ensure the code's functionality and stability. It's a critical step before pushing code changes.
-- `make install`: Places the compiled binaries in the predefined location. This step is necessary to make the software available for use on the system.
-- `make clean`: Removes all the object files and binaries that have been created during the build process. This is especially useful for a fresh start before a rebuild.
-- `make docs`: Generates updated documentation based on the codebase annotations and comments. It ensures that the documentation stays in sync with the codebase.
-
-Each of these commands may have dependencies on others, ensuring the appropriate sequence of tasks. Please refer to the comments within the Makefile for detailed information on how each command is structured and any intricacies to be aware of.
+NO CHANGES
 
 ## 🚀 Common Workflows
 
