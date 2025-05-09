@@ -54,7 +54,7 @@ Find answers to common questions about **ai_commit_and_readme**. For more detail
 ### 🛠️ Troubleshooting
 
 **Q: The tool says a file is missing—what should I do?**
-- **A:** If the README or Wiki file does not exist, the tool will use an empty string and continue. Create the file if you want it enriched.
+- **A:** If the README or Wiki file does not exist, -- create them
 
 **Q: I get a permission error.**
 - **A:** Ensure you have read/write access to the relevant files and directories.

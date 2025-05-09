@@ -34,11 +34,6 @@ This will:
 - Install the Python package in the current environment
 - Install the aicommit CLI tool
 
-If you only want to install `aicommit`:
-
-```sh
-make aicommit
-```
 
 For development installation:
 
