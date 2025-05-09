@@ -137,7 +137,18 @@ make new_command
 
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+
+- `make build` - Compile the project and create executable artifacts.
+- `make test` - Execute the suite of tests to ensure the project runs as expected.
+- `make clean` - Remove any generated files and reset the project state.
+- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
+- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
+- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+
+Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+
+If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
 
 ## Updated Sections
 
@@ -153,7 +164,18 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+
+- `make build` - Compile the project and create executable artifacts.
+- `make test` - Execute the suite of tests to ensure the project runs as expected.
+- `make clean` - Remove any generated files and reset the project state.
+- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
+- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
+- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+
+Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+
+If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
 
 ## Updated Sections
 
@@ -169,10 +191,43 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+
+- `make build` - Compile the project and create executable artifacts.
+- `make test` - Execute the suite of tests to ensure the project runs as expected.
+- `make clean` - Remove any generated files and reset the project state.
+- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
+- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
+- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+
+Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+
+If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+
+- `make build` - Compile the project and create executable artifacts.
+- `make test` - Execute the suite of tests to ensure the project runs as expected.
+- `make clean` - Remove any generated files and reset the project state.
+- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
+- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
+- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+
+Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+
+If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+
+- `make build` - Compile the project and create executable artifacts.
+- `make test` - Execute the suite of tests to ensure the project runs as expected.
+- `make clean` - Remove any generated files and reset the project state.
+- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
+- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
+- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+
+Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+
+If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
