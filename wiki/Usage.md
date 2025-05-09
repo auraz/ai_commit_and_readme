@@ -5,7 +5,16 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-NO CHANGES
+The following commands are available in our project's Makefile and can be used for various development and deployment tasks:
+
+- `make build`: Compiles the project and builds the executable binary.
+- `make test`: Runs all the automated tests to ensure that the code is functioning as expected.
+- `make clean`: Removes all generated files that are created during the build and testing process, keeping your workspace clean.
+- `make install`: Installs the project dependencies necessary for development.
+- `make run`: Executes the built binary in a local environment for development purposes.
+- `make deploy`: Deploys the application to the specified environment, ensuring the correct configurations are applied.
+
+Each of these commands is crafted to simplify and streamline your workflow, allowing you to focus on the creative process of software development.
 
 ## 🚀 Common Workflows
 

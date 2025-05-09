@@ -137,30 +137,35 @@ make new_command
 
 
 ## 🛠️ Makefile Commands Overview
+Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
 
-```plaintext
-# List of key commands added or modified in the Makefile
+### Quick Commands Reference
 
-# Build the project:
-make build
+- `make build`: Compiles the project, preparing it for execution.
+- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
+- `make install`: Installs the project, making it ready for use in the target environment.
+- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
+- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
 
-# Run all unit tests:
-make test
+### Detailed Descriptions
 
-# Clean up the build:
-make clean
+#### make build
+This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
 
-# Install dependencies:
-make deps
+#### make test
+To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
 
-# Generate project documentation:
-make docs
+#### make install
+Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
 
-# Please refer to the Makefile for the complete list of commands and their descriptions.
-```
+#### make clean
+The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
 
+#### make docs
+The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
 
-# AI-suggested enrichment:
+*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
+
 ## Updated Sections
 
 ### 📦 Quick Start
@@ -175,19 +180,35 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
+Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
 
-Add a note regarding the modified `cm` command to handle cases with no staged changes:
+### Quick Commands Reference
 
-```plaintext
-# Commit staged changes with AI-generated messages:
-make cm
+- `make build`: Compiles the project, preparing it for execution.
+- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
+- `make install`: Installs the project, making it ready for use in the target environment.
+- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
+- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
 
-# Note: If there are no staged changes, the command will skip committing.
-```
+### Detailed Descriptions
 
-These updates ensure that users are informed about the new behavior of the `make cm` command in the Makefile.
+#### make build
+This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
 
-# AI-suggested enrichment:
+#### make test
+To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
+
+#### make install
+Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
+
+#### make clean
+The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
+
+#### make docs
+The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
+
+*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
+
 ## Updated Sections
 
 ### 📦 Quick Start
@@ -202,14 +223,31 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
+Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
 
-Add a note regarding the modified `cm` command to handle cases with no staged changes:
+### Quick Commands Reference
 
-```plaintext
-# Commit staged changes with AI-generated messages:
-make cm
+- `make build`: Compiles the project, preparing it for execution.
+- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
+- `make install`: Installs the project, making it ready for use in the target environment.
+- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
+- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
 
-# Note: If there are no staged changes, the command will skip AI enrichment and committing.
-```
+### Detailed Descriptions
 
-These updates ensure that users are informed about the new behavior of the `make cm` command in the Makefile.
+#### make build
+This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
+
+#### make test
+To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
+
+#### make install
+Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
+
+#### make clean
+The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
+
+#### make docs
+The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
+
+*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
