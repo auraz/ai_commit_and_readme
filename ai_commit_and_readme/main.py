@@ -196,7 +196,7 @@ def enrich():
         check_diff_empty,
         print_diff_info,
         fallback_large_diff,
-        lambda ctx: get_file(ctx, "README.md", "readme_path"),
+        lambda ctx: get_file(ctx, "README.md", ctx["readme_path"]),
         lambda ctx: print_file_info(ctx, "README.md", "model"),
         select_wiki_articles,
         enrich_readme,
