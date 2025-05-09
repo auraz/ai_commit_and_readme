@@ -37,6 +37,7 @@ class TestCLI:
         # Patch subprocess.run to avoid actual git commands
         monkeypatch.setattr(mod.subprocess, "run", lambda *_a, **_k: None)
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff content")
+        monkeypatch.setenv("OPENAI_API_KEY", "test")
         sys_argv = sys.argv
         sys.argv = ["prog", "enrich"]
         try:
