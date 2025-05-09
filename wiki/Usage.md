@@ -140,3 +140,12 @@ The current implementation of `new_command` involves:
 - It includes additional commands represented by placeholder text (`lol!` and `sdsdsdds`) which might be for testing or demonstration purposes.
 
 Please ensure to review and update this section once the placeholder commands are replaced with actual functionality.
+```
+## 🛠️ Makefile Commands Overview
+
+- `make build`: Compiles the project, creating an executable file in the `/bin` directory.
+- `make test`: Runs the available tests to ensure the codebase maintains its functionality.
+- `make clean`: Removes any object files or binaries that were generated during the build process.
+- `make install`: Installs the application on the user's system, providing a quick way to start using it right away.
+- `make docs`: Generates the project's documentation, ensuring it's up-to-date and accessible.
+```
