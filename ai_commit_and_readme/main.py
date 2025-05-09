@@ -16,6 +16,12 @@ import tiktoken
 from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
 
+# ANSI color codes
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+RED = "\033[91m"
+RESET = "\033[0m"
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -39,17 +45,17 @@ def get_diff(ctx, diff_args=None):
 def check_diff_empty(ctx):
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
-        logging.info("✅ No staged changes detected. Nothing to enrich.")
+        logging.info(f"{YELLOW}✅ No staged changes detected. Nothing to enrich.{RESET}")
         sys.exit(0)
 
 
 @chain_handler
 def print_diff_info(ctx):
     """Print the size of the diff in characters and tokens."""
-    logging.info(f"📏 Diff size: {len(ctx['diff'])} characters")
+    logging.info(f"📏 Your staged changes are {len(ctx['diff']):,} characters long!")
     enc = tiktoken.encoding_for_model(ctx["model"])
     diff_tokens = len(enc.encode(ctx["diff"]))
-    logging.info(f"🔢 Diff size: {diff_tokens} tokens")
+    logging.info(f"🔢 That's about {diff_tokens:,} tokens for the AI to read.")
     ctx["diff_tokens"] = diff_tokens
 
 
@@ -76,10 +82,10 @@ def get_file(ctx, file_key, path_key):
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file in characters and tokens."""
     content = ctx[file_key]
-    logging.info(f"📄 {file_key} size: {len(content)} characters")
+    logging.info(f"📄 {file_key} is currently {len(content):,} characters.")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
-    logging.info(f"🔢 {file_key} size: {tokens} tokens")
+    logging.info(f"🔢 That's {tokens:,} tokens in {file_key}!")
     ctx[f"{file_key}_tokens"] = tokens
 
 
@@ -90,7 +96,7 @@ def get_ai_response(prompt, ctx=None):
     try:
         response = client.chat.completions.create(model=ctx["model"], messages=[{"role": "user", "content": prompt}])
     except Exception as e:
-        logging.error(f"❌ Error from OpenAI API: {e}")
+        logging.error(f"{RED}❌ Error from OpenAI API: {e}{RESET}")
         sys.exit(1)
     return response
 
@@ -157,10 +163,10 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
             # No section header, just append
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write(ai_suggestion)
-        logging.info(f"✨ {file_path} enriched and staged with AI suggestions for {label}.")
+        logging.info(f"{GREEN}🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉{RESET}")
         subprocess.run(["git", "add", file_path])
     else:
-        logging.info(f"👍 No enrichment needed for {file_path}.")
+        logging.info(f"{YELLOW}👍 No enrichment needed for {file_path}.{RESET}")
 
 
 def write_enrichment_outputs(ctx):
