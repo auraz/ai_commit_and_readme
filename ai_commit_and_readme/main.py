@@ -67,11 +67,9 @@ def fallback_large_diff(ctx):
 @chain_handler
 def get_file(ctx, file_key, path_key):
     """Read the file at path_key and store its contents in ctx[file_key]."""
-    if os.path.exists(path_key):
-        with open(path_key) as f:
-            ctx[file_key] = f.read()
-    else:
-        ctx[file_key] = ""
+    with open(path_key) as f:
+        ctx[file_key] = f.read()
+
 
 
 @chain_handler
