@@ -75,3 +75,5 @@ venv/
 
 # Environment variables
 .env
+
+tmp_wiki/
