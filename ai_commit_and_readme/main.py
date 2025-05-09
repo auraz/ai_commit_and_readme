@@ -71,7 +71,6 @@ def get_file(ctx, file_key, path_key):
         ctx[file_key] = f.read()
 
 
-
 @chain_handler
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file update in characters and tokens."""

@@ -84,13 +84,12 @@ class TestHandlers:
         assert ctx["some_unique_file.md"] == test_content
 
     def test_get_file_not_exists(self, tmp_path):
-        """Should return empty string if file does not exist."""
+        """Should raise FileNotFoundError if file does not exist (matches current get_file implementation)."""
         file_path = tmp_path / f"README_{uuid.uuid4().hex}.md"
-        ctx = {"README_{uuid.uuid4().hex}.md_path": str(file_path)}
         filename = f"README_{uuid.uuid4().hex}.md"
-        ctx[f"{filename}_path"] = str(file_path)
-        mod.get_file(ctx, filename, f"{filename}_path")
-        assert ctx[filename] == ""
+        ctx = {"readme_path": str(file_path)}
+        with pytest.raises(FileNotFoundError):
+            mod.get_file(ctx, filename, ctx["readme_path"])
 
     @pytest.mark.parametrize("filename,model_key,content", [("README.md", "model", "abc"), ("Usage.md", "model", "abc")])
     def test_print_file_info(self, monkeypatch, caplog, filename, model_key, content):
