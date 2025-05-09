@@ -3,3 +3,4 @@ tiktoken>=0.5.1
 ruff
 pytest
 coverage
+rich

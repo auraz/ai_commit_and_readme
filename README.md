@@ -137,18 +137,19 @@ make new_command
 
 
 ## 🛠️ Makefile Commands Overview
-The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+The provided Makefile is designed to streamline the development and deployment processes for our project. The updated commands allow for easy execution of common tasks, ensuring a consistent workflow for all contributors. Below are the key commands that have been introduced or updated:
 
-- `make build` - Compile the project and create executable artifacts.
-- `make test` - Execute the suite of tests to ensure the project runs as expected.
-- `make clean` - Remove any generated files and reset the project state.
-- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
-- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
-- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+- `make build`: Compiles the source code into an executable format. This step must be done before running the application, ensuring that any code changes are included in the compilation.
+- `make test`: Executes the suite of automated tests that validate the functionality of the application. The tests have been updated to reflect the latest feature set and bug fixes.
+- `make install`: Installs the application into the system. The install path and permissions have been revised for better system compatibility.
+- `make clean`: Cleans up the project by removing compiled objects and temporary files. This helps in maintaining a clean working environment.
+- `make deploy`: Deploys the application to the target environment. Deployment procedures have been refined for smoother operation and rollback capabilities.
 
-Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+Please refer to `Usage.md` for a more detailed explanation of each Makefile command and best practices for utilizing them within the development cycle.
 
-If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
+---
+
+For any changes to the Makefile, do ensure that all documentation remains current by updating the relevant sections in both README.md and Usage.md. This consistency across documentation is vital for preventing confusion and errors among team members and users.
 
 ## Updated Sections
 
@@ -164,18 +165,19 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+The provided Makefile is designed to streamline the development and deployment processes for our project. The updated commands allow for easy execution of common tasks, ensuring a consistent workflow for all contributors. Below are the key commands that have been introduced or updated:
 
-- `make build` - Compile the project and create executable artifacts.
-- `make test` - Execute the suite of tests to ensure the project runs as expected.
-- `make clean` - Remove any generated files and reset the project state.
-- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
-- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
-- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+- `make build`: Compiles the source code into an executable format. This step must be done before running the application, ensuring that any code changes are included in the compilation.
+- `make test`: Executes the suite of automated tests that validate the functionality of the application. The tests have been updated to reflect the latest feature set and bug fixes.
+- `make install`: Installs the application into the system. The install path and permissions have been revised for better system compatibility.
+- `make clean`: Cleans up the project by removing compiled objects and temporary files. This helps in maintaining a clean working environment.
+- `make deploy`: Deploys the application to the target environment. Deployment procedures have been refined for smoother operation and rollback capabilities.
 
-Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+Please refer to `Usage.md` for a more detailed explanation of each Makefile command and best practices for utilizing them within the development cycle.
 
-If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
+---
+
+For any changes to the Makefile, do ensure that all documentation remains current by updating the relevant sections in both README.md and Usage.md. This consistency across documentation is vital for preventing confusion and errors among team members and users.
 
 ## Updated Sections
 
@@ -191,43 +193,46 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+The provided Makefile is designed to streamline the development and deployment processes for our project. The updated commands allow for easy execution of common tasks, ensuring a consistent workflow for all contributors. Below are the key commands that have been introduced or updated:
 
-- `make build` - Compile the project and create executable artifacts.
-- `make test` - Execute the suite of tests to ensure the project runs as expected.
-- `make clean` - Remove any generated files and reset the project state.
-- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
-- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
-- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+- `make build`: Compiles the source code into an executable format. This step must be done before running the application, ensuring that any code changes are included in the compilation.
+- `make test`: Executes the suite of automated tests that validate the functionality of the application. The tests have been updated to reflect the latest feature set and bug fixes.
+- `make install`: Installs the application into the system. The install path and permissions have been revised for better system compatibility.
+- `make clean`: Cleans up the project by removing compiled objects and temporary files. This helps in maintaining a clean working environment.
+- `make deploy`: Deploys the application to the target environment. Deployment procedures have been refined for smoother operation and rollback capabilities.
 
-Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+Please refer to `Usage.md` for a more detailed explanation of each Makefile command and best practices for utilizing them within the development cycle.
 
-If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
+---
 
-## 🛠️ Makefile Commands Overview
-The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
-
-- `make build` - Compile the project and create executable artifacts.
-- `make test` - Execute the suite of tests to ensure the project runs as expected.
-- `make clean` - Remove any generated files and reset the project state.
-- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
-- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
-- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
-
-Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
-
-If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
+For any changes to the Makefile, do ensure that all documentation remains current by updating the relevant sections in both README.md and Usage.md. This consistency across documentation is vital for preventing confusion and errors among team members and users.
 
 ## 🛠️ Makefile Commands Overview
-The following commands can be used to interact with the project through the Makefile. The Makefile provides a convenient and consistent way to run common tasks such as building the project, running tests, and cleaning up artifacts.
+The provided Makefile is designed to streamline the development and deployment processes for our project. The updated commands allow for easy execution of common tasks, ensuring a consistent workflow for all contributors. Below are the key commands that have been introduced or updated:
 
-- `make build` - Compile the project and create executable artifacts.
-- `make test` - Execute the suite of tests to ensure the project runs as expected.
-- `make clean` - Remove any generated files and reset the project state.
-- `make install` - Install the project on your local system. Note that superuser privileges may be required depending on your system's configuration.
-- `make docker-build` - Build the project within a Docker container to ensure consistency across different environments.
-- `make docker-run` - Run the project inside a Docker container. This ensures that your local environment does not affect the project's execution.
+- `make build`: Compiles the source code into an executable format. This step must be done before running the application, ensuring that any code changes are included in the compilation.
+- `make test`: Executes the suite of automated tests that validate the functionality of the application. The tests have been updated to reflect the latest feature set and bug fixes.
+- `make install`: Installs the application into the system. The install path and permissions have been revised for better system compatibility.
+- `make clean`: Cleans up the project by removing compiled objects and temporary files. This helps in maintaining a clean working environment.
+- `make deploy`: Deploys the application to the target environment. Deployment procedures have been refined for smoother operation and rollback capabilities.
 
-Ensure that you have Docker installed and running on your system if you wish to utilize the Docker-related Makefile commands. These commands help maintain a consistent development and deployment workflow, especially when collaborating with a team.
+Please refer to `Usage.md` for a more detailed explanation of each Makefile command and best practices for utilizing them within the development cycle.
 
-If any new commands are added or existing commands are modified, this section of the documentation will be promptly updated to reflect those changes.
+---
+
+For any changes to the Makefile, do ensure that all documentation remains current by updating the relevant sections in both README.md and Usage.md. This consistency across documentation is vital for preventing confusion and errors among team members and users.
+
+## 🛠️ Makefile Commands Overview
+The provided Makefile is designed to streamline the development and deployment processes for our project. The updated commands allow for easy execution of common tasks, ensuring a consistent workflow for all contributors. Below are the key commands that have been introduced or updated:
+
+- `make build`: Compiles the source code into an executable format. This step must be done before running the application, ensuring that any code changes are included in the compilation.
+- `make test`: Executes the suite of automated tests that validate the functionality of the application. The tests have been updated to reflect the latest feature set and bug fixes.
+- `make install`: Installs the application into the system. The install path and permissions have been revised for better system compatibility.
+- `make clean`: Cleans up the project by removing compiled objects and temporary files. This helps in maintaining a clean working environment.
+- `make deploy`: Deploys the application to the target environment. Deployment procedures have been refined for smoother operation and rollback capabilities.
+
+Please refer to `Usage.md` for a more detailed explanation of each Makefile command and best practices for utilizing them within the development cycle.
+
+---
+
+For any changes to the Makefile, do ensure that all documentation remains current by updating the relevant sections in both README.md and Usage.md. This consistency across documentation is vital for preventing confusion and errors among team members and users.
