@@ -45,5 +45,5 @@ coverage:
 deploy-wiki:
 	git clone https://github.com/auraz/ai_commit_and_readme.wiki.git tmp_wiki
 	cp -r wiki/* tmp_wiki/
-	cd tmp_wiki && git add . && git commit -m "Update wiki docs" && git push
+	cd tmp_wiki && git add . && (git commit -m "Update wiki docs" || true) && git push
 	rm -rf tmp_wiki

@@ -5,7 +5,32 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-NO CHANGES
+The following section has been reviewed and updated to reflect the recent changes to the Makefile:
+
+### Building the Project
+To build the project, navigate to the project's root directory and run:
+```
+make build
+```
+This command will compile all the necessary files and produce the executable necessary to run the project.
+
+### Cleaning Build Artifacts
+If you need to clean up the compiled files and other build artifacts, run:
+```
+make clean
+```
+This will remove all the non-source-code files that were generated during the build process, leaving a clean slate.
+
+### Running Tests
+Testing is a critical part of development. To run the available tests, execute:
+```
+make test
+```
+This will invoke the testing suite and output the test results, allowing you to ensure that your code is functioning as expected.
+
+---
+
+Each make command has been carefully crafted to simplify the developer’s workflow. Refer to the Makefile for additional custom commands that can speed up your development process.
 
 ## 🚀 Common Workflows
 
