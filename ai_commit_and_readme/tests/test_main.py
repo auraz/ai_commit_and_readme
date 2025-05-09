@@ -9,6 +9,29 @@ import pytest
 import ai_commit_and_readme.main as mod
 
 
+# Shared test OpenAI client for mocking
+class FakeClient:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    class chat:  # noqa: N801
+        class completions:  # noqa: N801
+            @staticmethod
+            def create(*args, **kwargs):  # noqa: ARG004
+                class R:
+                    choices: ClassVar = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
+
+                return R()
+
+
+class FakeClientFail(FakeClient):
+    class chat(FakeClient.chat):  # noqa: N801
+        class completions(FakeClient.chat.completions):  # noqa: N801
+            @staticmethod
+            def create(*args, **kwargs):  # noqa: ARG004
+                raise Exception("fail")
+
+
 def make_ctx(**kwargs):
     """Create a test context dictionary with defaults and overrides."""
     ctx = {
@@ -115,18 +138,6 @@ class TestAIEnrich:
 
     def test_ai_enrich_success(self, monkeypatch):
         """Should set ai_suggestions from OpenAI response."""
-
-        class FakeClient:
-            class chat:  # noqa: N801
-                class completions:  # noqa: N801
-                    @staticmethod
-                    def create(*args, **kwargs):  # noqa: ARG004
-                        class R:
-                            # 'choices' is a mutable class attribute, so we annotate it as ClassVar to satisfy linter RUF012
-                            choices: ClassVar = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
-
-                        return R()
-
         monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
         self.ctx["README.md"] = "r"
         mod.ai_enrich(self.ctx, "README.md")
@@ -134,14 +145,6 @@ class TestAIEnrich:
 
     def test_ai_enrich_exception(self, monkeypatch):
         """Should exit on OpenAI API exception."""
-
-        class FakeClientFail:
-            class Chat:
-                class Completions:
-                    @staticmethod
-                    def create(_model, _messages):
-                        raise Exception("fail")
-
         monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClientFail)  # noqa: ARG005
         self.ctx["README.md"] = "r"
         with pytest.raises(SystemExit):

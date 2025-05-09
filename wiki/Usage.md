@@ -5,7 +5,7 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+NO CHANGES
 
 ## 🚀 Common Workflows
 

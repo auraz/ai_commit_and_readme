@@ -26,15 +26,14 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-Ensure to review the latest changes to the Makefile to leverage the full potential of the project's command suite. Below is an overview of the primary commands you'll be using:
+The Makefile is an essential component that automates the compilation, testing, and deployment of our project. Ensuring that you are up-to-date with the Makefile's latest commands will enhance your development workflow. Below is an updated list of relevant commands that you should be familiar with:
 
-- `make build`: Assembles the project, compiling source files into executable binaries or libraries.
-- `make test`: Runs a comprehensive suite of tests to ensure your changes meet the existing behavioral specifications.
-- `make install`: Installs the project binaries onto your system, making it usable from anywhere within your environment.
-- `make clean`: Cleans up the project, removing compiled objects and temporary files to maintain a tidy workspace.
+- `make build`: Compiles the project, ensuring that any new changes are integrated before deployment.
+- `make test`: Runs a comprehensive suite of tests to verify the functionality and integrity of the project's codebase.
+- `make install`: Installs the project's dependencies, setting up a proper environment for development and execution.
+- `make clean`: Cleans up the project's directory by removing compiled objects and temporary files, maintaining a tidy workspace.
+- `make deploy`: Simplifies the process of deploying the project to the designated environment or platform.
 
-(Note any additions or modifications to the Makefile here, and provide necessary explanations for new or changed commands.)
+To use these commands, simply type `make <command>` in your terminal. For example, `make build` will trigger the compilation process.
 
----
-
-Remember that each command in the Makefile has been crafted to simplify your development process. Utilize them to automate recurring tasks efficiently.
+Remember to review the Makefile periodically for any additional commands or modifications that can streamline your development process.
