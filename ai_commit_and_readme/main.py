@@ -13,6 +13,9 @@ import re
 import openai
 import tiktoken
 
+import colorama
+colorama.init()
+
 from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
 
@@ -21,6 +24,7 @@ GREEN = "\033[92m"
 YELLOW = "\033[93m"
 RED = "\033[91m"
 RESET = "\033[0m"
+CYAN = "\033[96m"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -166,8 +170,8 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
         logging.info(f"{GREEN}🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉{RESET}")
         subprocess.run(["git", "add", file_path])
     else:
-        # Always color 'No enrichment needed' messages yellow
-        logging.info(f"{YELLOW}👍 No enrichment needed for {file_path}.{RESET}")
+        # Color 'No enrichment needed' messages cyan for visibility
+        logging.info(f"{CYAN}👍 No enrichment needed for {file_path}.{RESET}")
 
 
 def write_enrichment_outputs(ctx):
