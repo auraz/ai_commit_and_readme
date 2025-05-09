@@ -13,21 +13,20 @@ import re
 import openai
 import tiktoken
 
+from rich.logging import RichHandler
 import colorama
 colorama.init()
 
 from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
 
-# ANSI color codes
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-RED = "\033[91m"
-RESET = "\033[0m"
-CYAN = "\033[96m"
-
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler()]
+)
 
 
 @chain_handler
@@ -49,7 +48,7 @@ def get_diff(ctx, diff_args=None):
 def check_diff_empty(ctx):
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
-        logging.info(f"{YELLOW}✅ No staged changes detected. Nothing to enrich.{RESET}")
+        logging.info("✅ No staged changes detected. Nothing to enrich.")
         sys.exit(0)
 
 
@@ -100,7 +99,7 @@ def get_ai_response(prompt, ctx=None):
     try:
         response = client.chat.completions.create(model=ctx["model"], messages=[{"role": "user", "content": prompt}])
     except Exception as e:
-        logging.error(f"{RED}❌ Error from OpenAI API: {e}{RESET}")
+        logging.error(f"❌ Error from OpenAI API: {e}")
         sys.exit(1)
     return response
 
@@ -167,11 +166,10 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
             # No section header, just append
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write(ai_suggestion)
-        logging.info(f"{GREEN}🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉{RESET}")
+        logging.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
         subprocess.run(["git", "add", file_path])
     else:
-        # Color 'No enrichment needed' messages cyan for visibility
-        logging.info(f"{CYAN}👍 No enrichment needed for {file_path}.{RESET}")
+        logging.info(f"👍 No enrichment needed for {file_path}.")
 
 
 def write_enrichment_outputs(ctx):
