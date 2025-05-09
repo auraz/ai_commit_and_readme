@@ -83,9 +83,9 @@ def get_file(ctx, file_key, path_key):
 
 @chain_handler
 def print_file_info(ctx, file_key, model_key):
-    """Print the size of the file in characters and tokens."""
+    """Print the size of the file update in characters and tokens."""
     content = ctx[file_key]
-    logging.info(f"📄 {file_key} is currently {len(content):,} characters.")
+    logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
     logging.info(f"🔢 That's {tokens:,} tokens in {file_key}!")

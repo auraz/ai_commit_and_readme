@@ -197,3 +197,14 @@ The Makefile included in this project serves as a scriptable interface to simpli
 - `make clean`: Remove any files created by the build and test processes, returning the project to a clean state.
 
 Should any adjustments or additions be made to the Makefile that affect these commands, such documentation will be meticulously updated to reflect those changes to ensure your total clarity and continued productivity.
+```
+## 🛠️ Makefile Commands Overview
+
+- `make build`: Compiles the project and generates the necessary binaries.
+- `make test`: Runs the suite of tests to ensure code quality and functionality.
+- `make install`: Installs the application on the local system, providing all the necessary configurations.
+- `make clean`: Removes any compiled binaries and temporary files to clean the build environment.
+- `make docker-build`: Builds a Docker image for the application, encapsulating it in a portable container.
+
+Please refer to Usage.md for a detailed explanation of each command and additional options.
+```
