@@ -11,17 +11,19 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 cm:
+	@echo "\033[96m\nℹ️  EXPLANATION: This command will stage all changes, run AI enrichment, generate an AI commit message, and push to the remote repository.\033[0m"
+	@echo "\033[90m------------------------------------------------------------\033[0m"
 	@echo "\n🔄 Staging all changes..."
 	git add .
 	@if git diff --cached --quiet; then \
-		echo "✅ No staged changes detected. Skipping enrichment and commit."; \
+		echo "\033[93m✅ No staged changes detected. Skipping enrichment and commit.\033[0m"; \
 	else \
-		echo "🤖 Running AI enrichment..."; \
+		echo "\033[96m🤖 Running AI enrichment...\033[0m"; \
 		ai-commit-and-readme; \
-		echo "✍️  Generating AI commit message..."; \
+		echo "\033[96m✍️  Generating AI commit message...\033[0m"; \
 		aicommit; \
 	fi
-	@echo "🚀 Pushing to remote repository..."
+	@echo "\033[92m🚀 Pushing to remote repository...\033[0m"
 	git push
 
 coverage:
