@@ -137,34 +137,16 @@ make new_command
 
 
 ## 🛠️ Makefile Commands Overview
-Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
+The Makefile included in this project serves as a scriptable interface to simplify and standardize complex commands. Below you will find an overview of the core commands you should be familiar with:
 
-### Quick Commands Reference
+- `make setup`: Prepare your environment for the project. This may include installing dependencies, setting up virtual environments, or similar preparatory tasks.
+- `make build`: Compile the project or assemble necessary files for execution.
+- `make test`: Run the tests to ensure your changes have not caused any regressions.
+- `make run`: Execute the primary functionality of the application. Ensure you have completed the setup and build steps before running this command.
+- `make deploy`: If applicable, use this command to deploy the application to a staging or production environment.
+- `make clean`: Remove any files created by the build and test processes, returning the project to a clean state.
 
-- `make build`: Compiles the project, preparing it for execution.
-- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
-- `make install`: Installs the project, making it ready for use in the target environment.
-- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
-- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
-
-### Detailed Descriptions
-
-#### make build
-This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
-
-#### make test
-To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
-
-#### make install
-Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
-
-#### make clean
-The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
-
-#### make docs
-The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
-
-*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
+Should any adjustments or additions be made to the Makefile that affect these commands, such documentation will be meticulously updated to reflect those changes to ensure your total clarity and continued productivity.
 
 ## Updated Sections
 
@@ -180,34 +162,16 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
+The Makefile included in this project serves as a scriptable interface to simplify and standardize complex commands. Below you will find an overview of the core commands you should be familiar with:
 
-### Quick Commands Reference
+- `make setup`: Prepare your environment for the project. This may include installing dependencies, setting up virtual environments, or similar preparatory tasks.
+- `make build`: Compile the project or assemble necessary files for execution.
+- `make test`: Run the tests to ensure your changes have not caused any regressions.
+- `make run`: Execute the primary functionality of the application. Ensure you have completed the setup and build steps before running this command.
+- `make deploy`: If applicable, use this command to deploy the application to a staging or production environment.
+- `make clean`: Remove any files created by the build and test processes, returning the project to a clean state.
 
-- `make build`: Compiles the project, preparing it for execution.
-- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
-- `make install`: Installs the project, making it ready for use in the target environment.
-- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
-- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
-
-### Detailed Descriptions
-
-#### make build
-This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
-
-#### make test
-To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
-
-#### make install
-Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
-
-#### make clean
-The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
-
-#### make docs
-The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
-
-*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
+Should any adjustments or additions be made to the Makefile that affect these commands, such documentation will be meticulously updated to reflect those changes to ensure your total clarity and continued productivity.
 
 ## Updated Sections
 
@@ -223,31 +187,13 @@ make cm
 ```
 
 ## 🛠️ Makefile Commands Overview
-Please note that this section has been meticulously revised to reflect the recent enhancements in the Makefile. The usage instructions have been overhauled for clarity and precision, ensuring the latest project workflow is accurately captured.
+The Makefile included in this project serves as a scriptable interface to simplify and standardize complex commands. Below you will find an overview of the core commands you should be familiar with:
 
-### Quick Commands Reference
+- `make setup`: Prepare your environment for the project. This may include installing dependencies, setting up virtual environments, or similar preparatory tasks.
+- `make build`: Compile the project or assemble necessary files for execution.
+- `make test`: Run the tests to ensure your changes have not caused any regressions.
+- `make run`: Execute the primary functionality of the application. Ensure you have completed the setup and build steps before running this command.
+- `make deploy`: If applicable, use this command to deploy the application to a staging or production environment.
+- `make clean`: Remove any files created by the build and test processes, returning the project to a clean state.
 
-- `make build`: Compiles the project, preparing it for execution.
-- `make test`: Runs the suite of automated tests to ensure code quality and functionality.
-- `make install`: Installs the project, making it ready for use in the target environment.
-- `make clean`: Cleans up the build artifacts, ensuring a fresh state for future builds.
-- `make docs`: Generates project documentation, which now includes API documentation as per the recent update.
-
-### Detailed Descriptions
-
-#### make build
-This command invokes the compilation process for the entire project. It should be used whenever you have made changes to the source code and are ready to recompile.
-
-#### make test
-To maintain and assure the quality of software, `make test` executes all unit and integration tests. Running the tests regularly is recommended to catch and resolve issues promptly.
-
-#### make install
-Following a successful build, `make install` will install the software into the `$(DESTDIR)` (which defaults to `/usr/local` on most systems), making it accessible and ready for use.
-
-#### make clean
-The clean command is a housekeeping utility that removes all generated files that are not part of the source code repository. It's advised to run this before a new build to ensure no artifacts from previous compilations interfere with the current build process.
-
-#### make docs
-The newly added `make docs` command automates the generation of project documentation. It will produce a set of documents that include both the user guide and the newly integrated API reference materials.
-
-*Remember to review any dependencies or additional setup instructions in the following sections to take full advantage of these commands.*
+Should any adjustments or additions be made to the Makefile that affect these commands, such documentation will be meticulously updated to reflect those changes to ensure your total clarity and continued productivity.

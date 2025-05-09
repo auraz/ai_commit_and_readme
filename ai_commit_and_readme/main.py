@@ -15,9 +15,7 @@ import openai
 import tiktoken
 
 from rich.logging import RichHandler
-import colorama
 from rich import print as rich_print
-colorama.init()
 
 from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
@@ -171,7 +169,7 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
         logging.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
         subprocess.run(["git", "add", file_path])
     else:
-        rich_print(f"[cyan]👍 No enrichment needed for {file_path}.[/cyan]")
+        logging.info(f"👍 No enrichment needed for {file_path}.")
 
 
 def write_enrichment_outputs(ctx):
