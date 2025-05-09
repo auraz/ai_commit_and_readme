@@ -166,6 +166,7 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
         logging.info(f"{GREEN}🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉{RESET}")
         subprocess.run(["git", "add", file_path])
     else:
+        # Always color 'No enrichment needed' messages yellow
         logging.info(f"{YELLOW}👍 No enrichment needed for {file_path}.{RESET}")
 
 
