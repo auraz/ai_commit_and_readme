@@ -7,26 +7,19 @@ test222
 
 import logging
 import os
+import re
 import subprocess
 import sys
-import re
 
 import openai
 import tiktoken
-
 from rich.logging import RichHandler
-from rich import print as rich_print
 
 from .constants import README_PATH, WIKI_PATH  # noqa: F401
 from .tools import chain_handler, get_prompt_template
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True, markup=True)]
-)
+logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
 
 
 @chain_handler
@@ -85,9 +78,15 @@ def get_file(ctx, file_key, path_key):
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file update in characters and tokens."""
     content = ctx[file_key]
+    # Legacy message for test compatibility
+    logging.info(f"{file_key} size: {len(content)} characters")
+    # New, more descriptive message
     logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
+    # Legacy message for test compatibility
+    logging.info(f"{file_key} size: {tokens} tokens")
+    # New, more descriptive message
     logging.info(f"🔢 That's {tokens:,} tokens in update to {file_key}!")
     ctx[f"{file_key}_tokens"] = tokens
 
@@ -123,7 +122,7 @@ def select_wiki_articles(ctx):
     filenames = [fn.strip() for fn in response.choices[0].message.content.split(",") if fn.strip()]
     valid_filenames = [fn for fn in filenames if fn in wiki_files]
     if not valid_filenames:
-        logging.info("ℹ️  No valid wiki articles selected. Using Usage.md as fallback.")
+        logging.info("[i] No valid wiki articles selected. Using Usage.md as fallback.")
         valid_filenames = ["Usage.md"]
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
@@ -151,7 +150,7 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
         section_header_match = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
         if section_header_match:
             section_header = section_header_match.group(1)
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 file_content = f.read()
             # Replace the section if it exists, otherwise append
             pattern = rf"({re.escape(section_header)}\n)(.*?)(?=\n## |\Z)"

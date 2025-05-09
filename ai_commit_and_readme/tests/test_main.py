@@ -101,7 +101,8 @@ class TestHandlers:
         monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
         with caplog.at_level("INFO"):
             mod.print_file_info(ctx, filename, model_key)
-        assert f"{filename} size:" in caplog.text
+        assert f"Update to {filename} is currently" in caplog.text
+        assert f"That's 3 tokens in update to {filename}!" in caplog.text
         assert ctx[f"{filename}_tokens"] == 3
 
 

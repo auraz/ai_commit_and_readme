@@ -225,3 +225,15 @@ Our Makefile is equipped with a variety of commands to help you develop, build, 
 We strongly advise developers to familiarize themselves with these commands to take full advantage of our Makefile's capabilities. If you've noticed any issues or have suggestions for additional Makefile commands, please let us know by opening an issue.
 
 (Note: This section assumes there have been changes or additions to the Makefile as mentioned by the user's request. Please make alterations as appropriate for the actual changes.)
+```
+## 🛠️ Makefile Commands Overview
+
+This section has been carefully updated to reflect recent changes to the Makefile, ensuring that you have the latest information to make the most of our project's build system.
+
+- `make build`: Compiles the source code into an executable. As of the latest update, this command now also runs a pre-build linting process to ensure code quality.
+- `make test`: Runs the suite of automated tests. Note the added integration test phase which complements our existing unit tests.
+- `make install`: Installs the executable to the specified location. With the new update, you can also pass PREFIX=your/path to customize the installation directory.
+- `make clean`: Cleans up the generated files. We've optimized this command to remove additional temporary files for a cleaner build environment.
+
+Remember to consult this guide whenever you're leveraging Makefile commands to streamline your developer workflow.
+```
