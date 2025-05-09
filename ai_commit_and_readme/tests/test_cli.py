@@ -38,6 +38,10 @@ class TestCLI:
         monkeypatch.setattr(mod.subprocess, "run", lambda *_a, **_k: None)
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff content")
         monkeypatch.setenv("OPENAI_API_KEY", "test")
+        # Reuse FakeClient from test_main.py
+        from ai_commit_and_readme.tests.test_main import TestAIEnrich
+        FakeClient = TestAIEnrich.test_ai_enrich_success.__globals__["FakeClient"]
+        monkeypatch.setattr("openai.OpenAI", lambda *args, **kwargs: FakeClient)
         sys_argv = sys.argv
         sys.argv = ["prog", "enrich"]
         try:
