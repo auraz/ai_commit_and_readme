@@ -25,7 +25,7 @@ def check_api_key(ctx):
     """Check for the presence of the OpenAI API key in context or environment."""
     ctx["api_key"] = ctx.get("api_key") or os.getenv("OPENAI_API_KEY")
     if not ctx["api_key"]:
-        logging.warning("OPENAI_API_KEY not set. Skipping README update.")
+        logging.warning("🔑 OPENAI_API_KEY not set. Skipping README update.")
         sys.exit(0)
 
 
@@ -39,17 +39,17 @@ def get_diff(ctx, diff_args=None):
 def check_diff_empty(ctx):
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
-        logging.info("No staged changes detected. Nothing to enrich.")
+        logging.info("✅ No staged changes detected. Nothing to enrich.")
         sys.exit(0)
 
 
 @chain_handler
 def print_diff_info(ctx):
     """Print the size of the diff in characters and tokens."""
-    logging.info(f"Diff size: {len(ctx['diff'])} characters")
+    logging.info(f"📏 Diff size: {len(ctx['diff'])} characters")
     enc = tiktoken.encoding_for_model(ctx["model"])
     diff_tokens = len(enc.encode(ctx["diff"]))
-    logging.info(f"Diff size: {diff_tokens} tokens")
+    logging.info(f"🔢 Diff size: {diff_tokens} tokens")
     ctx["diff_tokens"] = diff_tokens
 
 
@@ -57,9 +57,9 @@ def print_diff_info(ctx):
 def fallback_large_diff(ctx):
     """Fallback to file list if the diff is too large."""
     if len(ctx["diff"]) > 100000:
-        logging.warning('Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
+        logging.warning('⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
         get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
-        logging.info(f"Using file list as diff: {ctx['diff'].strip()}")
+        logging.info(f"📄 Using file list as diff: {ctx['diff'].strip()}")
 
 
 @chain_handler
@@ -76,10 +76,10 @@ def get_file(ctx, file_key, path_key):
 def print_file_info(ctx, file_key, model_key):
     """Print the size of the file in characters and tokens."""
     content = ctx[file_key]
-    logging.info(f"{file_key} size: {len(content)} characters")
+    logging.info(f"📄 {file_key} size: {len(content)} characters")
     enc = tiktoken.encoding_for_model(ctx[model_key])
     tokens = len(enc.encode(content))
-    logging.info(f"{file_key} size: {tokens} tokens")
+    logging.info(f"🔢 {file_key} size: {tokens} tokens")
     ctx[f"{file_key}_tokens"] = tokens
 
 
@@ -90,7 +90,7 @@ def get_ai_response(prompt, ctx=None):
     try:
         response = client.chat.completions.create(model=ctx["model"], messages=[{"role": "user", "content": prompt}])
     except Exception as e:
-        logging.error(f"Error from OpenAI API: {e}")
+        logging.error(f"❌ Error from OpenAI API: {e}")
         sys.exit(1)
     return response
 
@@ -114,7 +114,7 @@ def select_wiki_articles(ctx):
     filenames = [fn.strip() for fn in response.choices[0].message.content.split(",") if fn.strip()]
     valid_filenames = [fn for fn in filenames if fn in wiki_files]
     if not valid_filenames:
-        logging.info("No valid wiki articles selected. Using Usage.md as fallback.")
+        logging.info("ℹ️  No valid wiki articles selected. Using Usage.md as fallback.")
         valid_filenames = ["Usage.md"]
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
@@ -157,10 +157,10 @@ def append_suggestion_and_stage(file_path, ai_suggestion, label):
             # No section header, just append
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write(ai_suggestion)
-        logging.info(f"{file_path} enriched and staged with AI suggestions for {label}.")
+        logging.info(f"✨ {file_path} enriched and staged with AI suggestions for {label}.")
         subprocess.run(["git", "add", file_path])
     else:
-        logging.info(f"No enrichment needed for {file_path}.")
+        logging.info(f"👍 No enrichment needed for {file_path}.")
 
 
 def write_enrichment_outputs(ctx):

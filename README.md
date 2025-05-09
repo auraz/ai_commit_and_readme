@@ -186,3 +186,30 @@ make cm
 ```
 
 These updates ensure that users are informed about the new behavior of the `make cm` command in the Makefile.
+
+# AI-suggested enrichment:
+## Updated Sections
+
+### 📦 Quick Start
+
+Update the Quick Start section to reflect changes in the `make cm` command behavior to handle cases where no changes are staged:
+
+```sh
+# To automate commit messages, run the following after staging your changes:
+make cm
+
+# Note: If no changes are staged, the process will skip the AI enrichment and commit message generation step.
+```
+
+## 🛠️ Makefile Commands Overview
+
+Add a note regarding the modified `cm` command to handle cases with no staged changes:
+
+```plaintext
+# Commit staged changes with AI-generated messages:
+make cm
+
+# Note: If there are no staged changes, the command will skip AI enrichment and committing.
+```
+
+These updates ensure that users are informed about the new behavior of the `make cm` command in the Makefile.

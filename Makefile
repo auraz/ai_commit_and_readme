@@ -11,14 +11,17 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 cm:
+	@echo "\n🔄 Staging all changes..."
 	git add .
-
-	if git diff --cached --quiet; then \
-		echo "No staged changes, skipping aicommit."; \
+	@if git diff --cached --quiet; then \
+		echo "✅ No staged changes detected. Skipping enrichment and commit."; \
 	else \
+		echo "🤖 Running AI enrichment..."; \
 		ai-commit-and-readme; \
-        aicommit; \
+		echo "✍️  Generating AI commit message..."; \
+		aicommit; \
 	fi
+	@echo "🚀 Pushing to remote repository..."
 	git push
 
 coverage:
