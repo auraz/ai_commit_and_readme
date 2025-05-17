@@ -3,17 +3,10 @@
 from pathlib import Path
 
 import pytest
+from pipetools import pipe
 
 import ai_commit_and_readme.tools as tools
 from ai_commit_and_readme.tools import CtxDict
-
-# Try to import pipetools if available, otherwise define a fallback
-try:
-    from pipetools import pipe
-
-    HAVE_PIPETOOLS = True
-except ImportError:
-    HAVE_PIPETOOLS = False
 
 
 class TestContextInitialization:
@@ -120,16 +113,8 @@ class TestPipeline:
 
         # Execute functions sequentially to simulate pipeline
         empty_ctx: CtxDict = {}
-
-        if HAVE_PIPETOOLS:
-            # Test using pipe operator if available
-            p = pipe | tools.initialize_context | step1 | step2
-            result = p(empty_ctx)
-        else:
-            # Fallback to manual chaining
-            ctx = tools.initialize_context(empty_ctx)
-            ctx = step1(ctx)
-            result = step2(ctx)
+        p = pipe | tools.initialize_context | step1 | step2
+        result = p(empty_ctx)
 
         # Verify pipeline processed all steps
         assert result["context_initialized"] is True
