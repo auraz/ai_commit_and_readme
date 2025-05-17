@@ -5,7 +5,7 @@ with open("README.md", encoding="utf-8") as fh:
 
 setup(
     name="ai_commit_and_readme",
-    version="0.1.2",
+    version="1.0.2",
     description="AI-powered README.md and commit message generation tool using OpenAI",
     long_description=long_description,
     long_description_content_type="text/markdown",  # Important for Markdown rendering on PyPI

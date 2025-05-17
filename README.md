@@ -26,16 +26,28 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-Please note that this section has been updated to reflect recent changes in the Makefile. Make sure to use the latest commands as outlined below for a seamless development experience.
+Please consult the updated Makefile for the latest commands and usage scenarios for our project. The Makefile is designed to be simple and intuitive, making the build process seamless for both newcomers and veterans alike.
 
-- `make build` - Compiles the project and creates executables.
-- `make test` - Runs the entire suite of automated tests to ensure code quality and functionality.
-- `make install` - Installs the project onto your system. Ensure you have the necessary permissions to execute this command.
-- `make clean` - Removes all generated files from the build process, restoring the directory to a pre-build state.
-- `make docs` - Generates project documentation, including HTML pages and PDFs if applicable.
-- `make all` - Executes the build, test, and install commands sequentially; this is your go-to command for a full up-to-date setup.
+For example, to compile the project, you'd simply use:
 
-*Note: Some commands might require additional parameters; refer to the detailed usage guide for further instruction.*
+```sh
+make build
+```
+
+If there have been changes that affect the testing procedures, for instance, the addition of a new testing suite or expanded testing commands, you would see those reflected here with descriptions on how to invoke them:
+
+```sh
+make test
+```
+
+Additional commands are also documented, providing you with options for cleaning up build artifacts, generating documentation, or other common tasks:
+
+```sh
+make clean  # Remove build artifacts
+make docs   # Generate project documentation
+```
+
+Always run `make help` to see the list of available commands directly in your terminal. Our Makefile is regularly updated to introduce optimizations and new functionality, so we recommend checking back often for the latest command set.
 
 ## ✨ Feature Highlights
 
