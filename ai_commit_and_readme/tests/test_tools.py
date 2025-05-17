@@ -33,6 +33,7 @@ class TestContextInitialization:
 
     def test_ensure_initialized_decorator(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """ensure_initialized decorator should initialize context before calling the function."""
+
         # Define a test function with the decorator
         @tools.ensure_initialized
         def dummy(ctx: CtxDict) -> CtxDict:
@@ -116,6 +117,7 @@ class TestPipeline:
 
     def test_pipeline_integration(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that functions can be combined in a pipeline using the pipe operator."""
+
         # Define simple test functions for the pipeline
         def step1(ctx: CtxDict) -> CtxDict:
             ctx["step1"] = True

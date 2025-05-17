@@ -21,6 +21,7 @@ logger = get_logger(__name__)
 
 CtxDict = dict[str, Any]  # Pipeline context dictionary type
 
+
 class PipeFunction(Protocol):
     def __call__(self, ctx: CtxDict) -> CtxDict: ...
 
@@ -47,7 +48,6 @@ def initialize_context(ctx: CtxDict) -> CtxDict:
 
 
 def ensure_initialized(func: Callable) -> PipeFunction:
-
     def wrapper(ctx: CtxDict) -> CtxDict:
         ctx = initialize_context(ctx)
         return func(ctx)

@@ -1,5 +1,25 @@
 line-length = 200
-lint.select = ["E", "F", "W", "I", "N", "UP", "B", "C90", "A", "C4", "T20", "SIM", "TID", "ARG", "DTZ", "PIE", "Q", "RET", "RUF"]
+lint.select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "N",
+    "UP",
+    "B",
+    "C90",
+    "A",
+    "C4",
+    "T20",
+    "SIM",
+    "TID",
+    "ARG",
+    "DTZ",
+    "PIE",
+    "Q",
+    "RET",
+    "RUF",
+]
 lint.ignore = ["E501"]
 exclude = [
     ".git",

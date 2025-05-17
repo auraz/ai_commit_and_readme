@@ -26,7 +26,7 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-(NO CONTENT - this is just an example header to indicate the section title should be updated according to the code changes described. Since there are no actual instructions related to code changes in the prompt, content under this header would be fabricated.)
+_NO CHANGES_
 
 ## ✨ Feature Highlights
 
