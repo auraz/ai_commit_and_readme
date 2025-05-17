@@ -26,20 +26,16 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-The following commands are available in our Makefile to assist in the building and management of the project. Ensure you have the necessary permissions to execute these commands on your system.
+Due to recent changes in the project's Makefile, it is essential to ensure that all users have access to the most current command information. Below is an overview of the updated Makefile commands you can use for various tasks when working with our project:
 
-- `make build`: Compiles the project, generating the necessary executable or library files.
-- `make test`: Runs the full suite of automated tests to ensure code quality and functionality.
-- `make install`: Installs the project binaries onto the system. May require elevated privileges depending on your system's configuration.
-- `make clean`: Cleans up the project, removing compiled objects and temporary files to maintain a clean workspace.
-- `make doc`: Generates the project's documentation, ensuring that you have the latest instructions and reference materials.
-- `make all`: Invokes the `build`, `test`, and `doc` commands in sequence, providing a complete build-and-test cycle that includes documentation updates.
+- `make build`: Compiles the project, preparing it for execution.
+- `make test`: Runs a comprehensive suite of automated tests to verify the functionality of the project.
+- `make install`: Installs the project and its dependencies onto the local machine. This may involve downloading required libraries or other components.
+- `make clean`: Cleans up the generated files and artifacts from the build process, leaving a tidy workspace.
+- `make deploy`: Deploys the project to the designated environment, which may be staging or production depending on configuration settings.
+- `make docs`: Generate up-to-date project documentation, ensuring that API references, guides, and samples reflect the most recent changes.
 
-Please note that new dependencies have been added to the project. If you encounter any issues while running the commands above, ensure you have all the necessary dependencies installed. Refer to `INSTALL.md` for dependency installation instructions.
-
----
-
-As a project grows and evolves, so too must its documentation. The above changes are a reflection of our continuous effort to keep you, the user and contributor, informed and equipped to engage with our project. With the addition of `make doc` to our suite of Makefile commands, we streamline the process of keeping documentation synchronized with code changes. After all, well-maintained documentation is just as vital as well-maintained code.
+Each of these commands can be run from the terminal within the project's root directory. For some commands, there may be additional options or flags; consult the Makefile directly for the most precise usage details.
 
 ## ✨ Feature Highlights
 
