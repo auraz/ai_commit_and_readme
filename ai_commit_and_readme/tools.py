@@ -5,19 +5,20 @@ Utility functions for documentation enrichment and other helpers.
 import glob
 import os
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast, Dict, List, Tuple, Optional
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
 PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
-T = TypeVar('T')
+# For better type annotations
+CtxDict = Dict[str, Any]
 
 
-def chain_handler(func: Callable[[Dict[str, Any], ...], None]) -> Callable[[Dict[str, Any], ...], Dict[str, Any]]:
+def chain_handler(func: Callable) -> Callable:
     """Decorator to ensure handler returns ctx for chaining and populates ctx with constants if not set."""
 
-    def wrapper(ctx: Dict[str, Any], *args: Any, **kwargs: Any) -> Dict[str, Any]:
+    def wrapper(ctx: CtxDict, *args: Any, **kwargs: Any) -> CtxDict:
         if "chain_handler_initialized" not in ctx:
             defaults = [
                 ("readme_path", README_PATH),
@@ -58,7 +59,7 @@ def get_prompt_template(section: str) -> str:
         raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}") from err
     section_header = f"## {section}"
     in_section = False
-    section_lines = []
+    section_lines: List[str] = []
     for line in lines:
         if line.strip().startswith("## "):
             if in_section:

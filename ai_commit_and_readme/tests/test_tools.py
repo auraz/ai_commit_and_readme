@@ -1,10 +1,11 @@
 """Tests for ai_commit_and_readme.tools utility functions."""
 
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any
+from typing import Any, Dict, List
 
 import pytest
 
+from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.tools as tools
 
 
@@ -15,11 +16,11 @@ class TestChainHandler:
         """chain_handler should populate context with defaults and call the wrapped function."""
 
         @tools.chain_handler
-        def dummy(ctx: Dict[str, Any]) -> None:
+        def dummy(ctx: CtxDict) -> None:
             """Dummy function for testing chain_handler."""
             ctx["touched"] = True
 
-        ctx: Dict[str, Any] = {}
+        ctx: CtxDict = {}
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
         dummy(ctx)
         assert ctx["touched"] is True

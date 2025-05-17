@@ -4,9 +4,10 @@ CLI entry point for AI Commit and README tool.
 """
 
 import argparse
-from typing import Dict, Callable, Any
+from typing import Any, Callable, Dict
 
 from .main import enrich
+from .tools import CtxDict
 
 
 def main() -> None:

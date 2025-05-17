@@ -10,20 +10,22 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, Dict, List
 
 import openai
 import tiktoken
 from rich.logging import RichHandler
 
-from .tools import chain_handler, get_prompt_template
+# We're using these constants indirectly through chain_handler
+from .constants import README_PATH, WIKI_PATH
+from .tools import chain_handler, get_prompt_template, CtxDict
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
 
 
 @chain_handler
-def check_api_key(ctx: Dict[str, Any]) -> None:
+def check_api_key(ctx: CtxDict) -> None:
     """Check for the presence of the OpenAI API key in context or environment."""
     ctx["api_key"] = ctx.get("api_key") or os.getenv("OPENAI_API_KEY")
     if not ctx["api_key"]:
@@ -32,13 +34,13 @@ def check_api_key(ctx: Dict[str, Any]) -> None:
 
 
 @chain_handler
-def get_diff(ctx: Dict[str, Any], diff_args: Optional[List[str]] = None) -> None:
+def get_diff(ctx: CtxDict, diff_args: Optional[List[str]] = None) -> None:
     """Retrieve the staged git diff (or file list) and store it in context."""
     ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
 
 
 @chain_handler
-def check_diff_empty(ctx: Dict[str, Any]) -> None:
+def check_diff_empty(ctx: CtxDict) -> None:
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
         logging.info("✅ No staged changes detected. Nothing to enrich.")
@@ -46,7 +48,7 @@ def check_diff_empty(ctx: Dict[str, Any]) -> None:
 
 
 @chain_handler
-def print_diff_info(ctx: Dict[str, Any]) -> None:
+def print_diff_info(ctx: CtxDict) -> None:
     """Print the size of the diff in characters and tokens."""
     logging.info(f"📏 Your staged changes are {len(ctx['diff']):,} characters long!")
     enc = tiktoken.encoding_for_model(ctx["model"])
@@ -56,7 +58,7 @@ def print_diff_info(ctx: Dict[str, Any]) -> None:
 
 
 @chain_handler
-def fallback_large_diff(ctx: Dict[str, Any]) -> None:
+def fallback_large_diff(ctx: CtxDict) -> None:
     """Fallback to file list if the diff is too large."""
     if len(ctx["diff"]) > 100000:
         logging.warning('⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
@@ -65,14 +67,14 @@ def fallback_large_diff(ctx: Dict[str, Any]) -> None:
 
 
 @chain_handler
-def get_file(ctx: Dict[str, Any], file_key: str, path_key: str) -> None:
+def get_file(ctx: CtxDict, file_key: str, path_key: str) -> None:
     """Read the file at path_key and store its contents in ctx[file_key]."""
     with open(path_key) as f:
         ctx[file_key] = f.read()
 
 
 @chain_handler
-def print_file_info(ctx: Dict[str, Any], file_key: str, model_key: str) -> None:
+def print_file_info(ctx: CtxDict, file_key: str, model_key: str) -> None:
     """Print the size of the file update in characters and tokens."""
     content: str = ctx[file_key]
     logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
@@ -82,12 +84,16 @@ def print_file_info(ctx: Dict[str, Any], file_key: str, model_key: str) -> None:
     ctx[f"{file_key}_tokens"] = tokens
 
 
-def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None) -> openai.types.chat.ChatCompletion:
+def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
     """Return an OpenAI client response for the given prompt and model."""
     api_key: Optional[str] = ctx["api_key"] if ctx and "api_key" in ctx else None
     client = openai.OpenAI(api_key=api_key)
     try:
-        response = client.chat.completions.create(model=ctx["model"], messages=[{"role": "user", "content": prompt}])
+        model_name = ctx["model"] if ctx and "model" in ctx else "gpt-4"
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[{"role": "user", "content": prompt}]
+        )
     except Exception as e:
         logging.error(f"❌ Error from OpenAI API: {e}")
         sys.exit(1)
@@ -95,22 +101,34 @@ def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None) -> openai
 
 
 @chain_handler
-def ai_enrich(ctx: Dict[str, Any], filename: str) -> Dict[str, Any]:
+def ai_enrich(ctx: CtxDict, filename: str) -> CtxDict:
     """Call the OpenAI API to get enrichment suggestions for any file."""
     prompt: str = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
-    response: openai.types.chat.ChatCompletion = get_ai_response(prompt, ctx)
-    ai_suggestion: str = response.choices[0].message.content.strip()
+    response = get_ai_response(prompt, ctx)
+    # Access the content safely
+    ai_suggestion = ""
+    if (hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and 
+            hasattr(response.choices[0].message, "content") and response.choices[0].message.content):
+        ai_suggestion = response.choices[0].message.content.strip()
     ctx["ai_suggestions"][filename] = ai_suggestion
     return ctx
 
 
-def select_wiki_articles(ctx: Dict[str, Any]) -> Dict[str, Any]:
+def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
     wiki_files: List[str] = ctx["wiki_files"]
     article_list: str = "\n".join(wiki_files)
     prompt: str = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
-    response: openai.types.chat.ChatCompletion = get_ai_response(prompt, ctx)
-    filenames: List[str] = [fn.strip() for fn in response.choices[0].message.content.split(",") if fn.strip()]
+    response = get_ai_response(prompt, ctx)
+    
+    # Extract filenames safely
+    filenames: List[str] = []
+    if (hasattr(response, "choices") and response.choices and 
+            hasattr(response.choices[0], "message") and 
+            hasattr(response.choices[0].message, "content") and 
+            response.choices[0].message.content):
+        content = response.choices[0].message.content
+        filenames = [fn.strip() for fn in content.split(",") if fn.strip()]
     valid_filenames: List[str] = [fn for fn in filenames if fn in wiki_files]
     if not valid_filenames:
         logging.info("[i] No valid wiki articles selected. Using Usage.md as fallback.")
@@ -119,17 +137,17 @@ def select_wiki_articles(ctx: Dict[str, Any]) -> Dict[str, Any]:
     return ctx
 
 
-def enrich_readme(ctx: Dict[str, Any]) -> Dict[str, Any]:
+def enrich_readme(ctx: CtxDict) -> CtxDict:
     """Enrich the README file with AI suggestions."""
     return ai_enrich(ctx, "README.md")
 
 
-def enrich_selected_wikis(ctx: Dict[str, Any]) -> Dict[str, Any]:
+def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
     """Enrich the selected wiki articles."""
     if "wiki" not in ctx["ai_suggestions"] or not isinstance(ctx["ai_suggestions"]["wiki"], dict):
         ctx["ai_suggestions"]["wiki"] = {}
     for filename in ctx["selected_wiki_articles"]:
-        suggestion_ctx: Dict[str, Any] = ai_enrich(ctx, filename)
+        suggestion_ctx: CtxDict = ai_enrich(ctx, filename)
         ctx["ai_suggestions"]["wiki"][filename] = suggestion_ctx["ai_suggestions"][filename]
     return ctx
 
@@ -138,7 +156,7 @@ def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], la
     """Enrich the file by replacing the relevant section if possible, otherwise append, and stage it with git."""
     if ai_suggestion and ai_suggestion != "NO CHANGES":
         # Try to find a section header in the suggestion (e.g., '## Section Header')
-        section_header_match: Optional[re.Match] = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
+        section_header_match: Optional[re.Match[str]] = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
         if section_header_match:
             section_header: str = section_header_match.group(1)
             with open(file_path, encoding="utf-8") as f:
@@ -164,7 +182,7 @@ def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], la
         logging.info(f"👍 No enrichment needed for {file_path}.")
 
 
-def write_enrichment_outputs(ctx: Dict[str, Any]) -> None:
+def write_enrichment_outputs(ctx: CtxDict) -> None:
     """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
     file_path: str = ctx["file_paths"]["README.md"]
     ai_suggestion: Optional[str] = ctx["ai_suggestions"]["README.md"]
@@ -174,14 +192,14 @@ def write_enrichment_outputs(ctx: Dict[str, Any]) -> None:
         append_suggestion_and_stage(file_path, ai_suggestion, filename)
 
 
-def print_selected_wiki_files(ctx: Dict[str, Any]) -> Dict[str, Any]:
+def print_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Print file info for each selected wiki article."""
     for filename in ctx["selected_wiki_articles"]:
         print_file_info(ctx, filename, "model")
     return ctx
 
 
-def get_selected_wiki_files(ctx: Dict[str, Any]) -> Dict[str, Any]:
+def get_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Read each selected wiki file and store its contents in the context."""
     for filename in ctx["selected_wiki_articles"]:
         get_file(ctx, filename, ctx["wiki_file_paths"][filename])
@@ -190,13 +208,14 @@ def get_selected_wiki_files(ctx: Dict[str, Any]) -> Dict[str, Any]:
 
 def enrich() -> None:
     """Handler chain for enriching wiki and readme (multi-wiki support)."""
-    ctx: Dict[str, Any] = {}
+    ctx: CtxDict = {}
     for handler in [
         check_api_key,
         get_diff,
         check_diff_empty,
         print_diff_info,
         fallback_large_diff,
+        # Type-safe lambdas
         lambda ctx: get_file(ctx, "README.md", ctx["readme_path"]),
         lambda ctx: print_file_info(ctx, "README.md", "model"),
         select_wiki_articles,

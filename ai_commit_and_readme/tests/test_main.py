@@ -2,12 +2,13 @@
 
 import uuid
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional  # For annotating mutable class attributes in tests
+from typing import Any, ClassVar, Dict, List  # For annotating mutable class attributes in tests
 from unittest import mock
 
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
+from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.main as mod
 
 
@@ -34,9 +35,9 @@ class FakeClientFail(FakeClient):
                 raise Exception("fail")
 
 
-def make_ctx(**kwargs: Any) -> Dict[str, Any]:
+def make_ctx(**kwargs: Any) -> CtxDict:
     """Create a test context dictionary with defaults and overrides."""
-    ctx: Dict[str, Any] = {
+    ctx: CtxDict = {
         "readme_path": "README.md",
         "api_key": "test",
         "model": "gpt-4o",
@@ -58,11 +59,11 @@ class TestHandlers:
     @pytest.fixture(autouse=True)
     def setup_ctx(self) -> None:
         """Set up a default context for handler tests."""
-        self.ctx: Dict[str, Any] = make_ctx()
+        self.ctx: CtxDict = make_ctx()
 
     def test_check_api_key_present(self, monkeypatch: MonkeyPatch) -> None:
         """Should set API key from environment variable."""
-        ctx: Dict[str, Any] = make_ctx(api_key=None)
+        ctx: CtxDict = make_ctx(api_key=None)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setenv("OPENAI_API_KEY", "test")
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", "test")
@@ -71,7 +72,7 @@ class TestHandlers:
 
     def test_check_api_key_missing(self, monkeypatch: MonkeyPatch) -> None:
         """Should exit if API key is missing."""
-        ctx: Dict[str, Any] = make_ctx(api_key=None)
+        ctx: CtxDict = make_ctx(api_key=None)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", None)
         monkeypatch.setattr("os.getenv", lambda _key, _default=None: None)
@@ -80,20 +81,20 @@ class TestHandlers:
 
     def test_check_diff_empty_exits(self) -> None:
         """Should exit if diff is empty."""
-        ctx: Dict[str, Any] = make_ctx(diff="")
+        ctx: CtxDict = make_ctx(diff="")
         with pytest.raises(SystemExit):
             mod.check_diff_empty(ctx)
 
     def test_get_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should set diff from subprocess output."""
-        ctx: Dict[str, Any] = make_ctx()
+        ctx: CtxDict = make_ctx()
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff")
         mod.get_diff(ctx)
         assert ctx["diff"] == "diff"
 
     def test_fallback_large_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should fallback to file list if diff is too large."""
-        ctx: Dict[str, Any] = make_ctx(diff="x" * 100001)
+        ctx: CtxDict = make_ctx(diff="x" * 100001)
         monkeypatch.setattr(mod, "get_diff", lambda ctx, _diff_args=None: ctx.update({"diff": "file1.py\nfile2.py\n"}))
         mod.fallback_large_diff(ctx)
         assert "file1.py" in ctx["diff"]
@@ -103,7 +104,7 @@ class TestHandlers:
         test_file: Path = tmp_path / "some_unique_file.md"
         test_content: str = "hello"
         test_file.write_text(test_content)
-        ctx: Dict[str, Any] = {}
+        ctx: CtxDict = {}
         # Pass the file path directly
         mod.get_file(ctx, "some_unique_file.md", str(test_file))
         assert ctx["some_unique_file.md"] == test_content
@@ -112,14 +113,14 @@ class TestHandlers:
         """Should raise FileNotFoundError if file does not exist (matches current get_file implementation)."""
         file_path: Path = tmp_path / f"README_{uuid.uuid4().hex}.md"
         filename: str = f"README_{uuid.uuid4().hex}.md"
-        ctx: Dict[str, Any] = {"readme_path": str(file_path)}
+        ctx: CtxDict = {"readme_path": str(file_path)}
         with pytest.raises(FileNotFoundError):
             mod.get_file(ctx, filename, ctx["readme_path"])
 
     @pytest.mark.parametrize("filename,model_key,content", [("README.md", "model", "abc"), ("Usage.md", "model", "abc")])
     def test_print_file_info(self, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture, filename: str, model_key: str, content: str) -> None:
         """Should log file info and set token count in context."""
-        ctx: Dict[str, Any] = make_ctx(**{filename: content})
+        ctx: CtxDict = make_ctx(**{filename: content})
         fake_enc: mock.Mock = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
         monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
@@ -136,7 +137,7 @@ class TestAIEnrich:
     @pytest.fixture(autouse=True)
     def setup_ctx(self) -> None:
         """Set up a default context for AI enrich tests."""
-        self.ctx: Dict[str, Any] = make_ctx(diff="d", readme="r")
+        self.ctx: CtxDict = make_ctx(diff="d", readme="r")
 
     def test_ai_enrich_success(self, monkeypatch: MonkeyPatch) -> None:
         """Should set ai_suggestions from OpenAI response."""
