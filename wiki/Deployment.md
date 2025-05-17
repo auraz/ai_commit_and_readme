@@ -21,14 +21,14 @@ Before each release, update the version number in:
    ```toml
    [project]
    name = "ai_commit_and_readme"
-   version = "1.0.1"  # Update this version
+   version = "1.0.2"  # Update this version
    ```
 
 2. `setup.py`:
    ```python
    setup(
        name="ai_commit_and_readme",
-       version="0.1.0",  # Update this version to match pyproject.toml
+       version="1.0.2",  # Update this version to match pyproject.toml
        # ...
    )
    ```
@@ -78,7 +78,7 @@ Before publishing to the main PyPI repository, it's good practice to test with T
 2. Install from TestPyPI in a clean environment:
    ```bash
    pip install --index-url https://test.pypi.org/simple/ --no-deps ai_commit_and_readme
-   pip install ai_commit_and_readme[test]  # If you have test extras
+   pip install openai tiktoken rich pipetools  # Install dependencies separately
    ```
 
 3. Verify the package works correctly
@@ -113,7 +113,7 @@ ai-commit-and-readme --help
 
 ## Automating Deployment
 
-Add this target to your Makefile:
+Add these targets to your Makefile:
 
 ```make
 deploy-pypi: clean

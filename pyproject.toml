@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -16,6 +16,25 @@ dependencies = [
     "rich>=13.0.0",
     "pipetools>=0.1.0",
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/auraz/ai_commit_and_readme"
+"Bug Tracker" = "https://github.com/auraz/ai_commit_and_readme/issues"
+
+[project.scripts]
+ai-commit-and-readme = "ai_commit_and_readme.cli:main"
+
+[tool.setuptools]
+packages = ["ai_commit_and_readme"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ai_commit_and_readme" = ["prompt.md"]
 
 [tool.pyright]
 exclude = [

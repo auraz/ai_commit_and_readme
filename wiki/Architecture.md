@@ -1,152 +1,152 @@
 # Architecture
 
-This document outlines the architectural design of the `ai_commit_and_readme` project, focusing on the core components and their interactions.
+This document provides an overview of the architecture for the `ai_commit_and_readme` tool, explaining how the various components work together.
 
-## Overview
+## System Overview
 
-The `ai_commit_and_readme` tool uses a functional pipeline pattern to process changes in a repository, analyze them with AI, and generate relevant content for README and wiki files. The tool is built with maintainability, testability, and extensibility in mind.
+`ai_commit_and_readme` is designed with a modular architecture that follows the single responsibility principle. The system processes git repository information, sends it to OpenAI's API, and formats the results for user consumption.
 
-## Core Architecture
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Git Content │ ──► │ Text         │ ──► │ OpenAI API  │ ──► │ Formatted   │
+│ Extraction  │     │ Processing   │     │ Interaction │     │ Output      │
+└─────────────┘     └──────────────┘     └─────────────┘     └─────────────┘
+```
+
+## Core Components
+
+### 1. CLI Interface
+
+The entry point for the application, responsible for:
+- Parsing command-line arguments
+- Validating user input
+- Orchestrating the workflow
+- Providing feedback to the user
+
+### 2. Git Content Extraction
+
+Interfaces with the git repository to:
+- Extract changes between commits
+- Read file contents
+- Determine what has been added, modified, or deleted
+- Handle different file paths and encodings
+
+### 3. Text Processing Pipeline
+
+Processes extracted text using a pipeline pattern:
+- Filters out non-relevant content
+- Truncates content to stay within token limits
+- Organizes content for optimal prompt structure
+- Manages different file types appropriately
+
+### 4. OpenAI API Client
+
+Manages communication with the OpenAI API:
+- Handles authentication
+- Constructs appropriate prompts
+- Sends requests with proper parameters
+- Processes API responses
+- Implements error handling and retries
+
+### 5. Output Formatter
+
+Transforms API responses into the final output:
+- Formats markdown content
+- Applies consistent styling
+- Handles escape characters
+- Writes to the appropriate output destination
+
+## Data Flow
+
+1. **Input Collection**: CLI arguments and git repository state
+2. **Content Extraction**: Repository content is read and processed
+3. **Prompt Construction**: Content is formatted into prompt templates
+4. **API Request**: Prompt is sent to OpenAI API
+5. **Response Processing**: API response is parsed and validated
+6. **Output Generation**: Formatted README or commit message is produced
+
+## Design Patterns
 
 ### Pipeline Pattern
 
-The application uses the `pipetools` library to implement a functional pipeline. This pattern:
+The core processing logic uses the pipeline pattern (implemented with `pipetools`) to create a series of transformations that data flows through. This allows for:
+- Clear separation of concerns
+- Testability of individual steps
+- Easy addition of new processing steps
+- Functional programming style
 
-- Treats functions as data transformers in a sequence
-- Passes a context dictionary through the pipeline
-- Enables clean composition of functions using the pipe operator (`|`)
-- Makes the data flow explicit and traceable
-
-### Context Dictionary
-
-All functions in the pipeline operate on a shared context dictionary (`CtxDict`):
-
-```python
-CtxDict = dict[str, Any]
+```
+extract_content >> filter_content >> truncate_to_token_limit >> format_prompt >> call_api >> format_response
 ```
 
-This dictionary stores:
-- Configuration values
-- Git diff data
-- File contents
-- AI suggestions
-- Processing state
+### Dependency Injection
 
-Each function in the pipeline receives the context, modifies it, and returns the updated context to the next function.
+Key components are designed with dependency injection to facilitate:
+- Testing with mock dependencies
+- Configuration changes without code modification
+- Clearer separation of responsibilities
 
-## Pipeline Flow
+### Factory Pattern
 
-The main pipeline in `enrich()` executes these operations in sequence:
+Used for creating different types of processors based on file types or processing needs.
 
-1. **Initialization**: Sets up the context with default values
-2. **API Key Verification**: Ensures the OpenAI API key is available
-3. **Diff Retrieval**: Gets the staged git diff
-4. **Validation**: Checks if there are changes to process
-5. **Analysis**: Processes the diff and gathers information
-6. **File Reading**: Reads README and wiki files
-7. **AI Processing**: Gets suggestions for content enrichment
-8. **Content Writing**: Updates files with AI suggestions
-9. **Git Staging**: Stages the updated files
+## Code Organization
 
-## Key Components
+### Package Structure
 
-### Function Decorators
-
-The `ensure_initialized` decorator wraps pipeline functions to guarantee the context is properly initialized before execution:
-
-```python
-def ensure_initialized(func: Callable) -> PipeFunction:
-    def wrapper(ctx: CtxDict) -> CtxDict:
-        ctx = initialize_context(ctx)
-        return func(ctx)
-    return wrapper
+```
+ai_commit_and_readme/
+├── __init__.py           # Package initialization
+├── cli.py                # Command-line interface
+├── config.py             # Configuration management
+├── content_extractor.py  # Git content extraction
+├── openai_client.py      # OpenAI API interaction
+├── pipeline/             # Pipeline components
+│   ├── __init__.py
+│   ├── filters.py        # Content filtering
+│   ├── formatters.py     # Output formatting
+│   └── processors.py     # Text processing
+├── prompt.md             # Prompt template
+└── utils/                # Utility functions
+    ├── __init__.py
+    ├── git.py            # Git-related utilities
+    ├── logging.py        # Logging utilities
+    └── token_counter.py  # Token counting for OpenAI
 ```
 
-### Function Factory Pattern
+## External Dependencies
 
-Many functions use a factory pattern to create parametrized pipeline steps:
-
-```python
-def get_file(file_key: str, path_key: str):
-    """Factory function creating a pipeline step to read a file."""
-    def _get_file(ctx: CtxDict) -> CtxDict:
-        path = ctx[path_key]
-        with open(path, encoding="utf-8") as f:
-            ctx[file_key] = f.read()
-        return ctx
-    return ensure_initialized(_get_file)
-```
-
-### Helper Functions
-
-Specialized helper functions extract common functionality:
-
-- `extract_ai_content`: Safely extracts content from AI API responses
-- `_update_with_section_header`: Handles section-based content updates
-
-## Pipeline Definition and Execution
-
-The main pipeline is defined using the pipe operator for enhanced readability:
-
-```python
-enrichment_pipeline = (
-    pipe
-    | initialize_context
-    | check_api_key
-    | get_diff()
-    | check_diff_empty
-    | print_diff_info
-    | fallback_large_diff
-    | read_readme
-    | print_readme_info
-    | select_wiki_articles
-    | enrich_readme()
-    | get_selected_wiki_files
-    | print_selected_wiki_files
-    | enrich_selected_wikis
-    | write_enrichment_outputs
-)
-
-# Execute the pipeline with an empty initial context
-enrichment_pipeline({})
-```
-
-## Testing Architecture
-
-The testing approach follows these principles:
-
-1. **Unit Testing**: Each function is tested in isolation
-2. **Mock Dependencies**: External dependencies are mocked
-3. **Structured Tests**: Tests follow the Setup/Execute/Verify pattern
-4. **Pipeline Testing**: The pipeline composition is tested independently
-
-Test helper functions like `make_ctx()` create consistent test contexts.
+- **openai**: Core API client for OpenAI services
+- **tiktoken**: Token counting for prompt optimization
+- **rich**: Terminal output formatting and styling
+- **pipetools**: Functional pipeline construction
 
 ## Error Handling
 
-The pipeline implements defensive programming with:
+The application implements a comprehensive error handling strategy:
+- Graceful degradation when services are unavailable
+- User-friendly error messages
+- Detailed logging for debugging
+- Recovery mechanisms where possible
 
-- Graceful early exits when prerequisites aren't met
-- Safe extraction of data from API responses
-- Proper error reporting through logging
-- Context preservation even when errors occur
+## Configuration Management
 
-## Extensibility
+Configuration is managed through:
+- Environment variables (OPENAI_API_KEY)
+- Command-line arguments
+- Default configurations for prompt templates
 
-The architecture enables easy extension through:
+## Testing Strategy
 
-1. **Adding Pipeline Steps**: New functions following the context pattern can be inserted
-2. **Function Composition**: Complex operations can be composed from simpler ones
-3. **Context Enrichment**: The context dictionary can be extended with new data
-4. **Alternative Implementations**: Pipeline functions can be swapped out for alternatives
+The architecture supports a comprehensive testing approach:
+- Unit tests for individual components
+- Integration tests for component interactions
+- Mock objects for external dependencies
+- Test fixtures for common test scenarios
 
-## Optimizations
+## Performance Considerations
 
-Several optimizations improve the efficiency of the pipeline:
-
-1. **Context Copying**: Strategic context copying prevents unintended side effects
-2. **Helper Extraction**: Common operations are extracted to minimize code duplication
-3. **Defensive Access**: Defensive patterns for accessing properties reduce errors
-4. **Function Factories**: Parameterized functions reduce repetition
-
-This architecture provides a solid foundation for extending the project with new features while maintaining code quality and testability.
+- Token optimization to minimize API costs
+- Caching strategies for repeated content
+- Asynchronous processing where beneficial
+- Minimal dependencies to keep the package lightweight

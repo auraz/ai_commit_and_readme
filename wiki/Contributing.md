@@ -1,24 +1,112 @@
 # Contributing
 
-Thank you for considering contributing to **ai_commit_and_readme**!
+Thank you for considering contributing to **ai_commit_and_readme**! This document outlines the process and guidelines for contributing to this project.
 
-- Please follow the code style guidelines (e.g., PEP8 for Python).
-- Use [ruff](https://github.com/astral-sh/ruff) for linting and formatting. Run `make coverage` before submitting a PR.
-- Submit pull requests with clear descriptions of your changes.
-- Report bugs or request features via GitHub Issues.
-- See [Installation](Installation) for setting up your development environment.
-- Use a virtual environment for development as described in the [Installation](Installation) page.
+## Code of Conduct
 
+By participating in this project, you agree to maintain a respectful and inclusive environment for everyone. Please be considerate in your communication and open to different viewpoints and experiences.
+
+## Ways to Contribute
+
+There are several ways you can contribute to the project:
+
+- **Code contributions**: Implementing new features or fixing bugs
+- **Documentation improvements**: Enhancing documentation clarity, examples, and coverage
+- **Bug reports**: Submitting detailed bug reports through GitHub Issues
+- **Feature requests**: Suggesting new features or improvements
+- **Code reviews**: Reviewing pull requests from other contributors
+- **Testing**: Writing tests or helping with manual testing
+
+## Development Process
+
+1. **Set up your development environment**:
+   - See [Installation](Installation) for setting up your environment
+   - Use a virtual environment as described in the [Installation](Installation) page
+   - Install development dependencies: `pip install -e ".[dev]"`
+
+2. **Code Style and Quality**:
+   - Follow PEP8 guidelines for Python code
+   - Use [ruff](https://github.com/astral-sh/ruff) for linting and formatting
+   - Run `make coverage` before submitting a PR to ensure tests pass and maintain coverage
+   - Use type hints for function parameters and return values
+   - Write meaningful docstrings for modules, classes, and functions
+
+3. **Git Workflow**:
+   - Fork the repository
+   - Create a new branch for your work (`feature/your-feature` or `fix/your-fix`)
+   - Make your changes with descriptive commit messages
+   - Keep your changes focused and related to a single issue
+   - Rebase your branch on the latest main branch before submitting
+
+
+## Pull Request Process
+
+1. **Before submitting a Pull Request**:
+   - Ensure all tests pass locally
+   - Update documentation to reflect your changes
+   - Add or update tests as needed
+   - Run code quality checks: `ruff check . && ruff format .`
+   - Run type checking: `pyright`
+
+2. **Submitting your PR**:
+   - Create a pull request with a clear title and description
+   - Reference any related issues using GitHub keywords (e.g., "Fixes #123")
+   - Fill out the PR template completely
+   - Make sure CI checks pass on your PR
+
+3. **Code Review**:
+   - Be responsive to feedback and questions
+   - Make requested changes promptly
+   - Keep discussions focused and constructive
+   - Request re-reviews after addressing feedback
+
+4. **After Merge**:
+   - Delete your feature branch
+   - Update any related issues
+   - Celebrate your contribution! 🎉
+
+## Testing Guidelines
+
+- Write tests for all new features and bug fixes
+- Maintain or improve test coverage
+- Write both unit tests and integration tests where appropriate
+- Use pytest fixtures to streamline test setup
+- Mock external dependencies in unit tests
+
+## Documentation Guidelines
+
+- Keep documentation up-to-date with code changes
+- Document public APIs, classes, and functions with docstrings
+- Use examples to illustrate how to use complex features
+- Follow consistent documentation style
 
 ## 🛠️ Makefile Commands Overview
-The `Makefile` in our project serves as a hub for common development tasks. We strive to keep our Makefile commands intuitive and robust to facilitate a smooth developer experience. Below you will find a curated list of available commands along with updated descriptions reflecting the latest changes.
 
-- `make build`: Compiles the codebase, preparing the project for execution or testing. If there have been any recent changes to source files, this command should be run to reflect those updates in the build.
-- `make test`: Runs the suite of automated tests designed to ensure code quality and non-regression. After any significant changes, contributors should run this command to verify that their alterations have not disrupted existing functionality.
-- `make install`: Installs the required dependencies for the project. This should be the first command run by developers after cloning the repository to ensure all necessary libraries and tools are in place.
-- `make clean`: Cleans the build by removing all generated files. This can help resolve issues stemming from stale build artifacts and should be used before a fresh build.
-- `make lint`: Analyzes the source code for potential stylistic or programming errors. This is crucial for maintaining a high standard of code quality and consistency across the project.
-- `make docs`: Generates documentation based on the in-line comments and docstrings present in the code. With recent improvements, this process is more efficient and the resulting documentation is more comprehensive.
-- `make update`: A new utility added to handle automated dependency updates. It ensures that your development environment reflects the latest libraries and frameworks specified for the project.
+The `Makefile` in our project serves as a hub for common development tasks. We strive to keep our Makefile commands intuitive and robust to facilitate a smooth developer experience. Below you will find a curated list of available commands:
 
-Please refer to the Usage.md for a more detailed explanation of each command and instructions on how to properly utilize the Makefile to streamline your workflow.
+- `make install`: Installs the required dependencies for the project. This should be the first command run by developers after cloning the repository.
+- `make clean`: Cleans the build by removing all generated files like dist, build, egg-info, and cache directories.
+- `make cm`: Stages all changes, runs AI enrichment, generates an AI commit message, and pushes to the remote repository.
+- `make coverage`: Runs linting, formatting, tests with coverage report, and generates HTML coverage report.
+- `make deploy-wiki`: Deploys wiki documentation to the GitHub wiki repository.
+- `make deploy-pypi`: Builds and deploys the package to PyPI (for maintainers with permissions).
+- `make deploy-test-pypi`: Builds and deploys the package to TestPyPI for testing.
+
+Refer to the [CI-CD](CI-CD) wiki page for more information about automated builds and deployments.
+
+## Version Control Guidelines
+
+- Keep commits focused on a single logical change
+- Write descriptive commit messages that explain "why" not just "what"
+- Squash multiple commits when they address a single issue
+- Rebase feature branches on main before submitting PRs
+- Never force push to shared branches like main
+
+## Security Considerations
+
+- Never commit API keys or secrets
+- Review your code for potential security vulnerabilities
+- Follow the guidelines in the [Security](Security) wiki page
+- Report security vulnerabilities privately to maintainers
+
+Thank you for contributing to `ai_commit_and_readme`! Your efforts help make this project better for everyone.
