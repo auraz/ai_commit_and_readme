@@ -2,14 +2,14 @@
 
 import uuid
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List  # For annotating mutable class attributes in tests
+from typing import Any, ClassVar  # For annotating mutable class attributes in tests
 from unittest import mock
 
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
-from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.main as mod
+from ai_commit_and_readme.tools import CtxDict
 
 
 # Shared test OpenAI client for mocking
@@ -161,9 +161,9 @@ class TestFileOps:
         """Should append suggestion to file and stage it with git."""
         file_path: Path = tmp_path / "README.md"
         file_path.write_text("start")
-        called: Dict[str, bool] = {}
+        called: dict[str, bool] = {}
 
-        def fake_run(_cmd: List[str]) -> None:
+        def fake_run(_cmd: list[str]) -> None:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 
@@ -179,9 +179,9 @@ class TestFileOps:
         """Should not append or stage if suggestion is "NO CHANGES"."""
         file_path: Path = tmp_path / "README.md"
         file_path.write_text("start")
-        called: Dict[str, bool] = {}
+        called: dict[str, bool] = {}
 
-        def fake_run(_cmd: List[str]) -> None:
+        def fake_run(_cmd: list[str]) -> None:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 

@@ -1,12 +1,11 @@
 """Tests for ai_commit_and_readme.tools utility functions."""
 
 from pathlib import Path
-from typing import Any, Dict, List
 
 import pytest
 
-from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.tools as tools
+from ai_commit_and_readme.tools import CtxDict
 
 
 class TestChainHandler:
@@ -43,8 +42,8 @@ class TestWikiFiles:
         (wiki_dir / "Home.md").write_text("home")
         (wiki_dir / "Other.md").write_text("other")
         monkeypatch.setattr(tools, "WIKI_PATH", str(wiki_dir))
-        files: List[str]
-        file_paths: Dict[str, str]
+        files: list[str]
+        file_paths: dict[str, str]
         files, file_paths = tools.get_wiki_files()
         assert set(files) == {"Home.md", "Other.md"}
         assert set(file_paths.keys()) == {"Home.md", "Other.md"}

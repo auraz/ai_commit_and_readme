@@ -5,14 +5,14 @@ Utility functions for documentation enrichment and other helpers.
 import glob
 import os
 from pathlib import Path
-from typing import Any, Callable, TypeVar, cast, Dict, List, Tuple, Optional
+from typing import Any, Callable
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
 PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
 # For better type annotations
-CtxDict = Dict[str, Any]
+CtxDict = dict[str, Any]
 
 
 def chain_handler(func: Callable) -> Callable:
@@ -42,7 +42,7 @@ def chain_handler(func: Callable) -> Callable:
     return wrapper
 
 
-def get_wiki_files() -> Tuple[List[str], Dict[str, str]]:
+def get_wiki_files() -> tuple[list[str], dict[str, str]]:
     """Return a list of wiki markdown files (including Home.md) and their paths"""
     files = glob.glob(f"{WIKI_PATH}/*.md")
     filenames = [os.path.basename(f) for f in files]
@@ -59,7 +59,7 @@ def get_prompt_template(section: str) -> str:
         raise RuntimeError(f"Prompt template file not found: {PROMPT_PATH}") from err
     section_header = f"## {section}"
     in_section = False
-    section_lines: List[str] = []
+    section_lines: list[str] = []
     for line in lines:
         if line.strip().startswith("## "):
             if in_section:

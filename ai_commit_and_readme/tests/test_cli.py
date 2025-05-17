@@ -1,6 +1,7 @@
 import sys
 
 import ai_commit_and_readme.cli as cli_mod
+import ai_commit_and_readme.constants as constants_mod
 import ai_commit_and_readme.main as mod
 import ai_commit_and_readme.tools as tools_mod
 from ai_commit_and_readme.tests.test_main import FakeClient
@@ -20,10 +21,8 @@ class TestCLI:
         readme_path = tmp_path / "README.md"
         readme_path.write_text("readme content")
         # Patch WIKI_PATH and README_PATH
-        monkeypatch.setattr(mod, "WIKI_PATH", str(wiki_dir))
-        monkeypatch.setattr(mod, "README_PATH", str(readme_path))
-        monkeypatch.setattr(tools_mod, "WIKI_PATH", str(wiki_dir))
-        monkeypatch.setattr(tools_mod, "README_PATH", str(readme_path))
+        monkeypatch.setattr(constants_mod, "WIKI_PATH", str(wiki_dir))
+        monkeypatch.setattr(constants_mod, "README_PATH", str(readme_path))
         monkeypatch.setattr(
             tools_mod,
             "get_wiki_files",

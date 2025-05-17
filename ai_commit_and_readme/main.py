@@ -10,15 +10,14 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional
 
 import openai
 import tiktoken
 from rich.logging import RichHandler
 
 # We're using these constants indirectly through chain_handler
-from .constants import README_PATH, WIKI_PATH
-from .tools import chain_handler, get_prompt_template, CtxDict
+from .tools import CtxDict, chain_handler, get_prompt_template
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
@@ -34,7 +33,7 @@ def check_api_key(ctx: CtxDict) -> None:
 
 
 @chain_handler
-def get_diff(ctx: CtxDict, diff_args: Optional[List[str]] = None) -> None:
+def get_diff(ctx: CtxDict, diff_args: Optional[list[str]] = None) -> None:
     """Retrieve the staged git diff (or file list) and store it in context."""
     ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
 
@@ -90,10 +89,7 @@ def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
     client = openai.OpenAI(api_key=api_key)
     try:
         model_name = ctx["model"] if ctx and "model" in ctx else "gpt-4"
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        response = client.chat.completions.create(model=model_name, messages=[{"role": "user", "content": prompt}])
     except Exception as e:
         logging.error(f"❌ Error from OpenAI API: {e}")
         sys.exit(1)
@@ -107,8 +103,7 @@ def ai_enrich(ctx: CtxDict, filename: str) -> CtxDict:
     response = get_ai_response(prompt, ctx)
     # Access the content safely
     ai_suggestion = ""
-    if (hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and 
-            hasattr(response.choices[0].message, "content") and response.choices[0].message.content):
+    if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
         ai_suggestion = response.choices[0].message.content.strip()
     ctx["ai_suggestions"][filename] = ai_suggestion
     return ctx
@@ -116,20 +111,17 @@ def ai_enrich(ctx: CtxDict, filename: str) -> CtxDict:
 
 def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
-    wiki_files: List[str] = ctx["wiki_files"]
+    wiki_files: list[str] = ctx["wiki_files"]
     article_list: str = "\n".join(wiki_files)
     prompt: str = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
     response = get_ai_response(prompt, ctx)
-    
+
     # Extract filenames safely
-    filenames: List[str] = []
-    if (hasattr(response, "choices") and response.choices and 
-            hasattr(response.choices[0], "message") and 
-            hasattr(response.choices[0].message, "content") and 
-            response.choices[0].message.content):
+    filenames: list[str] = []
+    if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
         content = response.choices[0].message.content
         filenames = [fn.strip() for fn in content.split(",") if fn.strip()]
-    valid_filenames: List[str] = [fn for fn in filenames if fn in wiki_files]
+    valid_filenames: list[str] = [fn for fn in filenames if fn in wiki_files]
     if not valid_filenames:
         logging.info("[i] No valid wiki articles selected. Using Usage.md as fallback.")
         valid_filenames = ["Usage.md"]
