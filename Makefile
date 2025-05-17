@@ -47,3 +47,14 @@ deploy-wiki:
 	cp -r wiki/* tmp_wiki/
 	cd tmp_wiki && git add . && (git commit -m "Update wiki docs" || true) && git push
 	rm -rf tmp_wiki
+
+
+deploy:
+	@echo "\033[96m📦 Building and deploying package to PyPI...\033[0m"
+	# Clean previous builds
+	rm -rf dist build *.egg-info
+	# Build distribution packages
+	python -m build
+	# Upload to PyPI
+	twine upload dist/*
+	@echo "\033[92m✅ Package successfully deployed to PyPI!\033[0m"

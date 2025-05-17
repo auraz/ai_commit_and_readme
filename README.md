@@ -31,4 +31,12 @@ _NO CHANGES_
 ## ✨ Feature Highlights
 
 (New content for the Feature Highlights section)
-SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION
+SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION```
+## 🛠️ Makefile Commands Overview
+
+- `make build`: Compile the entire project and create an executable.
+- `make test`: Run all the unit tests to ensure code quality and functionality.
+- `make clean`: Remove any compiled files and clean the project directory.
+- `make install`: Install the project binaries into the system path for easy execution.
+- `make docs`: Generate the project documentation automatically from source files.
+```

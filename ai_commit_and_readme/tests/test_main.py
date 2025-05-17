@@ -1,5 +1,6 @@
 """Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
 
+import sys
 import uuid
 from pathlib import Path
 from typing import Any, ClassVar  # For annotating mutable class attributes in tests
@@ -84,30 +85,28 @@ class TestHandlers:
         """Should exit if diff is empty."""
         ctx: CtxDict = make_ctx(diff="", context_initialized=True)
         with pytest.raises(SystemExit):
-            mod.check_diff_empty(ctx)
+            mod.get_diff(ctx)
 
     def test_get_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should set diff from subprocess output."""
         ctx: CtxDict = make_ctx(context_initialized=True)
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff")
-        # We need to call the function returned by get_diff
-        result = mod.get_diff()(ctx)
+        # Direct call to get_diff with context
+        result = mod.get_diff(ctx)
         assert result["diff"] == "diff"
 
     def test_fallback_large_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should fallback to file list if diff is too large."""
         ctx: CtxDict = make_ctx(diff="x" * 100001, context_initialized=True)
 
-        # Mock the get_diff function to update the context with file list
-        def mock_get_diff_fn(_diff_args=None):
-            def inner_mock(context):
-                context["diff"] = "file1.py\nfile2.py\n"
-                return context
+        # Test the large diff logic in get_diff
+        def mock_check_output(cmd):
+            if "--name-only" in cmd:
+                return b"file1.py\nfile2.py\n"
+            return b"x" * 100001
 
-            return inner_mock
-
-        monkeypatch.setattr(mod, "get_diff", mock_get_diff_fn)
-        result = mod.fallback_large_diff(ctx)
+        monkeypatch.setattr(mod.subprocess, "check_output", mock_check_output)
+        result = mod.get_diff(ctx)
         assert "file1.py" in result["diff"]
 
     def test_get_file_reads_correct_content(self, tmp_path: Path) -> None:
@@ -115,9 +114,9 @@ class TestHandlers:
         test_file: Path = tmp_path / "some_unique_file.md"
         test_content: str = "hello"
         test_file.write_text(test_content)
-        ctx: CtxDict = {"some_unique_file.md_path": str(test_file), "context_initialized": True}
+        ctx: CtxDict = {"context_initialized": True, "model": "gpt-4"}
         # Pass the file path directly
-        result = mod.get_file("some_unique_file.md", "some_unique_file.md_path")(ctx)
+        result = mod.read_file(ctx, "some_unique_file.md", str(test_file))
         assert result["some_unique_file.md"] == test_content
 
     def test_get_file_not_exists(self, tmp_path: Path) -> None:
@@ -126,22 +125,27 @@ class TestHandlers:
         nonexistent_path = str(tmp_path / f"nonexistent_{uuid.uuid4().hex}.md")
         # Use a key that matches what we're looking up
         filename = "test_file"
-        path_key = "test_file_path"
-        # Initialize context with the path key pointing to a non-existent file
-        ctx: CtxDict = {path_key: nonexistent_path, "context_initialized": True}
+        # Initialize context with initialization flag
+        ctx: CtxDict = {"context_initialized": True}
         # This should raise FileNotFoundError when trying to open the non-existent file
         with pytest.raises(FileNotFoundError):
-            mod.get_file(filename, path_key)(ctx)
+            mod.read_file(ctx, filename, nonexistent_path)
 
-    @pytest.mark.parametrize("filename,model_key,content", [("README.md", "model", "abc"), ("Usage.md", "model", "abc")])
-    def test_print_file_info(self, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture, filename: str, model_key: str, content: str) -> None:
+    @pytest.mark.parametrize("filename,content", [("README.md", "abc"), ("Usage.md", "abc")])
+    def test_file_info_logging(self, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture, filename: str, content: str, tmp_path: Path) -> None:
         """Should log file info and set token count in context."""
-        ctx: CtxDict = make_ctx(**{filename: content, "context_initialized": True})
+        # Create a temp file
+        test_file: Path = tmp_path / filename
+        test_file.write_text(content)
+
+        ctx: CtxDict = make_ctx(model="gpt-4", context_initialized=True)
         fake_enc: mock.Mock = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
-        monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
+        monkeypatch.setattr("ai_commit_and_readme.main.count_tokens", lambda _text, _model: 3)
+
         with caplog.at_level("INFO"):
-            result = mod.print_file_info(filename, model_key)(ctx)
+            result = mod.read_file(ctx, filename, str(test_file))
+
         assert f"Update to {filename} is currently" in caplog.text
         assert f"That's 3 tokens in update to {filename}!" in caplog.text
         assert result[f"{filename}_tokens"] == 3
@@ -157,19 +161,26 @@ class TestAIEnrich:
 
     def test_ai_enrich_success(self, monkeypatch: MonkeyPatch) -> None:
         """Should set ai_suggestions from OpenAI response."""
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
+        monkeypatch.setattr(
+            "ai_commit_and_readme.main.get_ai_response", lambda _prompt, _ctx: type("obj", (), {"choices": [type("obj", (), {"message": type("obj", (), {"content": "SUGGESTION"})()})]})
+        )
         self.ctx["README.md"] = "r"
         self.ctx["context_initialized"] = True
-        result = mod.ai_enrich("README.md")(self.ctx)
+        result = mod.ai_enrich(self.ctx, "README.md")
         assert result["ai_suggestions"]["README.md"] == "SUGGESTION"
 
     def test_ai_enrich_exception(self, monkeypatch: MonkeyPatch) -> None:
         """Should exit on OpenAI API exception."""
-        monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClientFail)  # noqa: ARG005
+
+        def mock_get_ai_response(*_args, **_kwargs):
+            # Simulate the behavior in get_ai_response that calls sys.exit(1)
+            sys.exit(1)
+
+        monkeypatch.setattr("ai_commit_and_readme.main.get_ai_response", mock_get_ai_response)
         self.ctx["README.md"] = "r"
         self.ctx["context_initialized"] = True
         with pytest.raises(SystemExit):
-            mod.ai_enrich("README.md")(self.ctx)
+            mod.ai_enrich(self.ctx, "README.md")
 
 
 class TestFileOps:
