@@ -26,18 +26,20 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-The `Makefile` provided with this project simplifies many of the common tasks required to manage the software lifecycle. To use the Makefile, ensure you have `make` installed on your system and from the project root directory, invoke the following commands as needed:
+The following commands are available in our Makefile to assist in the building and management of the project. Ensure you have the necessary permissions to execute these commands on your system.
 
-- `make build`: Compiles the project, targeting the default configuration.
-- `make test`: Runs the suite of unit tests to ensure the project's reliability.
-- `make install`: Installs the project binaries and resources onto your system.
-- `make clean`: Removes all generated files and cleans up the build environment.
-- `make docker-build`: Creates a Docker image for the project, encapsulating it within a container for easy distribution or deployment.
-- `make docker-push`: Pushes the built Docker image to a registry, defaulting to Docker Hub.
-- `make deploy`: Deploys the project to the specified target environment, assuming deployment scripts are properly set up.
-- `make all`: Executes the build, test, and install commands consecutively.
+- `make build`: Compiles the project, generating the necessary executable or library files.
+- `make test`: Runs the full suite of automated tests to ensure code quality and functionality.
+- `make install`: Installs the project binaries onto the system. May require elevated privileges depending on your system's configuration.
+- `make clean`: Cleans up the project, removing compiled objects and temporary files to maintain a clean workspace.
+- `make doc`: Generates the project's documentation, ensuring that you have the latest instructions and reference materials.
+- `make all`: Invokes the `build`, `test`, and `doc` commands in sequence, providing a complete build-and-test cycle that includes documentation updates.
 
-Note: Some commands may have prerequisites or require additional environment setup. Consult the dedicated sections of this README or the accompanying documentation for more details on each command.
+Please note that new dependencies have been added to the project. If you encounter any issues while running the commands above, ensure you have all the necessary dependencies installed. Refer to `INSTALL.md` for dependency installation instructions.
+
+---
+
+As a project grows and evolves, so too must its documentation. The above changes are a reflection of our continuous effort to keep you, the user and contributor, informed and equipped to engage with our project. With the addition of `make doc` to our suite of Makefile commands, we streamline the process of keeping documentation synchronized with code changes. After all, well-maintained documentation is just as vital as well-maintained code.
 
 ## ✨ Feature Highlights
 

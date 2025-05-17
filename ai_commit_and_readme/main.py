@@ -19,7 +19,7 @@ import tiktoken
 from pipetools import pipe
 from rich.logging import RichHandler
 
-from .tools import CtxDict, ensure_initialized, get_prompt_template, initialize_context
+from .tools import CtxDict, get_prompt_template, initialize_context
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
@@ -34,9 +34,6 @@ def check_api_key(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-check_api_key = ensure_initialized(check_api_key)
-
-
 def get_diff(diff_args: Optional[list[str]] = None):
     """Retrieve the staged git diff (or file list) and store it in context."""
 
@@ -44,7 +41,7 @@ def get_diff(diff_args: Optional[list[str]] = None):
         ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
         return ctx
 
-    return ensure_initialized(_get_diff)
+    return _get_diff
 
 
 def check_diff_empty(ctx: CtxDict) -> CtxDict:
@@ -53,9 +50,6 @@ def check_diff_empty(ctx: CtxDict) -> CtxDict:
         logging.info("✅ No staged changes detected. Nothing to enrich.")
         sys.exit(0)
     return ctx
-
-
-check_diff_empty = ensure_initialized(check_diff_empty)
 
 
 def print_diff_info(ctx: CtxDict) -> CtxDict:
@@ -68,18 +62,12 @@ def print_diff_info(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-print_diff_info = ensure_initialized(print_diff_info)
-
-
 def fallback_large_diff(ctx: CtxDict) -> CtxDict:
     """Fallback to file list if the diff is too large."""
     if len(ctx["diff"]) > 100000:
         logging.warning('⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
         return get_diff(["git", "diff", "--cached", "--name-only"])(ctx)
     return ctx
-
-
-fallback_large_diff = ensure_initialized(fallback_large_diff)
 
 
 def get_file(file_key: str, path_key: str):
@@ -100,7 +88,7 @@ def get_file(file_key: str, path_key: str):
             ctx[file_key] = f.read()
         return ctx
 
-    return ensure_initialized(_get_file)
+    return _get_file
 
 
 def print_file_info(file_key: str, model_key: str):
@@ -124,7 +112,7 @@ def print_file_info(file_key: str, model_key: str):
         ctx[f"{file_key}_tokens"] = tokens
         return ctx
 
-    return ensure_initialized(_print_file_info)
+    return _print_file_info
 
 
 def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
@@ -172,7 +160,7 @@ def ai_enrich(filename: str):
         ctx["ai_suggestions"][filename] = extract_ai_content(response)
         return ctx
 
-    return ensure_initialized(_ai_enrich)
+    return _ai_enrich
 
 
 def select_wiki_articles(ctx: CtxDict) -> CtxDict:
@@ -193,9 +181,6 @@ def select_wiki_articles(ctx: CtxDict) -> CtxDict:
 
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
-
-
-select_wiki_articles = ensure_initialized(select_wiki_articles)
 
 
 def enrich_readme() -> Callable[[CtxDict], CtxDict]:
@@ -226,9 +211,6 @@ def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
         ctx["ai_suggestions"]["wiki"][filename] = updated_ctx["ai_suggestions"][filename]
 
     return ctx
-
-
-enrich_selected_wikis = ensure_initialized(enrich_selected_wikis)
 
 
 def _update_with_section_header(file_path: str, ai_suggestion: str, section_header: str) -> None:
@@ -325,9 +307,6 @@ def write_enrichment_outputs(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-write_enrichment_outputs = ensure_initialized(write_enrichment_outputs)
-
-
 def print_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """
     Print information about each selected wiki file.
@@ -347,9 +326,6 @@ def print_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     return updated_ctx
 
 
-print_selected_wiki_files = ensure_initialized(print_selected_wiki_files)
-
-
 def get_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Read each selected wiki file and store its contents in the context."""
     updated_ctx = ctx.copy()
@@ -366,8 +342,9 @@ def get_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     return updated_ctx
 
 
-get_selected_wiki_files = ensure_initialized(get_selected_wiki_files)
-
+def ensure_context_initialized(ctx: CtxDict) -> CtxDict:
+    """Ensure the context is initialized once at the beginning of the pipeline."""
+    return initialize_context(ctx)
 
 def enrich() -> None:
     """
@@ -387,10 +364,10 @@ def enrich() -> None:
     read_readme = get_file("README.md", "readme_path")
     print_readme_info = print_file_info("README.md", "model")
 
-    # Build the pipeline using the pipe operator
+    # Build the pipeline using the pipe operator, initializing context once at the beginning
     enrichment_pipeline = (
         pipe
-        | initialize_context
+        | ensure_context_initialized
         | check_api_key
         | get_diff()
         | check_diff_empty
