@@ -31,21 +31,41 @@ def check_api_key(ctx: CtxDict) -> CtxDict:
 
 
 def get_diff(ctx: CtxDict, diff_args: Optional[list[str]] = None) -> CtxDict:
-    ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
-    return ctx
-
-
-def read_readme(ctx: CtxDict) -> CtxDict:
-    with open(ctx["readme_path"], encoding="utf-8") as f:
-        ctx["README.md"] = f.read()
-    return log_file_info(ctx, "README.md")
-
-
-def check_diff_empty(ctx: CtxDict) -> CtxDict:
+    # Get diff output
+    diff_cmd = diff_args or ["git", "diff", "--cached", "-U1"]
+    ctx["diff"] = subprocess.check_output(diff_cmd).decode()
+    
+    # Exit if no changes
     if not ctx["diff"].strip():
         logger.info(LogMessages.NO_CHANGES)
         sys.exit(0)
+        
+    # Fallback to file list for large diffs
+    if len(ctx["diff"]) > 100000:
+        logger.warning(LogMessages.LARGE_DIFF)
+        return get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
+    
     return ctx
+
+
+def read_file(ctx: CtxDict, file_key: str, file_path: str = None) -> CtxDict:
+    # Find path from different possible sources
+    path = file_path
+    if not path:
+        if file_key == "README.md" and "readme_path" in ctx:
+            path = ctx["readme_path"]
+        elif f"{file_key}_path" in ctx:
+            path = ctx[f"{file_key}_path"]
+        elif "file_paths" in ctx and file_key in ctx["file_paths"]:
+            path = ctx["file_paths"][file_key]
+            
+    if not path:
+        raise ValueError(f"Could not find path for {file_key}")
+        
+    # Read the file and log stats
+    with open(path, encoding="utf-8") as f:
+        ctx[file_key] = f.read()
+    return log_file_info(ctx, file_key)
 
 
 def log_and_count_diff_tokens(ctx: CtxDict) -> CtxDict:
@@ -55,11 +75,6 @@ def log_and_count_diff_tokens(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-def fallback_large_diff(ctx: CtxDict) -> CtxDict:
-    if len(ctx["diff"]) > 100000:
-        logger.warning(LogMessages.LARGE_DIFF)
-        return get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
-    return ctx
 
 
 def log_file_info(ctx: CtxDict, file_key: str, model_key: str = "model") -> CtxDict:
@@ -72,7 +87,11 @@ def log_file_info(ctx: CtxDict, file_key: str, model_key: str = "model") -> CtxD
 
 
 def ai_enrich(ctx: CtxDict, filename: str) -> CtxDict:
-    prompt: str = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
+    prompt = get_prompt_template("enrich").format(
+        filename=filename, 
+        diff=ctx["diff"], 
+        **{filename: ctx[filename]}
+    )
     response = get_ai_response(prompt, ctx)
     ctx["ai_suggestions"][filename] = extract_ai_content(response)
     return ctx
@@ -102,11 +121,11 @@ def select_wiki_articles(ctx: CtxDict) -> CtxDict:
 
 
 def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
-    # Initialize wiki suggestions if needed
+    # Initialize wiki suggestions as a dictionary
     if "wiki" not in ctx["ai_suggestions"] or not isinstance(ctx["ai_suggestions"]["wiki"], dict):
         ctx["ai_suggestions"]["wiki"] = {}
 
-    # Enrich each wiki article
+    # Process each selected wiki article
     for filename in ctx["selected_wiki_articles"]:
         ai_enrich(ctx, filename)
         ctx["ai_suggestions"]["wiki"][filename] = ctx["ai_suggestions"][filename]
@@ -116,46 +135,47 @@ def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
 
 def write_enrichment_outputs(ctx: CtxDict) -> CtxDict:
     # Handle README file
-    file_path: str = ctx["file_paths"]["README.md"]
-    ai_suggestion: Optional[str] = ctx["ai_suggestions"]["README.md"]
-    append_suggestion_and_stage(file_path, ai_suggestion, "README")
+    append_suggestion_and_stage(
+        ctx["file_paths"]["README.md"],
+        ctx["ai_suggestions"]["README.md"],
+        "README"
+    )
 
     # Handle wiki files
     for filename, ai_suggestion in ctx["ai_suggestions"].get("wiki", {}).items():
-        file_path = ctx["file_paths"]["wiki"][filename]
-        append_suggestion_and_stage(file_path, ai_suggestion, filename)
+        append_suggestion_and_stage(
+            ctx["file_paths"]["wiki"][filename],
+            ai_suggestion,
+            filename
+        )
 
-    return ctx
-
-
-def log_wiki_files_info(ctx: CtxDict) -> CtxDict:
-    for filename in ctx["selected_wiki_articles"]:
-        ctx = log_file_info(ctx, filename)
     return ctx
 
 
 def read_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     for filename in ctx["selected_wiki_articles"]:
-        wiki_path = ctx["wiki_file_paths"][filename]
-        with open(wiki_path, encoding="utf-8") as f:
-            ctx[filename] = f.read()
+        # Store path in context then read file
+        ctx[f"{filename}_path"] = ctx["wiki_file_paths"][filename]
+        read_file(ctx, filename)
     return ctx
 
 
 def enrich() -> None:
+    # Define function for reading README to avoid lambda in pipeline
+    def read_readme(ctx: CtxDict) -> CtxDict:
+        return read_file(ctx, "README.md")
+        
+    # Pipeline definition - each step processes and passes context to the next
     enrichment_pipeline = (
         pipe
         | initialize_context
         | check_api_key
         | get_diff
-        | check_diff_empty
         | log_and_count_diff_tokens
-        | fallback_large_diff
         | read_readme
         | select_wiki_articles
         | enrich_readme
         | read_selected_wiki_files
-        | log_wiki_files_info
         | enrich_selected_wikis
         | write_enrichment_outputs
     )

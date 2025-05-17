@@ -5,7 +5,7 @@ This project uses a Makefile to simplify common development tasks. Below are the
 ---
 
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+(NO CONTENT - INSTRUCTION EXAMPLE ONLY)
 
 ## 🚀 Common Workflows
 
@@ -49,4 +49,4 @@ make deploy-wiki
 - If you encounter issues, check your environment variables and configuration.
 ```
 ## 🛠️ Makefile Commands Overview
-(NO CHANGES)
+(NO CONTENT - INSTRUCTION EXAMPLE ONLY)

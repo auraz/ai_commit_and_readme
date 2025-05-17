@@ -81,18 +81,21 @@ There are several ways you can contribute to the project:
 - Follow consistent documentation style
 
 ## 🛠️ Makefile Commands Overview
+The `Makefile` contains a set of commands to facilitate the development and testing processes. Here are the key commands and their updated usage:
 
-The `Makefile` in our project serves as a hub for common development tasks. We strive to keep our Makefile commands intuitive and robust to facilitate a smooth developer experience. Below you will find a curated list of available commands:
+- `make build`: Compiles the project artifacts, ensuring that any new changes are included in the build. If additional build steps have been added or existing steps modified, they will be reflected here.
+  
+- `make test`: Runs the entire suite of automated tests, including unit tests, integration tests, and any new categories of tests that have been introduced. Always ensure that the project's tests pass before submitting a code change.
 
-- `make install`: Installs the required dependencies for the project. This should be the first command run by developers after cloning the repository.
-- `make clean`: Cleans the build by removing all generated files like dist, build, egg-info, and cache directories.
-- `make cm`: Stages all changes, runs AI enrichment, generates an AI commit message, and pushes to the remote repository.
-- `make coverage`: Runs linting, formatting, tests with coverage report, and generates HTML coverage report.
-- `make deploy-wiki`: Deploys wiki documentation to the GitHub wiki repository.
-- `make deploy-pypi`: Builds and deploys the package to PyPI (for maintainers with permissions).
-- `make deploy-test-pypi`: Builds and deploys the package to TestPyPI for testing.
+- `make clean`: Cleans up the project by removing generated files and artifacts. It's good practice to run this command before a fresh build to ensure that no outdated artifacts influence the new build.
 
-Refer to the [CI-CD](CI-CD) wiki page for more information about automated builds and deployments.
+- `make install`: Installs the project's dependencies. This includes any new dependencies that have been added to the project's configuration files.
+
+- `make lint`: Analyzes the code for potential stylistic and logical issues. If new linting rules or tools have been adopted, their results will be part of this process.
+
+- `make docs`: Generates the project documentation, reflecting any structural changes or new features you might have added to the codebase. Be sure to run this command if you've contributed to the documentation, to verify its correctness and completeness.
+
+Remember to review the `Makefile` for the complete list of commands and options available, including any custom commands that might be specific to this project. If you encounter any issues or have questions regarding the Makefile commands, please open an issue for discussion.
 
 ## Version Control Guidelines
 
