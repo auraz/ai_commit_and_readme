@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai_commit_and_readme"
-version = "1.0.3"
+version = "1.0.4"
 description = "AI-powered README.md and commit message generation tool using OpenAI"
 readme = "README.md"
 authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
