@@ -2,7 +2,6 @@
 """
 AI Commit and README tool main module.
 Provides subcommands for enriching README.md with AI suggestions based on git diffs.
-test222
 """
 
 import logging
@@ -10,21 +9,19 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import openai
 import tiktoken
 from pipetools import pipe
 from rich.logging import RichHandler
 
-from .constants import README_PATH
 from .tools import CtxDict, ensure_initialized, get_prompt_template, initialize_context
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
 
 
-@ensure_initialized
 def check_api_key(ctx: CtxDict) -> CtxDict:
     """Check for the presence of the OpenAI API key in context or environment."""
     ctx["api_key"] = ctx.get("api_key") or os.getenv("OPENAI_API_KEY")
@@ -34,14 +31,19 @@ def check_api_key(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-@ensure_initialized
-def get_diff(ctx: CtxDict, diff_args: Optional[list[str]] = None) -> CtxDict:
+check_api_key = ensure_initialized(check_api_key)
+
+
+def get_diff(diff_args: Optional[list[str]] = None):
     """Retrieve the staged git diff (or file list) and store it in context."""
-    ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
-    return ctx
+
+    def _get_diff(ctx: CtxDict) -> CtxDict:
+        ctx["diff"] = subprocess.check_output(diff_args or ["git", "diff", "--cached", "-U1"]).decode()
+        return ctx
+
+    return ensure_initialized(_get_diff)
 
 
-@ensure_initialized
 def check_diff_empty(ctx: CtxDict) -> CtxDict:
     """Exit if the diff is empty, with a message."""
     if not ctx["diff"].strip():
@@ -50,7 +52,9 @@ def check_diff_empty(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-@ensure_initialized
+check_diff_empty = ensure_initialized(check_diff_empty)
+
+
 def print_diff_info(ctx: CtxDict) -> CtxDict:
     """Print the size of the diff in characters and tokens."""
     logging.info(f"📏 Your staged changes are {len(ctx['diff']):,} characters long!")
@@ -60,37 +64,43 @@ def print_diff_info(ctx: CtxDict) -> CtxDict:
     ctx["diff_tokens"] = diff_tokens
     return ctx
 
+print_diff_info = ensure_initialized(print_diff_info)
 
-@ensure_initialized
+
 def fallback_large_diff(ctx: CtxDict) -> CtxDict:
     """Fallback to file list if the diff is too large."""
     if len(ctx["diff"]) > 100000:
         logging.warning('⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".')
-        result = get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
-        logging.info(f"📄 Using file list as diff: {result['diff'].strip()}")
-        return result
+        return get_diff(["git", "diff", "--cached", "--name-only"])(ctx)
     return ctx
 
 
-@ensure_initialized
-def get_file(ctx: CtxDict, file_key: str, path_key: str) -> CtxDict:
+fallback_large_diff = ensure_initialized(fallback_large_diff)
+
+
+def get_file(file_key: str, path_key: str):
     """Read the file at path_key and store its contents in ctx[file_key]."""
-    with open(path_key) as f:
-        ctx[file_key] = f.read()
-    return ctx
+
+    def _get_file(ctx: CtxDict) -> CtxDict:
+        path = ctx[path_key]
+        with open(path) as f:
+            ctx[file_key] = f.read()
+        return ctx
+
+    return ensure_initialized(_get_file)
 
 
-@ensure_initialized
-def print_file_info(ctx: CtxDict, file_key: str, model_key: str) -> CtxDict:
+def print_file_info(file_key: str, model_key: str):
     """Print the size of the file update in characters and tokens."""
-    content: str = ctx[file_key]
-    logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
-    enc = tiktoken.encoding_for_model(ctx[model_key])
-    tokens: int = len(enc.encode(content))
-    logging.info(f"🔢 That's {tokens:,} tokens in update to {file_key}!")
-    ctx[f"{file_key}_tokens"] = tokens
-    return ctx
-
+    def _print_file_info(ctx: CtxDict) -> CtxDict:
+        content: str = ctx[file_key]
+        logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
+        enc = tiktoken.encoding_for_model(ctx[model_key])
+        tokens: int = len(enc.encode(content))
+        logging.info(f"🔢 That's {tokens:,} tokens in update to {file_key}!")
+        ctx[f"{file_key}_tokens"] = tokens
+        return ctx
+    return ensure_initialized(_print_file_info)
 
 def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
     """Return an OpenAI client response for the given prompt and model."""
@@ -105,18 +115,18 @@ def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
     return response
 
 
-@ensure_initialized
-def ai_enrich(ctx: CtxDict, filename: str) -> CtxDict:
+def ai_enrich(filename: str):
     """Call the OpenAI API to get enrichment suggestions for any file."""
-    prompt: str = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
-    response = get_ai_response(prompt, ctx)
-    # Access the content safely
-    ai_suggestion = ""
-    if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
-        ai_suggestion = response.choices[0].message.content.strip()
-    ctx["ai_suggestions"][filename] = ai_suggestion
-    return ctx
-
+    def _ai_enrich(ctx: CtxDict) -> CtxDict:
+        prompt: str = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
+        response = get_ai_response(prompt, ctx)
+        # Access the content safely
+        ai_suggestion = ""
+        if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
+            ai_suggestion = response.choices[0].message.content.strip()
+        ctx["ai_suggestions"][filename] = ai_suggestion
+        return ctx
+    return ensure_initialized(_ai_enrich)
 
 def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
@@ -137,10 +147,12 @@ def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
 
+select_wiki_articles = ensure_initialized(select_wiki_articles)
 
-def enrich_readme(ctx: CtxDict) -> CtxDict:
+
+def enrich_readme() -> Callable[[CtxDict], CtxDict]:
     """Enrich the README file with AI suggestions."""
-    return ai_enrich(ctx, "README.md")
+    return ai_enrich("README.md")
 
 
 def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
@@ -148,9 +160,12 @@ def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
     if "wiki" not in ctx["ai_suggestions"] or not isinstance(ctx["ai_suggestions"]["wiki"], dict):
         ctx["ai_suggestions"]["wiki"] = {}
     for filename in ctx["selected_wiki_articles"]:
-        suggestion_ctx: CtxDict = ai_enrich(ctx, filename)
-        ctx["ai_suggestions"]["wiki"][filename] = suggestion_ctx["ai_suggestions"][filename]
+        updated_ctx = ai_enrich(filename)(ctx)
+        ctx["ai_suggestions"]["wiki"][filename] = updated_ctx["ai_suggestions"][filename]
     return ctx
+
+
+enrich_selected_wikis = ensure_initialized(enrich_selected_wikis)
 
 
 def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], label: str) -> None:
@@ -164,7 +179,7 @@ def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], la
                 file_content: str = f.read()
             # Replace the section if it exists, otherwise append
             pattern: str = rf"({re.escape(section_header)}\n)(.*?)(?=\n## |\Z)"
-            replacement: str = "\\1" + ai_suggestion.strip().split('\n', 1)[1].strip() + "\n"
+            replacement: str = "\\1" + ai_suggestion.strip().split("\n", 1)[1].strip() + "\n"
             new_content: str
             count: int
             new_content, count = re.subn(pattern, replacement, file_content, flags=re.DOTALL)
@@ -193,51 +208,59 @@ def write_enrichment_outputs(ctx: CtxDict) -> CtxDict:
         append_suggestion_and_stage(file_path, ai_suggestion, filename)
     return ctx
 
+write_enrichment_outputs = ensure_initialized(write_enrichment_outputs)
+
 
 def print_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Print file info for each selected wiki article."""
+    updated_ctx = ctx
     for filename in ctx["selected_wiki_articles"]:
-        print_file_info(ctx, filename, "model")
-    return ctx
+        updated_ctx = print_file_info(filename, "model")(updated_ctx)
+    return updated_ctx
+
+
+print_selected_wiki_files = ensure_initialized(print_selected_wiki_files)
 
 
 def get_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Read each selected wiki file and store its contents in the context."""
     for filename in ctx["selected_wiki_articles"]:
-        get_file(ctx, filename, ctx["wiki_file_paths"][filename])
+        path = ctx["wiki_file_paths"][filename]
+        with open(path) as f:
+            ctx[filename] = f.read()
     return ctx
+
+
+get_selected_wiki_files = ensure_initialized(get_selected_wiki_files)
 
 
 def enrich() -> None:
     """Pipeline for enriching wiki and readme (multi-wiki support)."""
     # Create a pipeline of operations using the pipe operator
     empty_ctx = {}
-    
-    # Define a function to handle README file reading
-    def read_readme(ctx: CtxDict) -> CtxDict:
-        return get_file(ctx, "README.md", ctx["readme_path"])
-        
-    # Define a function to print README file info
-    def print_readme_info(ctx: CtxDict) -> CtxDict:
-        return print_file_info(ctx, "README.md", "model")
-        
+
+    # Define pipeline steps for README handling
+    read_readme = get_file("README.md", "readme_path")
+    print_readme_info = print_file_info("README.md", "model")
+
     # Build and execute the pipeline
-    empty_ctx | pipe(
-        initialize_context,
-        check_api_key,
-        get_diff,
-        check_diff_empty,
-        print_diff_info,
-        fallback_large_diff,
-        # README.md handling
-        read_readme,
-        print_readme_info,
-        # Wiki handling
-        select_wiki_articles,
-        enrich_readme,
-        get_selected_wiki_files,
-        print_selected_wiki_files,
-        enrich_selected_wikis,
-        # Output
-        write_enrichment_outputs
+    p = (
+        pipe
+        | initialize_context
+        | check_api_key
+        | get_diff()
+        | check_diff_empty
+        | print_diff_info
+        | fallback_large_diff
+        | read_readme
+        | print_readme_info
+        | select_wiki_articles
+        | enrich_readme()
+        | get_selected_wiki_files
+        | print_selected_wiki_files
+        | enrich_selected_wikis
+        | write_enrichment_outputs
     )
+
+    # Execute the pipeline with an empty context
+    p(empty_ctx)

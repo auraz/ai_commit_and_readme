@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pipetools import pipe, X
+from pipetools import pipe
 
 from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.tools as tools
@@ -113,11 +113,8 @@ class TestPipeline:
         
         # Execute pipeline using pipe operator
         empty_ctx: CtxDict = {}
-        result = empty_ctx | pipe(
-            tools.initialize_context,
-            step1,
-            step2
-        )
+        p = pipe | tools.initialize_context | step1 | step2
+        result = p(empty_ctx)
         
         # Verify pipeline processed all steps
         assert result["context_initialized"] is True

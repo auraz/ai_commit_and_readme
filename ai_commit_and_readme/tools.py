@@ -5,7 +5,7 @@ Utility functions for documentation enrichment and other helpers.
 import glob
 import os
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, Protocol
 from pipetools import pipe
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
@@ -14,7 +14,11 @@ PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
 # For better type annotations
 CtxDict = dict[str, Any]
-F = TypeVar('F', bound=Callable[[CtxDict], CtxDict])
+
+# Define a protocol for functions that can be piped
+class PipeFunction(Protocol):
+    """Protocol for functions that can be used in a pipeline."""
+    def __call__(self, ctx: CtxDict) -> CtxDict: ...
 
 
 def initialize_context(ctx: CtxDict) -> CtxDict:
@@ -39,13 +43,12 @@ def initialize_context(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-def ensure_initialized(func: F) -> F:
+def ensure_initialized(func: Callable) -> PipeFunction:
     """Decorator that ensures context is initialized before executing a function."""
-    def wrapper(ctx: CtxDict, *args: Any, **kwargs: Any) -> CtxDict:
+    def wrapper(ctx: CtxDict) -> CtxDict:
         ctx = initialize_context(ctx)
-        func(ctx, *args, **kwargs)
-        return ctx
-    return wrapper  # type: ignore
+        return func(ctx)
+    return wrapper
 
 
 def get_wiki_files() -> tuple[list[str], dict[str, str]]:
