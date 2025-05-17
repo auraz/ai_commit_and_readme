@@ -8,6 +8,7 @@ from unittest import mock
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
+from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.main as mod
 from ai_commit_and_readme.tools import CtxDict
 
@@ -67,8 +68,8 @@ class TestHandlers:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setenv("OPENAI_API_KEY", "test")
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", "test")
-        mod.check_api_key(ctx)
-        assert ctx["api_key"] == "test"
+        result = mod.check_api_key(ctx)
+        assert result["api_key"] == "test"
 
     def test_check_api_key_missing(self, monkeypatch: MonkeyPatch) -> None:
         """Should exit if API key is missing."""
@@ -89,15 +90,21 @@ class TestHandlers:
         """Should set diff from subprocess output."""
         ctx: CtxDict = make_ctx()
         monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff")
-        mod.get_diff(ctx)
-        assert ctx["diff"] == "diff"
+        result = mod.get_diff(ctx)
+        assert result["diff"] == "diff"
 
     def test_fallback_large_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should fallback to file list if diff is too large."""
         ctx: CtxDict = make_ctx(diff="x" * 100001)
-        monkeypatch.setattr(mod, "get_diff", lambda ctx, _diff_args=None: ctx.update({"diff": "file1.py\nfile2.py\n"}))
-        mod.fallback_large_diff(ctx)
-        assert "file1.py" in ctx["diff"]
+        
+        # Mock the get_diff function to update the context with file list
+        def mock_get_diff(context, diff_args=None):
+            context["diff"] = "file1.py\nfile2.py\n"
+            return context
+            
+        monkeypatch.setattr(mod, "get_diff", mock_get_diff)
+        result = mod.fallback_large_diff(ctx)
+        assert "file1.py" in result["diff"]
 
     def test_get_file_reads_correct_content(self, tmp_path: Path) -> None:
         # Create a unique temp file
@@ -106,8 +113,8 @@ class TestHandlers:
         test_file.write_text(test_content)
         ctx: CtxDict = {}
         # Pass the file path directly
-        mod.get_file(ctx, "some_unique_file.md", str(test_file))
-        assert ctx["some_unique_file.md"] == test_content
+        result = mod.get_file(ctx, "some_unique_file.md", str(test_file))
+        assert result["some_unique_file.md"] == test_content
 
     def test_get_file_not_exists(self, tmp_path: Path) -> None:
         """Should raise FileNotFoundError if file does not exist (matches current get_file implementation)."""
@@ -125,10 +132,10 @@ class TestHandlers:
         fake_enc.encode.return_value = [1, 2, 3]
         monkeypatch.setattr(mod.tiktoken, "encoding_for_model", lambda _model: fake_enc)
         with caplog.at_level("INFO"):
-            mod.print_file_info(ctx, filename, model_key)
+            result = mod.print_file_info(ctx, filename, model_key)
         assert f"Update to {filename} is currently" in caplog.text
         assert f"That's 3 tokens in update to {filename}!" in caplog.text
-        assert ctx[f"{filename}_tokens"] == 3
+        assert result[f"{filename}_tokens"] == 3
 
 
 class TestAIEnrich:
@@ -143,8 +150,8 @@ class TestAIEnrich:
         """Should set ai_suggestions from OpenAI response."""
         monkeypatch.setattr(mod.openai, "OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
         self.ctx["README.md"] = "r"
-        mod.ai_enrich(self.ctx, "README.md")
-        assert self.ctx["ai_suggestions"]["README.md"] == "SUGGESTION"
+        result = mod.ai_enrich(self.ctx, "README.md")
+        assert result["ai_suggestions"]["README.md"] == "SUGGESTION"
 
     def test_ai_enrich_exception(self, monkeypatch: MonkeyPatch) -> None:
         """Should exit on OpenAI API exception."""

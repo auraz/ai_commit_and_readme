@@ -5,7 +5,8 @@ Utility functions for documentation enrichment and other helpers.
 import glob
 import os
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
+from pipetools import pipe
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
@@ -13,33 +14,38 @@ PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
 # For better type annotations
 CtxDict = dict[str, Any]
+F = TypeVar('F', bound=Callable[[CtxDict], CtxDict])
 
 
-def chain_handler(func: Callable) -> Callable:
-    """Decorator to ensure handler returns ctx for chaining and populates ctx with constants if not set."""
+def initialize_context(ctx: CtxDict) -> CtxDict:
+    """Initialize context with default values if not already initialized."""
+    if "context_initialized" not in ctx:
+        defaults = [
+            ("readme_path", README_PATH),
+            ("wiki_path", WIKI_PATH),
+            ("api_key", API_KEY),
+            ("wiki_url", WIKI_URL),
+            ("wiki_url_base", WIKI_URL_BASE),
+            ("model", MODEL),
+        ]
+        for key, value in defaults:
+            ctx[key] = value
+        wiki_files, wiki_file_paths = get_wiki_files()
+        ctx["file_paths"] = {"README.md": README_PATH, "wiki": wiki_file_paths}
+        ctx["ai_suggestions"] = {"README.md": None, "wiki": None}
+        ctx["wiki_files"] = wiki_files
+        ctx["wiki_file_paths"] = wiki_file_paths
+        ctx["context_initialized"] = True
+    return ctx
 
+
+def ensure_initialized(func: F) -> F:
+    """Decorator that ensures context is initialized before executing a function."""
     def wrapper(ctx: CtxDict, *args: Any, **kwargs: Any) -> CtxDict:
-        if "chain_handler_initialized" not in ctx:
-            defaults = [
-                ("readme_path", README_PATH),
-                ("wiki_path", WIKI_PATH),
-                ("api_key", API_KEY),
-                ("wiki_url", WIKI_URL),
-                ("wiki_url_base", WIKI_URL_BASE),
-                ("model", MODEL),
-            ]
-            for key, value in defaults:
-                ctx[key] = value
-            wiki_files, wiki_file_paths = get_wiki_files()
-            ctx["file_paths"] = {"README.md": README_PATH, "wiki": wiki_file_paths}
-            ctx["ai_suggestions"] = {"README.md": None, "wiki": None}
-            ctx["wiki_files"] = wiki_files
-            ctx["wiki_file_paths"] = wiki_file_paths
-            ctx["chain_handler_initialized"] = True
+        ctx = initialize_context(ctx)
         func(ctx, *args, **kwargs)
         return ctx
-
-    return wrapper
+    return wrapper  # type: ignore
 
 
 def get_wiki_files() -> tuple[list[str], dict[str, str]]:

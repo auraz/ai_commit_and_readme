@@ -1,35 +1,48 @@
 """Tests for ai_commit_and_readme.tools utility functions."""
 
 from pathlib import Path
+from typing import Any
 
 import pytest
+from pipetools import pipe, X
 
-import ai_commit_and_readme.tools as tools
 from ai_commit_and_readme.tools import CtxDict
+import ai_commit_and_readme.tools as tools
 
 
-class TestChainHandler:
-    """Tests for the chain_handler decorator."""
+class TestContextInitialization:
+    """Tests for the context initialization functions."""
 
-    def test_chain_handler_populates_ctx(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """chain_handler should populate context with defaults and call the wrapped function."""
-
-        @tools.chain_handler
-        def dummy(ctx: CtxDict) -> None:
-            """Dummy function for testing chain_handler."""
-            ctx["touched"] = True
-
+    def test_initialize_context(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """initialize_context should populate context with defaults."""
         ctx: CtxDict = {}
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
-        dummy(ctx)
-        assert ctx["touched"] is True
+        result = tools.initialize_context(ctx)
+        assert result is ctx  # Should return the same context object
         assert "readme_path" in ctx
         assert "wiki_files" in ctx
         assert ctx["wiki_files"] == ["A.md"]
         assert ctx["wiki_file_paths"] == {"A.md": "wiki/A.md"}
         assert ctx["ai_suggestions"] == {"README.md": None, "wiki": None}
-        assert ctx["chain_handler_initialized"] is True
+        assert ctx["context_initialized"] is True
         assert ctx["file_paths"]["wiki"] == {"A.md": "wiki/A.md"}
+    
+    def test_ensure_initialized_decorator(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """ensure_initialized decorator should initialize context before calling the function."""
+
+        @tools.ensure_initialized
+        def dummy(ctx: CtxDict) -> CtxDict:
+            """Dummy function for testing ensure_initialized."""
+            ctx["touched"] = True
+            return ctx
+
+        ctx: CtxDict = {}
+        monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
+        result = dummy(ctx)
+        assert result is ctx  # Should return the same context object
+        assert ctx["touched"] is True
+        assert "readme_path" in ctx
+        assert ctx["context_initialized"] is True
 
 
 class TestWikiFiles:
@@ -79,3 +92,34 @@ select_articles section content
         monkeypatch.setattr(tools, "PROMPT_PATH", "nonexistent_prompt.md")
         with pytest.raises(RuntimeError):
             tools.get_prompt_template("enrich")
+
+
+class TestPipeline:
+    """Tests for pipeline functionality."""
+    
+    def test_pipeline_integration(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that functions can be combined in a pipeline using the pipe operator."""
+        # Define test functions for the pipeline
+        def step1(ctx: CtxDict) -> CtxDict:
+            ctx["step1"] = True
+            return ctx
+            
+        def step2(ctx: CtxDict) -> CtxDict:
+            ctx["step2"] = True
+            return ctx
+        
+        # Set up mocks
+        monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
+        
+        # Execute pipeline using pipe operator
+        empty_ctx: CtxDict = {}
+        result = empty_ctx | pipe(
+            tools.initialize_context,
+            step1,
+            step2
+        )
+        
+        # Verify pipeline processed all steps
+        assert result["context_initialized"] is True
+        assert result["step1"] is True
+        assert result["step2"] is True
