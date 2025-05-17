@@ -5,16 +5,19 @@ Utility functions for documentation enrichment and other helpers.
 import glob
 import os
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
 PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
+T = TypeVar('T')
 
-def chain_handler(func):
+
+def chain_handler(func: Callable[[Dict[str, Any], ...], None]) -> Callable[[Dict[str, Any], ...], Dict[str, Any]]:
     """Decorator to ensure handler returns ctx for chaining and populates ctx with constants if not set."""
 
-    def wrapper(ctx, *args, **kwargs):
+    def wrapper(ctx: Dict[str, Any], *args: Any, **kwargs: Any) -> Dict[str, Any]:
         if "chain_handler_initialized" not in ctx:
             defaults = [
                 ("readme_path", README_PATH),
@@ -38,7 +41,7 @@ def chain_handler(func):
     return wrapper
 
 
-def get_wiki_files():
+def get_wiki_files() -> Tuple[List[str], Dict[str, str]]:
     """Return a list of wiki markdown files (including Home.md) and their paths"""
     files = glob.glob(f"{WIKI_PATH}/*.md")
     filenames = [os.path.basename(f) for f in files]

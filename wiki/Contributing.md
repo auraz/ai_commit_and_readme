@@ -11,14 +11,14 @@ Thank you for considering contributing to **ai_commit_and_readme**!
 
 
 ## 🛠️ Makefile Commands Overview
+The `Makefile` in our project serves as a hub for common development tasks. We strive to keep our Makefile commands intuitive and robust to facilitate a smooth developer experience. Below you will find a curated list of available commands along with updated descriptions reflecting the latest changes.
 
-Our Makefile provides a collection of commands to streamline the development process, creating a more efficient and error-proof workflow. Below you will find a brief overview of the updated Makefile commands. Make sure you use these whenever possible to avoid inconsistencies and manual errors.
+- `make build`: Compiles the codebase, preparing the project for execution or testing. If there have been any recent changes to source files, this command should be run to reflect those updates in the build.
+- `make test`: Runs the suite of automated tests designed to ensure code quality and non-regression. After any significant changes, contributors should run this command to verify that their alterations have not disrupted existing functionality.
+- `make install`: Installs the required dependencies for the project. This should be the first command run by developers after cloning the repository to ensure all necessary libraries and tools are in place.
+- `make clean`: Cleans the build by removing all generated files. This can help resolve issues stemming from stale build artifacts and should be used before a fresh build.
+- `make lint`: Analyzes the source code for potential stylistic or programming errors. This is crucial for maintaining a high standard of code quality and consistency across the project.
+- `make docs`: Generates documentation based on the in-line comments and docstrings present in the code. With recent improvements, this process is more efficient and the resulting documentation is more comprehensive.
+- `make update`: A new utility added to handle automated dependency updates. It ensures that your development environment reflects the latest libraries and frameworks specified for the project.
 
-- `make build`: Compiles the project, ensuring that all dependencies are appropriately managed.
-- `make test`: Runs the full suite of automated tests to ascertain code integrity.
-- `make lint`: Analyzes the codebase for stylistic and programming errors to maintain high code quality.
-- `make clean`: Removes all generated files and cleans up the workspace, leaving it as if you've just cloned the repository.
-- `make install`: Installs the project dependencies, perfect for setting up your local environment for the first time.
-- `make docs`: Generates the latest project documentation, essential after any significant updates or before releases.
-
-Please consult the Makefile directly for a comprehensive list of commands and detailed descriptions of each task. Our Makefile is intended to serve as the backbone for our automation strategies, and adhering to its use is crucial for a unified development environment.
+Please refer to the Usage.md for a more detailed explanation of each command and instructions on how to properly utilize the Makefile to streamline your workflow.
