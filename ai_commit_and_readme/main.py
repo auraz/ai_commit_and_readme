@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 AI Commit and README tool main module.
-Provides subcommands for enriching README.md with AI suggestions based on git diffs.
+
+Provides pipeline-based processing for enriching README.md and wiki files
+with AI-generated content based on git diffs. Uses pipetools for function
+composition and flow control.
 """
 
 import logging
@@ -64,6 +67,7 @@ def print_diff_info(ctx: CtxDict) -> CtxDict:
     ctx["diff_tokens"] = diff_tokens
     return ctx
 
+
 print_diff_info = ensure_initialized(print_diff_info)
 
 
@@ -79,11 +83,20 @@ fallback_large_diff = ensure_initialized(fallback_large_diff)
 
 
 def get_file(file_key: str, path_key: str):
-    """Read the file at path_key and store its contents in ctx[file_key]."""
+    """
+    Create a pipeline step that reads a file and stores its contents in context.
+
+    Args:
+        file_key: The key to store the file contents under in the context
+        path_key: The key in context that contains the path to the file
+
+    Returns:
+        A function that, when called with context, reads the file and updates context
+    """
 
     def _get_file(ctx: CtxDict) -> CtxDict:
         path = ctx[path_key]
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             ctx[file_key] = f.read()
         return ctx
 
@@ -91,7 +104,17 @@ def get_file(file_key: str, path_key: str):
 
 
 def print_file_info(file_key: str, model_key: str):
-    """Print the size of the file update in characters and tokens."""
+    """
+    Create a pipeline step that logs file size information and calculates token count.
+
+    Args:
+        file_key: The key in context containing the file contents
+        model_key: The key in context with the model name for token calculation
+
+    Returns:
+        A function that, when called with context, logs info and updates token count
+    """
+
     def _print_file_info(ctx: CtxDict) -> CtxDict:
         content: str = ctx[file_key]
         logging.info(f"📄 Update to {file_key} is currently {len(content):,} characters.")
@@ -100,7 +123,9 @@ def print_file_info(file_key: str, model_key: str):
         logging.info(f"🔢 That's {tokens:,} tokens in update to {file_key}!")
         ctx[f"{file_key}_tokens"] = tokens
         return ctx
+
     return ensure_initialized(_print_file_info)
+
 
 def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
     """Return an OpenAI client response for the given prompt and model."""
@@ -116,17 +141,31 @@ def get_ai_response(prompt: str, ctx: Optional[CtxDict] = None) -> Any:
 
 
 def ai_enrich(filename: str):
-    """Call the OpenAI API to get enrichment suggestions for any file."""
+    """
+    Create a pipeline step that enriches content with AI suggestions.
+
+    Args:
+        filename: The name of the file to enrich (must exist in context)
+
+    Returns:
+        A function that, when called with context, gets AI suggestions and updates context
+    """
+
     def _ai_enrich(ctx: CtxDict) -> CtxDict:
+        # Format the prompt with the file content and diff
         prompt: str = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
         response = get_ai_response(prompt, ctx)
-        # Access the content safely
+
+        # Access the content safely with a defensive approach
         ai_suggestion = ""
         if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
             ai_suggestion = response.choices[0].message.content.strip()
+
         ctx["ai_suggestions"][filename] = ai_suggestion
         return ctx
+
     return ensure_initialized(_ai_enrich)
+
 
 def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     """Ask the AI which wiki articles to extend based on the diff, return a list."""
@@ -147,6 +186,7 @@ def select_wiki_articles(ctx: CtxDict) -> CtxDict:
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
 
+
 select_wiki_articles = ensure_initialized(select_wiki_articles)
 
 
@@ -156,12 +196,27 @@ def enrich_readme() -> Callable[[CtxDict], CtxDict]:
 
 
 def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
-    """Enrich the selected wiki articles."""
+    """
+    Enrich all selected wiki articles with AI-generated content.
+
+    For each selected wiki article, calls the AI enrichment process
+    and stores the results in the context under ai_suggestions.wiki.
+
+    Args:
+        ctx: The pipeline context dictionary
+
+    Returns:
+        Updated context with AI suggestions for wiki files
+    """
+    # Initialize wiki suggestions if needed
     if "wiki" not in ctx["ai_suggestions"] or not isinstance(ctx["ai_suggestions"]["wiki"], dict):
         ctx["ai_suggestions"]["wiki"] = {}
+
+    # Enrich each wiki article
     for filename in ctx["selected_wiki_articles"]:
         updated_ctx = ai_enrich(filename)(ctx)
         ctx["ai_suggestions"]["wiki"][filename] = updated_ctx["ai_suggestions"][filename]
+
     return ctx
 
 
@@ -169,29 +224,59 @@ enrich_selected_wikis = ensure_initialized(enrich_selected_wikis)
 
 
 def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], label: str) -> None:
-    """Enrich the file by replacing the relevant section if possible, otherwise append, and stage it with git."""
+    """
+    Update a file with AI suggestions and stage it for commit.
+
+    This function smartly handles different ways to update the file:
+    1. If the suggestion contains a markdown section header (## Title), it will
+       try to replace that section in the file.
+    2. If the section doesn't exist, it appends the suggestion to the end.
+    3. If no section header is found, it simply appends the suggestion.
+    4. After updating, it stages the file with git.
+
+    Args:
+        file_path: Path to the file to update
+        ai_suggestion: The AI-generated content to add
+        label: Description for logging (usually the filename)
+    """
+    # Skip if there's no suggestion or it explicitly says no changes
     if ai_suggestion and ai_suggestion != "NO CHANGES":
         # Try to find a section header in the suggestion (e.g., '## Section Header')
         section_header_match: Optional[re.Match[str]] = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
+
         if section_header_match:
+            # If we found a section header, try to replace that section
             section_header: str = section_header_match.group(1)
+
+            # Read the current file content
             with open(file_path, encoding="utf-8") as f:
                 file_content: str = f.read()
-            # Replace the section if it exists, otherwise append
+
+            # Create pattern to match the section and its content
             pattern: str = rf"({re.escape(section_header)}\n)(.*?)(?=\n## |\Z)"
-            replacement: str = "\\1" + ai_suggestion.strip().split("\n", 1)[1].strip() + "\n"
+
+            # Extract content after the header in the suggestion
+            suggestion_content = ai_suggestion.strip().split("\n", 1)[1].strip()
+            replacement: str = f"\\1{suggestion_content}\n"
+
+            # Try to replace the section
             new_content: str
             count: int
             new_content, count = re.subn(pattern, replacement, file_content, flags=re.DOTALL)
+
             if count == 0:
                 # Section not found, append at the end
                 new_content = file_content + f"\n\n{ai_suggestion.strip()}\n"
+
+            # Write the updated content
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
         else:
             # No section header, just append
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write(ai_suggestion)
+
+        # Log success and stage the file
         logging.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
         subprocess.run(["git", "add", file_path])
     else:
@@ -199,21 +284,49 @@ def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], la
 
 
 def write_enrichment_outputs(ctx: CtxDict) -> CtxDict:
-    """Write AI suggestions to their corresponding files, and update README with wiki summary and link if needed."""
+    """
+    Write all AI-generated content to their corresponding files and stage changes.
+
+    Handles both the README enrichment and all wiki article enrichments.
+    Each file is updated with its corresponding AI suggestions and then
+    staged with git for commit.
+
+    Args:
+        ctx: The pipeline context dictionary
+
+    Returns:
+        The unchanged context after file operations are complete
+    """
+    # Handle README file
     file_path: str = ctx["file_paths"]["README.md"]
     ai_suggestion: Optional[str] = ctx["ai_suggestions"]["README.md"]
     append_suggestion_and_stage(file_path, ai_suggestion, "README")
+
+    # Handle wiki files
     for filename, ai_suggestion in ctx["ai_suggestions"].get("wiki", {}).items():
         file_path = ctx["file_paths"]["wiki"][filename]
         append_suggestion_and_stage(file_path, ai_suggestion, filename)
+
     return ctx
+
 
 write_enrichment_outputs = ensure_initialized(write_enrichment_outputs)
 
 
 def print_selected_wiki_files(ctx: CtxDict) -> CtxDict:
-    """Print file info for each selected wiki article."""
-    updated_ctx = ctx
+    """
+    Print information about each selected wiki file.
+
+    Iterates through all selected wiki articles and calls print_file_info
+    on each to log character count and token usage statistics.
+
+    Args:
+        ctx: The pipeline context dictionary
+
+    Returns:
+        Updated context with token counts for wiki files
+    """
+    updated_ctx = ctx.copy()
     for filename in ctx["selected_wiki_articles"]:
         updated_ctx = print_file_info(filename, "model")(updated_ctx)
     return updated_ctx
@@ -224,43 +337,61 @@ print_selected_wiki_files = ensure_initialized(print_selected_wiki_files)
 
 def get_selected_wiki_files(ctx: CtxDict) -> CtxDict:
     """Read each selected wiki file and store its contents in the context."""
+    updated_ctx = ctx.copy()
     for filename in ctx["selected_wiki_articles"]:
-        path = ctx["wiki_file_paths"][filename]
-        with open(path) as f:
-            ctx[filename] = f.read()
-    return ctx
+        file_path = ctx["wiki_file_paths"][filename]
+        # Create a temporary context with the file path
+        temp_ctx = updated_ctx.copy()
+        temp_ctx[f"{filename}_path"] = file_path
+        # Use get_file to read the file
+        temp_ctx = get_file(filename, f"{filename}_path")(temp_ctx)
+        # Update our context with the new file content
+        updated_ctx[filename] = temp_ctx[filename]
+    return updated_ctx
 
 
 get_selected_wiki_files = ensure_initialized(get_selected_wiki_files)
 
 
 def enrich() -> None:
-    """Pipeline for enriching wiki and readme (multi-wiki support)."""
-    # Create a pipeline of operations using the pipe operator
-    empty_ctx = {}
+    """
+    Main entry point for the enrichment pipeline.
 
+    Builds and executes a pipeline that:
+    1. Initializes the context
+    2. Checks for the OpenAI API key
+    3. Gets the git diff
+    4. Handles various validations and processing steps
+    5. Reads the README and wiki files
+    6. Gets AI suggestions for each file
+    7. Writes the enriched content back to files
+    8. Stages all changes for commit
+
+    Each step in the pipeline receives the context from the previous step,
+    modifies it as needed, and passes it to the next step.
+    """
     # Define pipeline steps for README handling
     read_readme = get_file("README.md", "readme_path")
     print_readme_info = print_file_info("README.md", "model")
 
-    # Build and execute the pipeline
-    p = (
+    # Build the complete pipeline using the pipe operator
+    enrichment_pipeline = (
         pipe
-        | initialize_context
-        | check_api_key
-        | get_diff()
-        | check_diff_empty
-        | print_diff_info
-        | fallback_large_diff
-        | read_readme
-        | print_readme_info
-        | select_wiki_articles
-        | enrich_readme()
-        | get_selected_wiki_files
-        | print_selected_wiki_files
-        | enrich_selected_wikis
-        | write_enrichment_outputs
+        | initialize_context  # Set up the initial context with defaults
+        | check_api_key  # Verify OpenAI API key is available
+        | get_diff()  # Get git diff of staged changes
+        | check_diff_empty  # Exit if no changes are staged
+        | print_diff_info  # Log diff size information
+        | fallback_large_diff  # Handle large diffs by switching to file list
+        | read_readme  # Read README.md content
+        | print_readme_info  # Log README size information
+        | select_wiki_articles  # Determine which wiki files to update
+        | enrich_readme()  # Get AI suggestions for README
+        | get_selected_wiki_files  # Read content of wiki files
+        | print_selected_wiki_files  # Log wiki file size information
+        | enrich_selected_wikis  # Get AI suggestions for wiki files
+        | write_enrichment_outputs  # Write and stage all changes
     )
 
-    # Execute the pipeline with an empty context
-    p(empty_ctx)
+    # Execute the pipeline with an empty initial context
+    enrichment_pipeline({})

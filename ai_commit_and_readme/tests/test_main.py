@@ -8,8 +8,8 @@ from unittest import mock
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
-from ai_commit_and_readme.tools import CtxDict
 import ai_commit_and_readme.main as mod
+from ai_commit_and_readme.tools import CtxDict
 
 
 # Shared test OpenAI client for mocking
@@ -97,14 +97,15 @@ class TestHandlers:
     def test_fallback_large_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should fallback to file list if diff is too large."""
         ctx: CtxDict = make_ctx(diff="x" * 100001, context_initialized=True)
-        
+
         # Mock the get_diff function to update the context with file list
-        def mock_get_diff_fn(diff_args=None):
+        def mock_get_diff_fn(_diff_args=None):
             def inner_mock(context):
                 context["diff"] = "file1.py\nfile2.py\n"
                 return context
+
             return inner_mock
-        
+
         monkeypatch.setattr(mod, "get_diff", mock_get_diff_fn)
         result = mod.fallback_large_diff(ctx)
         assert "file1.py" in result["diff"]

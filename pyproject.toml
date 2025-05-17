@@ -7,13 +7,26 @@ name = "ai_commit_and_readme"
 version = "1.0.1"
 description = "AI-powered README.md and commit message generation tool using OpenAI"
 readme = "README.md"
-authors = [
-    { name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }
-]
+authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
 license = { text = "MIT" }
 requires-python = ">=3.7"
 dependencies = [
     "openai>=1.0.0",
     "tiktoken>=0.5.1",
-    "rich>=13.0.0"
+    "rich>=13.0.0",
+    "pipetools>=0.1.0",
+]
+
+[tool.pyright]
+exclude = [
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.egg-info",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
 ]

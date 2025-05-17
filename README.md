@@ -26,16 +26,9 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-Please refer to this section after each code update to familiarize yourself with the current make commands. Make sure to have `make` utility installed on your system to use these commands.
-
-- `make build` - Compiles the code and creates an executable file.
-- `make test` - Runs all the unit tests to ensure the code behaves as expected.
-- `make install` - Installs the application on your system, typically by copying files to the appropriate directories.
-- `make clean` - Cleans up the directory, removing any temporary files or build artifacts.
-
-(Note: The above commands are just an example. The actual command list may vary depending on the included Makefile changes.)
+NO CHANGES
 
 ## ✨ Feature Highlights
 
 (New content for the Feature Highlights section)
-SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION
+SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION
