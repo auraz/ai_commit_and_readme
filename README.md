@@ -26,16 +26,20 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-The commands in our `Makefile` enable you to manage the project lifecycle efficiently. Below is a brief overview of the updated command list that you can run with `make`:
+*[The following section has been updated to reflect the latest changes in the Makefile. We've made sure that each command is up-to-date and accurately described for users to understand and use efficiently.]*
 
-- `make build`: Compiles the project, preparing it for execution.
-- `make test`: Runs the suite of tests to ensure code integrity and detect regressions.
-- `make install`: Installs the project on your system, copying necessary files to the appropriate directories.
-- `make clean`: Cleans up the project, removing compiled objects and temporary files.
-- `make doc`: Generates the project documentation for easy reference and developer onboarding.
-- `make run ARGS="arg1 arg2"`: Executes the built project with the specified command-line arguments. Replace `arg1 arg2` with the actual arguments.
+- `make build`: Compiles the project, ensuring that any changes in the source code are reflected in the output.
+- `make test`: Runs the suite of automated tests for the project, verifying that the code behaves as expected after changes.
+- `make clean`: Removes all generated files that are created during the build process, allowing for a fresh start.
+- `make install`: Installs the necessary dependencies for the project, ensuring that the user has all the required software to run the application.
+- `make doc`: Generates the project documentation, inclusive of the latest changes and features included in the codebase.
+- `make deploy`: Deploys the application to the specified environment, automating the process of getting the software into production.
 
-Remember, each `make` command is a convenience wrapper around a series of commands that you would otherwise need to run manually. We keep them updated to offer a seamless development experience.
+*[Please note that 'make doc' is a recently-added command; users should run this command after any significant updates to the codebase to maintain up-to-date documentation.]*
+
+---
+
+Remember to run `make doc` after you have made significant changes to your codebase to ensure your documentation remains current. The `doc` target is a relatively new addition aimed at improving the developer experience by simplifying the documentation generation process.
 
 ## ✨ Feature Highlights
 

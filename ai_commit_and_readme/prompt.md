@@ -45,3 +45,20 @@ Here are the available wiki articles (filenames):
 {article_list}
 
 Reply with a comma-separated list of filenames only, based on which articles should be extended. If none, reply with an empty string or 'NO CHANGES'.
+
+## commit_message
+
+You are an expert git commit message writer.
+Your task is to create a concise, clear, and informative commit message based on the following staged changes.
+
+Follow these guidelines:
+- Start with a clear subject line (50 chars or less)
+- Use the imperative mood ("Add feature" not "Added feature")
+- Explain what and why, not how
+- If needed, add a more detailed explanation after a blank line
+- Reference relevant issues or tickets if present in the diff
+
+Code changes:
+{diff}
+
+Reply with just the commit message, formatted properly. Do not include any explanations or additional information.

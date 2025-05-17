@@ -12,6 +12,8 @@ setup(
     author="Oleksandr Kryklia",
     author_email="kryklia@gmail.com",
     packages=find_packages(),
+    package_data={"ai_commit_and_readme": ["prompt.md"]},
+    include_package_data=True,
     install_requires=["openai>=1.0.0", "tiktoken>=0.5.1"],
     entry_points={"console_scripts": ["ai-commit-and-readme=ai_commit_and_readme.cli:main"]},
     python_requires=">=3.7",
