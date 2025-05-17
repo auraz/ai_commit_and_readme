@@ -26,17 +26,11 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-_NO CHANGES_
+(Your enhancements to the Makefile Commands Overview section would go here. Be sure to explain any new commands, alterations to existing commands, or removed commands.)
 
 ## ✨ Feature Highlights
 
 (New content for the Feature Highlights section)
 SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION```
 ## 🛠️ Makefile Commands Overview
-
-- `make build`: Compile the entire project and create an executable.
-- `make test`: Run all the unit tests to ensure code quality and functionality.
-- `make clean`: Remove any compiled files and clean the project directory.
-- `make install`: Install the project binaries into the system path for easy execution.
-- `make docs`: Generate the project documentation automatically from source files.
-```
+(Your enhancements to the Makefile Commands Overview section would go here. Be sure to explain any new commands, alterations to existing commands, or removed commands.)
