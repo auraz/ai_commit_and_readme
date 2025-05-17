@@ -74,8 +74,18 @@ deploy:
 	@echo "\033[96m📦 Building and deploying package to PyPI...\033[0m"
 	# Clean previous builds
 	rm -rf dist build *.egg-info
+	# Ensure the wiki directory isn't included in the package
+	@echo "\033[96m🔍 Checking package configuration...\033[0m"
+	@if [ -f pyproject.toml ]; then \
+		python -c "import tomli; cfg = tomli.load(open('pyproject.toml', 'rb')); print('Packages to include:', cfg.get('tool', {}).get('setuptools', {}).get('packages', []))"; \
+	fi
 	# Build distribution packages
+	@echo "\033[96m🔨 Building packages...\033[0m"
 	python -m build
+	# Verify the package before upload
+	@echo "\033[96m✅ Verifying package...\033[0m"
+	python -m twine check dist/*
 	# Upload to PyPI
+	@echo "\033[96m🚀 Uploading to PyPI...\033[0m"
 	python -m twine upload dist/*
 	@echo "\033[92m✅ Package successfully deployed to PyPI!\033[0m"
