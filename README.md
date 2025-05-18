@@ -87,14 +87,21 @@ Please ensure your code follows the project's style guidelines and includes appr
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ## 🛠️ Makefile Commands Overview
-We've refined our Makefile to streamline your development process. The updated commands are designed to be intuitive and powerful, allowing you to perform common tasks with ease. Key changes include the addition of a `test` target that runs unit tests, an `install-deps` target to simplify dependency management, and enhancements to the `clean` command for more thorough cleanup.
+In light of recent updates, our Makefile now supports a wider array of commands to streamline your workflow. Below you'll find a comprehensive overview of the Makefile commands to ensure efficient usage.
 
-- `make build`: Compiles the source code and creates an executable file.
-- `make test`: Executes the unit tests to ensure your code modifications haven't introduced any regressions.
-- `make install-deps`: Installs or updates the necessary dependencies for your project.
-- `make clean`: Now removes all generated files, including binaries, logs, and temporary files created during testing.
+- `make build`: Compiles the project and generates the executable. It's the go-to command before you start using the application for the first time or after you've pulled new changes from the repository.
 
-Remember to check out our detailed Usage guidelines in `Usage.md` for more information on these commands.
+- `make test`: Runs the full suite of automated tests to ensure that the application maintains functionality. It's a critical step to validate that new code changes don't break existing features.
+
+- `make clean`: Removes all generated files, clearing the workspace. This is useful when you want to get rid of build artifacts cluttering up your directory, especially before a fresh build.
+
+- `make install`: Installs the application on your system, giving you easy access from the command line. Use this after a successful build to start using the software right away.
+
+- `make all`: This is a convenience command that combines building, testing, and cleaning operations. It ensures that you've got a fresh, tested build ready to go.
+
+Please refer to the Usage.md document for detailed descriptions and examples on how to use each of the Makefile commands to manage your project efficiently.
+
+**Note:** Always ensure you have the correct permissions to execute Makefile commands, especially for `make install`, which may require administrative privileges on some systems.
 
 ## ✨ Feature Highlights
 
