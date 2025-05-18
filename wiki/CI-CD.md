@@ -16,86 +16,7 @@ Our CI/CD pipeline follows this workflow:
 4. **Build**: Create distribution packages
 5. **Deploy** (for releases only): Publish to PyPI
 
-## GitHub Actions Workflows
 
-### Main Workflow File
-
-The primary workflow is defined in `.github/workflows/python-ci.yml`:
-
-```yaml
-name: Python CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10', '3.11']
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
-    - name: Lint with Ruff
-      run: |
-        ruff check .
-        ruff format --check .
-    - name: Type check with Pyright
-      run: |
-        pyright
-    - name: Test with pytest
-      run: |
-        pytest --cov=ai_commit_and_readme --cov-report=xml
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-```
-
-### Publish Workflow
-
-For deploying to PyPI on new releases:
-
-```yaml
-name: Publish to PyPI
-
-on:
-  release:
-    types: [published]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build twine
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python -m build
-        twine upload dist/*
-```
 
 ## Setting Up GitHub Actions
 
@@ -123,48 +44,6 @@ pyright
 # Run tests with coverage
 pytest --cov=ai_commit_and_readme
 ```
-
-## Workflow Customization
-
-### Matrix Testing
-
-Our CI tests across multiple Python versions using the `matrix` feature. To modify supported versions, edit the `python-version` array in the workflow file.
-
-### Conditional Jobs
-
-Jobs can be made conditional using the `if` clause:
-
-```yaml
-jobs:
-  deploy-docs:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      # Job steps here
-```
-
-### Caching Dependencies
-
-To speed up workflows, add dependency caching:
-
-```yaml
-- uses: actions/cache@v3
-  with:
-    path: ~/.cache/pip
-    key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-    restore-keys: |
-      ${{ runner.os }}-pip-
-```
-
-## Testing Pull Requests
-
-When a pull request is opened, GitHub Actions automatically:
-
-1. Runs the full test suite
-2. Performs code quality checks
-3. Reports results directly in the PR interface
-
-Maintainers should ensure all checks pass before merging.
 
 ## Release Process
 

@@ -2,8 +2,8 @@
 # Exclude wiki directory from distribution
 prune wiki/
 
-# Include prompt.md in the package
-include ai_commit_and_readme/prompt.md
+# Include prompts directory in the package
+include ai_commit_and_readme/prompts/*.md
 
 # Exclude development and test files
 global-exclude *.py[cod] __pycache__/ *.so .DS_Store

@@ -15,6 +15,8 @@ from .tools import (
     count_tokens,
     extract_ai_content,
     get_ai_response,
+    get_diff,
+    get_diff_text,
     get_prompt_template,
     initialize_context,
 )
@@ -30,22 +32,33 @@ def check_api_key(ctx: CtxDict) -> CtxDict:
     return ctx
 
 
-def get_diff(ctx: CtxDict, diff_args: Optional[list[str]] = None) -> CtxDict:
-    # Get diff output
-    diff_cmd = diff_args or ["git", "diff", "--cached", "-U1"]
-    ctx["diff"] = subprocess.check_output(diff_cmd).decode()
-
-    # Exit if no changes
-    if not ctx["diff"].strip():
-        logger.info(LogMessages.NO_CHANGES)
-        sys.exit(0)
-
-    # Fallback to file list for large diffs
-    if len(ctx["diff"]) > 100000:
-        logger.warning(LogMessages.LARGE_DIFF)
-        return get_diff(ctx, ["git", "diff", "--cached", "--name-only"])
-
-    return ctx
+def generate_summary() -> str:
+    """
+    Generate a summary of changes based on git diff.
+    
+    Returns:
+        str: A concise summary of the changes.
+    """
+    # Initialize context and check for API key
+    ctx = initialize_context({})
+    ctx = check_api_key(ctx)
+    
+    # Get git diff
+    try:
+        # Try staged changes first
+        diff = get_diff_text()
+    except SystemExit:
+        # If that exits with no changes, try looking at the last commit
+        try:
+            diff = get_diff_text(["git", "diff", "HEAD~1", "-U1"])
+        except SystemExit:
+            print("No changes detected in staged files or last commit.")
+            sys.exit(0)
+        
+    # Get prompt and generate response
+    prompt = get_prompt_template("summary").format(diff=diff)
+    response = get_ai_response(prompt, ctx)
+    return extract_ai_content(response)
 
 
 def log_diff_stats(ctx: CtxDict) -> CtxDict:

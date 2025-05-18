@@ -80,23 +80,6 @@ There are several ways you can contribute to the project:
 - Use examples to illustrate how to use complex features
 - Follow consistent documentation style
 
-## 🛠️ Makefile Commands Overview
-The `Makefile` contains a set of commands to facilitate the development and testing processes. Here are the key commands and their updated usage:
-
-- `make build`: Compiles the project artifacts, ensuring that any new changes are included in the build. If additional build steps have been added or existing steps modified, they will be reflected here.
-  
-- `make test`: Runs the entire suite of automated tests, including unit tests, integration tests, and any new categories of tests that have been introduced. Always ensure that the project's tests pass before submitting a code change.
-
-- `make clean`: Cleans up the project by removing generated files and artifacts. It's good practice to run this command before a fresh build to ensure that no outdated artifacts influence the new build.
-
-- `make install`: Installs the project's dependencies. This includes any new dependencies that have been added to the project's configuration files.
-
-- `make lint`: Analyzes the code for potential stylistic and logical issues. If new linting rules or tools have been adopted, their results will be part of this process.
-
-- `make docs`: Generates the project documentation, reflecting any structural changes or new features you might have added to the codebase. Be sure to run this command if you've contributed to the documentation, to verify its correctness and completeness.
-
-Remember to review the `Makefile` for the complete list of commands and options available, including any custom commands that might be specific to this project. If you encounter any issues or have questions regarding the Makefile commands, please open an issue for discussion.
-
 ## Version Control Guidelines
 
 - Keep commits focused on a single logical change

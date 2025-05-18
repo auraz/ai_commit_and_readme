@@ -26,25 +26,25 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Changelog & API Reference
 ```
 ## 🛠️ Makefile Commands Overview
-In our continuous effort to streamline the development process, we've made several updates to our Makefile to enhance usability and efficiency. Below, you will find the updated commands that are essential for building, running, and testing our software suite.
+We've refined our Makefile to streamline your development process. The updated commands are designed to be intuitive and powerful, allowing you to perform common tasks with ease. Key changes include the addition of a `test` target that runs unit tests, an `install-deps` target to simplify dependency management, and enhancements to the `clean` command for more thorough cleanup.
 
-- `make build`: This command now benefits from improved dependency tracking, ensuring that only changed files are recompiled, saving time and computational resources.
-- `make run`: We've introduced new environment variables that you can set to customize the runtime behavior of our applications. Detailed instructions on how to use these variables can be found in the section '## 🚀 Running the Application'.
-- `make test`: In addition to running all predefined tests, this command now automatically generates a coverage report. It's crucial for maintaining the high quality of our codebase by checking that all new code is adequately tested.
-- `make clean`: Use this command to remove all generated files and clean your workspace. It now also clears any residual data or logs that might interfere with a fresh build.
+- `make build`: Compiles the source code and creates an executable file.
+- `make test`: Executes the unit tests to ensure your code modifications haven't introduced any regressions.
+- `make install-deps`: Installs or updates the necessary dependencies for your project.
+- `make clean`: Now removes all generated files, including binaries, logs, and temporary files created during testing.
 
-Remember, every command is crafted to help you focus more on developing great software less on the repetitive tasks.
+Remember to check out our detailed Usage guidelines in `Usage.md` for more information on these commands.
 
 ## ✨ Feature Highlights
 
 (New content for the Feature Highlights section)
 SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION```
 ## 🛠️ Makefile Commands Overview
-In our continuous effort to streamline the development process, we've made several updates to our Makefile to enhance usability and efficiency. Below, you will find the updated commands that are essential for building, running, and testing our software suite.
+We've refined our Makefile to streamline your development process. The updated commands are designed to be intuitive and powerful, allowing you to perform common tasks with ease. Key changes include the addition of a `test` target that runs unit tests, an `install-deps` target to simplify dependency management, and enhancements to the `clean` command for more thorough cleanup.
 
-- `make build`: This command now benefits from improved dependency tracking, ensuring that only changed files are recompiled, saving time and computational resources.
-- `make run`: We've introduced new environment variables that you can set to customize the runtime behavior of our applications. Detailed instructions on how to use these variables can be found in the section '## 🚀 Running the Application'.
-- `make test`: In addition to running all predefined tests, this command now automatically generates a coverage report. It's crucial for maintaining the high quality of our codebase by checking that all new code is adequately tested.
-- `make clean`: Use this command to remove all generated files and clean your workspace. It now also clears any residual data or logs that might interfere with a fresh build.
+- `make build`: Compiles the source code and creates an executable file.
+- `make test`: Executes the unit tests to ensure your code modifications haven't introduced any regressions.
+- `make install-deps`: Installs or updates the necessary dependencies for your project.
+- `make clean`: Now removes all generated files, including binaries, logs, and temporary files created during testing.
 
-Remember, every command is crafted to help you focus more on developing great software less on the repetitive tasks.
+Remember to check out our detailed Usage guidelines in `Usage.md` for more information on these commands.
