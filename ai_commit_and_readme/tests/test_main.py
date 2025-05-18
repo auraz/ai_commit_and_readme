@@ -90,7 +90,7 @@ class TestHandlers:
     def test_get_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should set diff from subprocess output."""
         ctx: CtxDict = make_ctx(context_initialized=True)
-        monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff")
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff")
         # Direct call to get_diff with context
         result = mod.get_diff(ctx)
         assert result["diff"] == "diff"
@@ -105,7 +105,7 @@ class TestHandlers:
                 return b"file1.py\nfile2.py\n"
             return b"x" * 100001
 
-        monkeypatch.setattr(mod.subprocess, "check_output", mock_check_output)
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", mock_check_output)
         result = mod.get_diff(ctx)
         assert "file1.py" in result["diff"]
 
@@ -196,7 +196,7 @@ class TestFileOps:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 
-        monkeypatch.setattr(mod.subprocess, "run", fake_run)
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
             mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
         content = file_path.read_text()
@@ -214,7 +214,7 @@ class TestFileOps:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 
-        monkeypatch.setattr(mod.subprocess, "run", fake_run)
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
             mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
         content = file_path.read_text()

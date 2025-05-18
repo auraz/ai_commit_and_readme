@@ -2,7 +2,6 @@ import sys
 
 import ai_commit_and_readme.cli as cli_mod
 import ai_commit_and_readme.constants as constants_mod
-import ai_commit_and_readme.main as mod
 import ai_commit_and_readme.tools as tools_mod
 from ai_commit_and_readme.tests.test_main import FakeClient
 
@@ -35,8 +34,8 @@ class TestCLI:
             ),
         )
         # Patch subprocess.run to avoid actual git commands
-        monkeypatch.setattr(mod.subprocess, "run", lambda *_a, **_k: None)
-        monkeypatch.setattr(mod.subprocess, "check_output", lambda *_a, **_k: b"diff content")
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", lambda *_a, **_k: None)
+        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff content")
         monkeypatch.setenv("OPENAI_API_KEY", "test")
         monkeypatch.setattr("openai.OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
         sys_argv = sys.argv

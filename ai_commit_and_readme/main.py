@@ -2,9 +2,7 @@
 """AI-powered README and wiki enrichment pipeline."""
 
 import os
-import subprocess
 import sys
-from typing import Optional
 
 from pipetools import pipe
 
@@ -35,14 +33,14 @@ def check_api_key(ctx: CtxDict) -> CtxDict:
 def generate_summary() -> str:
     """
     Generate a summary of changes based on git diff.
-    
+
     Returns:
         str: A concise summary of the changes.
     """
     # Initialize context and check for API key
     ctx = initialize_context({})
     ctx = check_api_key(ctx)
-    
+
     # Get git diff
     try:
         # Try staged changes first
@@ -52,9 +50,9 @@ def generate_summary() -> str:
         try:
             diff = get_diff_text(["git", "diff", "HEAD~1", "-U1"])
         except SystemExit:
-            print("No changes detected in staged files or last commit.")
+            logger.info("No changes detected in staged files or last commit.")
             sys.exit(0)
-        
+
     # Get prompt and generate response
     prompt = get_prompt_template("summary").format(diff=diff)
     response = get_ai_response(prompt, ctx)

@@ -83,15 +83,17 @@ class TestPromptTemplate:
 
     def test_get_prompt_template(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """get_prompt_template should extract correct sections from prompt.md."""
-        # Setup a test prompt file with multiple sections
-        prompt_path: Path = tmp_path / "prompt.md"
+        # Setup a test prompts directory with a test file
+        prompts_dir: Path = tmp_path / "prompts"
+        prompts_dir.mkdir()
+        prompt_path: Path = prompts_dir / "prompt.md"
         prompt_path.write_text("""
 ## enrich
 enrich section content
 ## select_articles
 select_articles section content
 """)
-        monkeypatch.setattr(tools, "PROMPT_PATH", str(prompt_path))
+        monkeypatch.setattr(tools, "PROMPTS_DIR", prompts_dir)
 
         # Verify sections are correctly extracted
         assert "enrich section content" in tools.get_prompt_template("enrich")
@@ -99,15 +101,19 @@ select_articles section content
 
     def test_get_prompt_template_missing_section(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """get_prompt_template should raise ValueError if section is missing."""
-        prompt_path: Path = tmp_path / "prompt.md"
+        prompts_dir: Path = tmp_path / "prompts"
+        prompts_dir.mkdir()
+        prompt_path: Path = prompts_dir / "prompt.md"
         prompt_path.write_text("# ---\nOnly one section\n")
-        monkeypatch.setattr(tools, "PROMPT_PATH", str(prompt_path))
+        monkeypatch.setattr(tools, "PROMPTS_DIR", prompts_dir)
         with pytest.raises(ValueError):
             tools.get_prompt_template("not_a_section")
 
-    def test_prompt_template_file_not_found(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """get_prompt_template should raise RuntimeError if prompt.md is missing."""
-        monkeypatch.setattr(tools, "PROMPT_PATH", "nonexistent_prompt.md")
+    def test_prompt_template_file_not_found(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """get_prompt_template should raise RuntimeError if no prompt files exist."""
+        empty_dir: Path = tmp_path / "empty"
+        empty_dir.mkdir()
+        monkeypatch.setattr(tools, "PROMPTS_DIR", empty_dir)
         with pytest.raises(RuntimeError):
             tools.get_prompt_template("enrich")
 
