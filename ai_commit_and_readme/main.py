@@ -100,13 +100,16 @@ def select_wiki_articles(ctx: CtxDict) -> CtxDict:
 
     if not valid_filenames:
         logger.info(LogMessages.NO_WIKI_ARTICLES)
-        valid_filenames = ["Usage.md"]
 
     ctx["selected_wiki_articles"] = valid_filenames
     return ctx
 
 
 def read_selected_wiki_files(ctx: CtxDict) -> CtxDict:
+    # Skip processing if no wiki articles were selected
+    if not ctx["selected_wiki_articles"]:
+        return ctx
+        
     for filename in ctx["selected_wiki_articles"]:
         read_file(ctx, filename, ctx["wiki_file_paths"][filename])
     return ctx
@@ -117,6 +120,10 @@ def enrich_selected_wikis(ctx: CtxDict) -> CtxDict:
     if "wiki" not in ctx["ai_suggestions"] or not isinstance(ctx["ai_suggestions"]["wiki"], dict):
         ctx["ai_suggestions"]["wiki"] = {}
 
+    # Skip processing if no wiki articles were selected
+    if not ctx["selected_wiki_articles"]:
+        return ctx
+        
     # Process each selected wiki article
     for filename in ctx["selected_wiki_articles"]:
         ai_enrich(ctx, filename)

@@ -28,4 +28,4 @@ class LogMessages:
     NO_API_KEY = "🔑 OPENAI_API_KEY not set. Skipping README update."
     SUCCESS = "🎉✨ SUCCESS: {} enriched and staged with AI suggestions for {}! ✨🎉"
     NO_ENRICHMENT = "👍 No enrichment needed for {}."
-    NO_WIKI_ARTICLES = "[i] No valid wiki articles selected. Using Usage.md as fallback."
+    NO_WIKI_ARTICLES = "[i] No valid wiki articles selected."
