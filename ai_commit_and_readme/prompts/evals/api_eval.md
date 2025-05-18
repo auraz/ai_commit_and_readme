@@ -57,7 +57,7 @@ API DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "completeness": [score, "reason"],
+"completeness": [score, "reason"],
     "accuracy": [score, "reason"],
     "clarity": [score, "reason"],
     "structure": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "visual_aids": [score, "reason"],
     "developer_experience": [score, "reason"],
     "completeness_of_reference": [score, "reason"]
-  }}}},
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
+  }
 }
-
-Ensure your response is ONLY valid JSON that can be parsed.

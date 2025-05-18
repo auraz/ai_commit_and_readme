@@ -17,6 +17,8 @@ from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_UR
 from .logging_setup import LogMessages, get_logger, setup_logging
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
+EVALS_DIR = PROMPTS_DIR / "evals"
+BASE_TEMPLATE_PATH = EVALS_DIR / "base_eval_template.md"
 
 logger = get_logger(__name__)
 
@@ -251,7 +253,7 @@ def get_ai_evaluation(prompt: str) -> Dict[str, Any]:
         return {
             "total_score": 0,
             "max_score": 100,
-            "grade": "F",
+            "grade": "Improve",
             "summary": "Evaluation could not be performed: No OpenAI API key provided.",
             "top_recommendations": ["Set the OPENAI_API_KEY environment variable to enable evaluation."]
         }
@@ -266,7 +268,7 @@ def get_ai_evaluation(prompt: str) -> Dict[str, Any]:
         return {
             "total_score": 0,
             "max_score": 100,
-            "grade": "F",
+            "grade": "Improve",
             "summary": f"Evaluation failed due to an error: {str(e)}",
             "top_recommendations": ["Check API key and network connection.", "Try again later."]
         }
@@ -328,15 +330,18 @@ def evaluate_with_ai(file_path: str, prompt_filename: str,
     if not content:
         return 0, f"File not found or empty: {file_path}"
     
-    # Load prompt template from file
-    prompt_path = PROMPTS_DIR / prompt_filename
-    
-    if not prompt_path.exists():
-        logger.error(f"Prompt file not found: {prompt_path}")
-        sys.exit(1)
-        
-    with open(prompt_path, encoding="utf-8") as f:
-        prompt_template = f.read()
+    # Load and compose prompt template
+    # Check if it's an evaluation prompt (should be in the evals subdirectory)
+    if prompt_filename.endswith("_eval.md"):
+        prompt_template = load_composite_template(prompt_filename, format_vars)
+    else:
+        prompt_path = PROMPTS_DIR / prompt_filename
+        if not prompt_path.exists():
+            logger.error(f"Prompt file not found: {prompt_path}")
+            sys.exit(1)
+            
+        with open(prompt_path, encoding="utf-8") as f:
+            prompt_template = f.read()
     
     # Format prompt
     prompt = prompt_template.format(**format_vars)
@@ -396,6 +401,49 @@ def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], la
     logger.info(LogMessages.SUCCESS.format(file_path, label))
     subprocess.run(["git", "add", file_path])
 
+
+# Template Utilities
+def load_composite_template(prompt_filename: str, format_vars: Dict[str, str]) -> str:
+    """Load and compose a prompt template from base and specific files.
+    
+    Args:
+        prompt_filename: Name of the specific prompt file
+        format_vars: Variables to format the prompt with
+        
+    Returns:
+        The composed prompt template as a string
+    """
+    # Determine paths
+    prompt_path = EVALS_DIR / prompt_filename
+    
+    # Check files exist
+    if not BASE_TEMPLATE_PATH.exists():
+        logger.error(f"Base template not found: {BASE_TEMPLATE_PATH}")
+        sys.exit(1)
+    
+    if not prompt_path.exists():
+        logger.error(f"Prompt file not found: {prompt_path}")
+        sys.exit(1)
+    
+    # Load base template
+    with open(BASE_TEMPLATE_PATH, encoding="utf-8") as f:
+        base_template = f.read()
+    
+    # Load specific template
+    with open(prompt_path, encoding="utf-8") as f:
+        specific_template = f.read()
+    
+    # Extract prompt content (everything before FORMAT YOUR RESPONSE)
+    prompt_content = specific_template.split("FORMAT YOUR RESPONSE AS JSON:")[0].strip()
+    
+    # Extract category scores part from the specific template
+    category_scores_match = re.search(r'"scores": \{(.*?)\}', specific_template, re.DOTALL)
+    category_scores = category_scores_match.group(1).strip() if category_scores_match else ""
+    
+    # Compose final prompt
+    composed_prompt = f"{prompt_content}\n\nFORMAT YOUR RESPONSE AS JSON:\n{{\n  \"scores\": {{\n{category_scores}\n  }},\n  \"total_score\": total_score,\n  \"max_score\": 100,\n  \"grade\": \"Improve/OK/Good\",\n  \"summary\": \"Brief summary evaluation\",\n  \"top_recommendations\": [\n    \"First recommendation\",\n    \"Second recommendation\",\n    \"Third recommendation\"\n  ]\n}}\n\nEnsure your response is ONLY valid JSON that can be parsed."
+    
+    return composed_prompt
 
 # Token and Size Utilities
 def count_tokens(text: str, model_name: str) -> int:

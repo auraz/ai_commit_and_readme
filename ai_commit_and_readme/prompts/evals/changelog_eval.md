@@ -57,7 +57,7 @@ CHANGELOG DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "version_numbering": [score, "reason"],
+"version_numbering": [score, "reason"],
     "entry_clarity": [score, "reason"],
     "categorization": [score, "reason"],
     "breaking_changes": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "issue_references": [score, "reason"],
     "readability": [score, "reason"],
     "comprehensiveness": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

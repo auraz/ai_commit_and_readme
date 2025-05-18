@@ -82,7 +82,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
             },
             "total_score": 87,
             "max_score": 100,
-            "grade": "B",
+            "grade": "Good",
             "summary": "Good README with clear structure",
             "top_recommendations": [
                 "Add more badges",
@@ -102,7 +102,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
         # Check the report contains expected sections
         self.assertIn("README Evaluation (AI-Powered)", report)
         self.assertIn("Overall Score: 87/100", report)
-        self.assertIn("Grade: B", report)
+        self.assertIn("Grade: Good", report)
         self.assertIn("Summary: Good README", report)
         self.assertIn("Category Breakdown:", report)
         self.assertIn("Top Improvement Recommendations:", report)
@@ -135,7 +135,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
             # Verify report contains expected sections
             self.assertIn("README Evaluation (AI-Powered)", report)
             self.assertIn("Overall Score: 87/100", report)
-            self.assertIn("Grade: B", report)
+            self.assertIn("Grade: Good", report)
 
 
 

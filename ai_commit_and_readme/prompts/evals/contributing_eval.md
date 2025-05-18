@@ -57,7 +57,7 @@ CONTRIBUTING DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "onboarding_clarity": [score, "reason"],
+"onboarding_clarity": [score, "reason"],
     "contribution_workflow": [score, "reason"],
     "code_standards": [score, "reason"],
     "testing_requirements": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "documentation_standards": [score, "reason"],
     "communication_guidelines": [score, "reason"],
     "legal_and_compliance": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

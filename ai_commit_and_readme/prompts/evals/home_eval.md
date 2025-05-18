@@ -57,7 +57,7 @@ HOME PAGE DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "welcome_and_orientation": [score, "reason"],
+"welcome_and_orientation": [score, "reason"],
     "navigation_structure": [score, "reason"],
     "content_overview": [score, "reason"],
     "getting_started_guidance": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "search_and_findability": [score, "reason"],
     "recency_and_maintenance": [score, "reason"],
     "support_resources": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

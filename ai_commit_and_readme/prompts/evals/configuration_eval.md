@@ -57,7 +57,7 @@ CONFIGURATION DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "parameter_documentation": [score, "reason"],
+"parameter_documentation": [score, "reason"],
     "configuration_examples": [score, "reason"],
     "default_values": [score, "reason"],
     "structure_and_organization": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "validation_and_errors": [score, "reason"],
     "security_considerations": [score, "reason"],
     "format_and_readability": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

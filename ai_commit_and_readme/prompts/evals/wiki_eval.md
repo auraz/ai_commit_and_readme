@@ -57,7 +57,7 @@ WIKI PAGE CONTENT TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "content_quality": [score, "reason"],
+"content_quality": [score, "reason"],
     "structure_and_organization": [score, "reason"],
     "clarity_and_readability": [score, "reason"],
     "formatting_and_presentation": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "completeness": [score, "reason"],
     "technical_depth": [score, "reason"],
     "user_focus": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

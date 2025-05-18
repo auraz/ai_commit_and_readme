@@ -25,7 +25,7 @@ CATEGORIES = {
     "conciseness_and_clarity": 10
 }
 
-# Name of the README evaluation prompt file
+# Name of the README evaluation prompt file (located in prompts/evals directory)
 README_EVAL_PROMPT_FILE = 'readme_eval.md'
 
 

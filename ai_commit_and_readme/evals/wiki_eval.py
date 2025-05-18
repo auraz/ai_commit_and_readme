@@ -14,7 +14,7 @@ from ..tools import evaluate_with_ai, load_file
 
 logger = logging.getLogger(__name__)
 
-# Wiki page types and their corresponding prompt files
+# Wiki page types and their corresponding prompt files (located in prompts/evals directory)
 WIKI_PAGE_TYPES = {
     "api": "api_eval.md",
     "architecture": "architecture_eval.md",

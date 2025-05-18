@@ -57,7 +57,7 @@ DEPLOYMENT DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "environment_requirements": [score, "reason"],
+"environment_requirements": [score, "reason"],
     "deployment_procedure": [score, "reason"],
     "configuration_management": [score, "reason"],
     "rollback_procedures": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "scaling_guidelines": [score, "reason"],
     "security_considerations": [score, "reason"],
     "automation_and_integration": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

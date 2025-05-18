@@ -57,7 +57,7 @@ FAQ DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "question_relevance": [score, "reason"],
+"question_relevance": [score, "reason"],
     "answer_clarity": [score, "reason"],
     "organization_and_structure": [score, "reason"],
     "completeness": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "searchability": [score, "reason"],
     "freshness_and_maintenance": [score, "reason"],
     "user_centeredness": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

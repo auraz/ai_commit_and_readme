@@ -57,7 +57,7 @@ SECURITY DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "security_policy_overview": [score, "reason"],
+"security_policy_overview": [score, "reason"],
     "authentication_and_authorization": [score, "reason"],
     "data_protection": [score, "reason"],
     "secure_development": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "security_testing": [score, "reason"],
     "incident_response": [score, "reason"],
     "compliance_and_standards": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

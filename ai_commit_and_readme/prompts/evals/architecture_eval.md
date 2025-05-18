@@ -51,13 +51,13 @@ Analyze the provided architecture documentation and evaluate it based on the fol
 
 ARCHITECTURE DOCUMENTATION TO EVALUATE:
 ```
-{architecture_content}}
+{architecture_content}
 ```
 
 FORMAT YOUR RESPONSE AS JSON:
-{{
-  "scores": {{
-    "system_overview": [score, "reason"],
+{
+  "scores": {
+"system_overview": [score, "reason"],
     "component_structure": [score, "reason"],
     "design_decisions": [score, "reason"],
     "visual_representation": [score, "reason"],
@@ -65,16 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "quality_attributes": [score, "reason"],
     "evolution_and_extensibility": [score, "reason"],
     "consistency_and_readability": [score, "reason"]
-  }}}},
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}

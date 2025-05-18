@@ -57,7 +57,7 @@ INSTALLATION DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-    "prerequisites_clarity": [score, "reason"],
+"prerequisites_clarity": [score, "reason"],
     "step_clarity": [score, "reason"],
     "platform_coverage": [score, "reason"],
     "troubleshooting_guidance": [score, "reason"],
@@ -65,17 +65,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "command_clarity": [score, "reason"],
     "post_installation_instructions": [score, "reason"],
     "visual_aids": [score, "reason"]
-  },
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
+  }
 }
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.

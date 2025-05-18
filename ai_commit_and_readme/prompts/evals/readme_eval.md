@@ -55,9 +55,9 @@ README CONTENT TO EVALUATE:
 ```
 
 FORMAT YOUR RESPONSE AS JSON:
-{{
-  "scores": {{
-    "title_and_description": [score, "reason"],
+{
+  "scores": {
+"title_and_description": [score, "reason"],
     "structure_and_organization": [score, "reason"],
     "installation_guide": [score, "reason"],
     "usage_examples": [score, "reason"],
@@ -67,16 +67,5 @@ FORMAT YOUR RESPONSE AS JSON:
     "license_information": [score, "reason"],
     "contributing_guidelines": [score, "reason"],
     "conciseness_and_clarity": [score, "reason"]
-  }},
-  "total_score": total_score,
-  "max_score": 100,
-  "grade": "A/B/C/D/F",
-  "summary": "Brief summary evaluation",
-  "top_recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}}
-
-Ensure your response is ONLY valid JSON that can be parsed.
+  }
+}
