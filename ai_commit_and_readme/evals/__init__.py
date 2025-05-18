@@ -1,7 +1,7 @@
-"""Evaluation tools for README and Markdown files."""
+"""Evaluation tools for README and Wiki files."""
 
-from .markdown_eval import evaluate as evaluate_markdown
-from .markdown_eval import evaluate_directory as evaluate_markdown_dir
 from .readme_eval import evaluate as evaluate_readme
+from .wiki_eval import evaluate as evaluate_wiki
+from .wiki_eval import evaluate_directory as evaluate_wiki_dir
 
-__all__ = ["evaluate_markdown", "evaluate_markdown_dir", "evaluate_readme"]
+__all__ = ["evaluate_readme", "evaluate_wiki", "evaluate_wiki_dir"]

@@ -75,6 +75,6 @@ FORMAT YOUR RESPONSE AS JSON:
     "Second recommendation",
     "Third recommendation"
   ]
-}
+}}
 
 Ensure your response is ONLY valid JSON that can be parsed.

@@ -65,7 +65,7 @@ FORMAT YOUR RESPONSE AS JSON:
     "visual_aids": [score, "reason"],
     "developer_experience": [score, "reason"],
     "completeness_of_reference": [score, "reason"]
-  },
+  }}}},
   "total_score": total_score,
   "max_score": 100,
   "grade": "A/B/C/D/F",

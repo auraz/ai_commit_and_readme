@@ -1,5 +1,9 @@
 # ai_commit_and_readme 🚀
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/auraz/ai_commit_and_readme)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/auraz/ai_commit_and_readme)
+
 Automate your commit messages and keep your README and Wiki up-to-date with AI.
 
 ## ✨ Features
@@ -34,11 +38,7 @@ Analyze and improve your documentation quality using OpenAI-powered evaluations:
 # Evaluate a README file with AI feedback
 python -m ai_commit_and_readme.cli eval-readme README.md
 
-# Evaluate a single Markdown file with AI analysis
-python -m ai_commit_and_readme.cli eval-md wiki/Installation.md
 
-# Evaluate all Markdown files in a directory with AI
-python -m ai_commit_and_readme.cli eval-md wiki --dir
 
 # Evaluate wiki pages with specialized content-aware criteria
 python -m ai_commit_and_readme.cli eval-wiki wiki/Installation.md
@@ -70,6 +70,22 @@ The wiki evaluator automatically detects the following page types and applies sp
 - Usage
 
 Each page type is evaluated with metrics specifically designed for that content category.
+
+## 📝 Contributing
+
+Contributions are welcome! To contribute to this project:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes using this tool (`make commit`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please ensure your code follows the project's style guidelines and includes appropriate tests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ## 🛠️ Makefile Commands Overview
 We've refined our Makefile to streamline your development process. The updated commands are designed to be intuitive and powerful, allowing you to perform common tasks with ease. Key changes include the addition of a `test` target that runs unit tests, an `install-deps` target to simplify dependency management, and enhancements to the `clean` command for more thorough cleanup.
 
@@ -82,15 +98,14 @@ Remember to check out our detailed Usage guidelines in `Usage.md` for more infor
 
 ## ✨ Feature Highlights
 
-(New content for the Feature Highlights section)
-SUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTIONSUGGESTION```
-## 🛠️ Makefile Commands Overview
-We've refined our Makefile to streamline your development process. The updated commands are designed to be intuitive and powerful, allowing you to perform common tasks with ease. Key changes include the addition of a `test` target that runs unit tests, an `install-deps` target to simplify dependency management, and enhancements to the `clean` command for more thorough cleanup.
+This tool enhances your development workflow with several powerful capabilities:
 
-- `make build`: Compiles the source code and creates an executable file.
-- `make test`: Executes the unit tests to ensure your code modifications haven't introduced any regressions.
-- `make install-deps`: Installs or updates the necessary dependencies for your project.
-- `make clean`: Now removes all generated files, including binaries, logs, and temporary files created during testing.
+- **Intelligent Commit Messages**: Automatically generates meaningful, descriptive commit messages based on your code changes
+- **Content-Aware Documentation**: Updates your README and Wiki with relevant content that accurately reflects your project
+- **Specialized Evaluations**: Analyzes documentation quality with content-type specific criteria
+- **Workflow Integration**: Seamlessly integrates with git hooks and your existing development process
+- **Multi-Format Support**: Works with various documentation formats including README, Wiki pages, and more
+- **Customizable Prompts**: Tailor the AI prompts to match your project's specific documentation needs
+- **Smart Content Detection**: Automatically detects different types of documentation and applies the right evaluation criteria
 
-Remember to check out our detailed Usage guidelines in `Usage.md` for more information on these commands.
-SUGGESTIONSUGGESTION
+Each feature is designed to save time and improve documentation quality without disrupting your development workflow.

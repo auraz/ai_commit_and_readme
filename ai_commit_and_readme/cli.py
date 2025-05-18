@@ -7,9 +7,7 @@ import argparse
 import sys
 
 from .main import enrich, generate_summary
-from .markdown_eval import evaluate as evaluate_markdown
-from .markdown_eval import evaluate_directory as evaluate_markdown_dir
-from .readme_eval import evaluate as evaluate_readme
+from .evals.readme_eval import evaluate as evaluate_readme
 from .evals.wiki_eval import evaluate as evaluate_wiki
 from .evals.wiki_eval import evaluate_directory as evaluate_wiki_dir
 
@@ -29,11 +27,6 @@ def main() -> None:
     eval_readme_parser = subparsers.add_parser("eval-readme", help="Evaluate README.md quality")
     eval_readme_parser.add_argument("path", help="Path to README.md file")
 
-    # Eval Markdown command
-    eval_md_parser = subparsers.add_parser("eval-md", help="Evaluate Markdown file quality")
-    eval_md_parser.add_argument("path", help="Path to Markdown file or directory")
-    eval_md_parser.add_argument("--dir", action="store_true", help="Evaluate all Markdown files in directory")
-    
     # Eval Wiki command
     eval_wiki_parser = subparsers.add_parser("eval-wiki", help="Evaluate Wiki page quality with specialized criteria")
     eval_wiki_parser.add_argument("path", help="Path to Wiki page or directory")
@@ -59,16 +52,6 @@ def main() -> None:
         _, report = evaluate_readme(args.path)
         sys.stdout.write(report + "\n")
 
-    elif args.command == "eval-md":
-        if args.dir:
-            results = evaluate_markdown_dir(args.path)
-            for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
-                sys.stdout.write(f"{filename}: {score}\n")
-            sys.stdout.write(f"\nEvaluated {len(results)} markdown files\n")
-        else:
-            _, report = evaluate_markdown(args.path)
-            sys.stdout.write(report + "\n")
-    
     elif args.command == "eval-wiki":
         if args.dir:
             results = evaluate_wiki_dir(args.path)
