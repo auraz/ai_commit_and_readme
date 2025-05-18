@@ -8,7 +8,7 @@ import sys
 
 from .main import enrich, generate_summary
 from .evals.readme_eval import evaluate as evaluate_readme
-from .evals.wiki_eval import evaluate as evaluate_wiki
+from .evals.wiki_eval import WikiEvaluator, evaluate as evaluate_wiki
 from .evals.wiki_eval import evaluate_directory as evaluate_wiki_dir
 
 
@@ -53,14 +53,19 @@ def main() -> None:
         sys.stdout.write(report + "\n")
 
     elif args.command == "eval-wiki":
-        if args.dir:
-            results = evaluate_wiki_dir(args.path)
-            for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
-                sys.stdout.write(f"{filename}: {score}\n")
-            sys.stdout.write(f"\nEvaluated {len(results)} wiki pages\n")
-        else:
-            _, report = evaluate_wiki(args.path, args.type)
-            sys.stdout.write(report + "\n")
+        try:
+            if args.dir:
+                results = evaluate_wiki_dir(args.path)
+                for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
+                    sys.stdout.write(f"{filename}: {score}\n")
+                sys.stdout.write(f"\nEvaluated {len(results)} wiki pages\n")
+            else:
+                wiki_evaluator = WikiEvaluator()
+                score, report = wiki_evaluator.evaluate(args.path, args.type)
+                sys.stdout.write(report + "\n")
+        except Exception as e:
+            sys.stderr.write(f"Error evaluating wiki: {e}\n")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

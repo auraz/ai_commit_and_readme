@@ -4,15 +4,24 @@ AI-powered evaluator for wiki pages that selects the most appropriate
 evaluation criteria based on the content and filename.
 """
 
+import json
 import logging
 import os
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-from ..tools import evaluate_with_ai, load_file
+import openai
+from openai import OpenAI
+
+from ..constants import API_KEY, MODEL
+from ..logging_setup import setup_logging
+from ..tools import load_file
 
 logger = logging.getLogger(__name__)
+
+# Path to the prompts directory
+PROMPTS_DIR = Path(__file__).parent.parent / 'prompts' / 'evals'
 
 # Wiki page types and their corresponding prompt files (located in prompts/evals directory)
 WIKI_PAGE_TYPES = {
@@ -128,6 +137,8 @@ class WikiEvaluator:
         Returns:
             Tuple of (score, formatted report)
         """
+        setup_logging()
+        
         # Load content
         content = load_file(wiki_path)
         if not content:
@@ -139,35 +150,90 @@ class WikiEvaluator:
         # Detect type if not provided
         if not page_type:
             page_type = self.detect_wiki_type(content, filename)
+            
+        logger.info(f"Evaluating {filename} as {page_type} content")
         
         # Get the prompt filename for this type
         prompt_filename = WIKI_PAGE_TYPES.get(page_type, WIKI_PAGE_TYPES["generic"])
+        prompt_path = PROMPTS_DIR / prompt_filename
+        
+        if not prompt_path.exists():
+            logger.error(f"Prompt file not found: {prompt_path}")
+            return 0, f"Error: Prompt file not found: {prompt_path}"
+        
+        # Load prompt template
+        with open(prompt_path, encoding="utf-8") as f:
+            prompt = f.read()
+        
+        # Replace content placeholder directly
+        content_var = f"{page_type}_content"
+        # First try the specific content variable
+        if f"{{{content_var}}}" in prompt:
+            prompt = prompt.replace(f"{{{content_var}}}", content)
+        # Fall back to wiki_content if specific variable not found
+        elif "{wiki_content}" in prompt:
+            prompt = prompt.replace("{wiki_content}", content)
+        else:
+            logger.error(f"No content placeholder found in prompt: {prompt_filename}")
+            return 0, "Error: Prompt template missing content placeholder"
+        
+        # Create a report title
+        report_title = f"{page_type.title()} Wiki Evaluation: {filename}"
         
         # Get categories for this type
         categories = self.get_categories_for_type(page_type)
         
-        # Create a report title with the type and filename
-        report_title = f"{page_type.title()} Wiki Evaluation: {filename}"
-        
-        # Set up format variables based on page type
-        format_vars = {
-            "wiki_content": content
-        }
-        
-        # Add specific content variable based on page type
-        specific_var = f"{page_type}_content" 
-        format_vars[specific_var] = content
-        
-        # Evaluate the wiki page
-        score, report = evaluate_with_ai(
-            file_path=wiki_path,
-            prompt_filename=prompt_filename,
-            format_vars=format_vars,
-            categories=categories,
-            report_title=report_title
-        )
-        
+        # Use OpenAI API for evaluation
+        score, report = self._evaluate_with_openai(prompt, report_title, categories)
         return score, report
+    
+    def _evaluate_with_openai(self, prompt: str, report_title: str, categories: Dict[str, int]) -> Tuple[int, str]:
+        """Send prompt to OpenAI and get evaluation."""
+        if not API_KEY:
+            logger.error("No OpenAI API key found. Set the OPENAI_API_KEY environment variable.")
+            return 0, "Error: OPENAI_API_KEY not set"
+        
+        client = OpenAI(api_key=API_KEY)
+        
+        try:
+            response = client.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={"type": "json_object"}
+            )
+            
+            # Parse JSON response
+            result = json.loads(response.choices[0].message.content)
+            
+            # Format as report
+            report = self._format_evaluation_report(result, report_title, categories)
+            return result.get("total_score", 0), report
+            
+        except Exception as e:
+            logger.error(f"Error during OpenAI evaluation: {e}")
+            return 0, f"Error during evaluation: {e}"
+    
+    def _format_evaluation_report(self, evaluation: Dict[str, Any], title: str, categories: Dict[str, int]) -> str:
+        """Format evaluation results as string."""
+        formatted = f"{title}\n"
+        formatted += f"{'=' * len(title)}\n\n"
+        formatted += f"Overall Score: {evaluation.get('total_score', 0)}/{evaluation.get('max_score', 100)} - Grade: {evaluation.get('grade', 'N/A')}\n\n"
+        formatted += f"Summary: {evaluation.get('summary', 'No summary provided')}\n\n"
+        
+        # Results by category
+        formatted += "Category Breakdown:\n"
+        for category, (score, reason) in evaluation.get('scores', {}).items():
+            max_score = categories.get(category, 10)  # Default to 10 if category not found
+            category_display = category.replace("_", " ").title()
+            formatted += f"- {category_display}: {score}/{max_score} - {reason}\n"
+        
+        # Top recommendations
+        formatted += "\nTop Improvement Recommendations:\n"
+        for recommendation in evaluation.get('top_recommendations', []):
+            formatted += f"- {recommendation}\n"
+        
+        return formatted
 
 
 def evaluate(wiki_path: str, page_type: Optional[str] = None) -> Tuple[int, str]:
@@ -201,7 +267,11 @@ def evaluate_directory(directory_path: str) -> Dict[str, Tuple[int, str]]:
         logger.error(f"Directory not found: {directory_path}")
         return {}
     
-    for file_path in dir_path.glob("**/*.md"):
+    markdown_files = list(dir_path.glob("**/*.md"))
+    logger.info(f"Found {len(markdown_files)} markdown files in {directory_path}")
+    
+    for file_path in markdown_files:
+        logger.info(f"Evaluating {file_path.name}...")
         score, report = evaluator.evaluate(str(file_path))
         relative_path = str(file_path.relative_to(dir_path))
         results[relative_path] = (score, report)

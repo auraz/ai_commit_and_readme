@@ -101,4 +101,16 @@ This tool enhances your development workflow with several powerful capabilities:
 - **Customizable Prompts**: Tailor the AI prompts to match your project's specific documentation needs
 - **Smart Content Detection**: Automatically detects different types of documentation and applies the right evaluation criteria
 
-Each feature is designed to save time and improve documentation quality without disrupting your development workflow.
+Each feature is designed to save time and improve documentation quality without disrupting your development workflow.```
+## 🛠️ Makefile Commands Overview
+
+Please find below the updated commands as per the latest changes to the Makefile:
+
+- `make install`: Installs the project's dependencies. Please ensure that you run this command first to set up your environment.
+- `make build`: Compiles the source code into an executable. This has been updated to include new compilation flags for enhanced performance.
+- `make test`: Executes the full suite of automated tests. Recently, we've integrated new test cases to improve coverage.
+- `make clean`: Cleans up any generated files that are not part of the source code. This now also clears any temporary files used during debugging.
+- `make doc`: Generates the project documentation. The documentation process has been refined for better accuracy and presentation.
+
+For details on each command and its usage, refer to the `Usage.md` document which has been updated accordingly.
+```

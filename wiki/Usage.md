@@ -74,3 +74,19 @@ However, as a guideline, the following should be considered when updating this s
 7. Use clear and consistent naming conventions for commands and options to improve readability and comprehension.
 
 Remember, the goal is to ensure users can quickly understand how to use the software's build system with minimal confusion or trial and error.
+```
+## 🛠️ Makefile Commands Overview
+
+The Makefile is equipped with various commands to facilitate building and managing the project. Below, you'll find a list of currently supported commands and their descriptions:
+
+- `make build` - Compiles the source code into an executable.
+- `make test` - Runs the test suite to validate the integrity of the code.
+- `make install` - Installs the executable to the specified location.
+- `make clean` - Removes any generated files and cleans the build environment.
+- `make doc` - Generates the project documentation.
+- `make all` - Executes the `build`, `test`, and `doc` commands in sequence.
+
+Each command is designed to streamline the development process, ensuring a consistent and efficient workflow. Additionally, the Makefile is configured with sensible defaults and dependency checks to prevent unnecessary recompilation.
+
+Remember to review the individual commands within the Makefile for further details and options.
+```

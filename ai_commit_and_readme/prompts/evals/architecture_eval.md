@@ -57,7 +57,7 @@ ARCHITECTURE DOCUMENTATION TO EVALUATE:
 FORMAT YOUR RESPONSE AS JSON:
 {
   "scores": {
-"system_overview": [score, "reason"],
+    "system_overview": [score, "reason"],
     "component_structure": [score, "reason"],
     "design_decisions": [score, "reason"],
     "visual_representation": [score, "reason"],
