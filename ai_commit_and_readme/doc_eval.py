@@ -101,16 +101,10 @@ class DocEvaluator:
             return 0, f"Error evaluating document: {e!s}"
 
 
-def evaluate_readme(readme_path: str) -> Tuple[int, str]:
-    """Evaluate README file."""
+def evaluate_doc(doc_path: str, doc_type: Optional[str] = None) -> Tuple[int, str]:
+    """Evaluate documentation file with optional type specification."""
     evaluator = DocEvaluator()
-    return evaluator.evaluate(readme_path, "readme")
-
-
-def evaluate_wiki(wiki_path: str, page_type: Optional[str] = None) -> Tuple[int, str]:
-    """Evaluate wiki page."""
-    evaluator = DocEvaluator()
-    return evaluator.evaluate(wiki_path, page_type)
+    return evaluator.evaluate(doc_path, doc_type)
 
 
 def evaluate_all(directory_path: str) -> Dict[str, Tuple[int, str]]:

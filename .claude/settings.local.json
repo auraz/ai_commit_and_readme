@@ -19,7 +19,11 @@
       "Bash(git push:*)",
       "Bash(find:*)",
       "Bash(sed:*)",
-      "Bash(just check)"
+      "Bash(just check)",
+      "Bash(just coverage)",
+      "Bash(just test)",
+      "Bash(source:*)",
+      "Bash(python -m pytest tests/test_evaluators.py -xvs)"
     ],
     "deny": []
   }

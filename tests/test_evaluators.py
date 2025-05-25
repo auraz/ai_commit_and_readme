@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ai_commit_and_readme.doc_eval import evaluate_all, evaluate_readme
+from ai_commit_and_readme.doc_eval import evaluate_all, evaluate_doc
 
 
 @patch("ai_commit_and_readme.doc_eval.DocumentCrew")
@@ -19,7 +19,7 @@ def test_evaluate_readme(mock_crew_class):
         tmp.write("# Test README\n\nTest content.")
         tmp.flush()
 
-        score, report = evaluate_readme(tmp.name)
+        score, report = evaluate_doc(tmp.name, "readme")
 
         assert score == 85
         assert "README Evaluation" in report
@@ -29,9 +29,9 @@ def test_evaluate_readme(mock_crew_class):
 @patch("ai_commit_and_readme.doc_eval.DocumentCrew")
 def test_evaluate_missing_file(mock_crew_class):
     """Test evaluation of non-existent file."""
-    score, report = evaluate_readme("/nonexistent/file.md")
+    score, report = evaluate_doc("/nonexistent/file.md", "readme")
     assert score == 0
-    assert "Error" in report
+    assert "Document not found or empty" in report
 
 
 @patch("ai_commit_and_readme.doc_eval.DocumentCrew")
@@ -39,7 +39,18 @@ def test_evaluate_all(mock_crew_class):
     """Test evaluating directory of documents."""
     mock_crew = MagicMock()
     mock_crew_class.return_value = mock_crew
-    mock_crew.evaluate_one.side_effect = [(85.0, "Good."), (90.0, "Excellent."), (75.0, "Needs work.")]
+    
+    # Set up mock to return different scores based on filename
+    def mock_evaluate(doc_path, doc_type=None):
+        if "README" in doc_path:
+            return (85.0, "Good.")
+        elif "Usage" in doc_path:
+            return (90.0, "Excellent.")
+        elif "FAQ" in doc_path:
+            return (75.0, "Needs work.")
+        return (0.0, "Unknown")
+    
+    mock_crew.evaluate_one.side_effect = mock_evaluate
 
     with tempfile.TemporaryDirectory() as tmpdir:
         files = ["README.md", "Usage.md", "FAQ.md"]

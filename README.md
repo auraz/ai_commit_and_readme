@@ -37,8 +37,9 @@ ai-commit-and-readme  # Enriches your README and Wiki based on staged changes
 just cm  # Enriches docs, commits, and pushes
 
 # Evaluate documentation quality
-just eval README.md
-just eval-all wiki/
+just eval README.md  # Auto-detects as README type
+just eval wiki/Usage.md  # Auto-detects wiki page type
+just eval-all wiki/  # Evaluate all docs in directory
 ```
 
 ## Documentation
