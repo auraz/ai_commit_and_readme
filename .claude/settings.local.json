@@ -15,7 +15,8 @@
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(ruff format:*)",
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

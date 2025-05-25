@@ -38,9 +38,7 @@ Analyze and improve your documentation quality using CrewAI-powered evaluations:
 # Evaluate any document with AI feedback
 just eval README.md
 just eval wiki/Installation.md
-
-# Evaluate with specific type hint
-just eval wiki/API.md api
+just eval wiki/API.md
 
 # Evaluate all documents in a directory
 just eval-all wiki
