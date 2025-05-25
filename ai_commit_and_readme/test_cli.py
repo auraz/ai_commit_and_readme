@@ -1,9 +1,9 @@
 """Test main module functionality."""
 
-import ai_commit_and_readme.constants as constants_mod
-import ai_commit_and_readme.main as main_mod
-import ai_commit_and_readme.tools as tools_mod
-from ai_commit_and_readme.tests.test_main import FakeClient
+from . import constants as constants_mod
+from . import main as main_mod
+from . import tools as tools_mod
+from .test_main import FakeClient
 
 
 class TestMain:

@@ -12,7 +12,7 @@ import tiktoken
 from openai import OpenAI
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
-from .logging_setup import LogMessages, get_logger, setup_logging
+from .logging_setup import LogMessages, get_logger
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 logger = get_logger(__name__)
@@ -91,7 +91,6 @@ def get_diff(ctx: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_diff_text(cmd: Optional[list[str]] = None) -> str:
     """Get git diff text from staged changes."""
-    setup_logging()
     logger.info(LogMessages.GETTING_DIFF)
     cmd = cmd or ["git", "diff", "--cached", "-U1"]
 
