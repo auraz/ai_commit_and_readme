@@ -105,3 +105,5 @@ Run tests with coverage using `make coverage`.
 - promts max lenghs is 100
 - tests should be located within respectful moodule
 - when writing python or justfile code, be pythonic
+- no backward compatibility support
+- no fallbacks

@@ -64,21 +64,17 @@ summary:
 
 # Evaluate README quality
 eval-readme path:
-    python -c "from ai_commit_and_readme.evals.readme_eval import evaluate; _, report = evaluate('{{path}}'); print(report)"
+    python -c "from ai_commit_and_readme.evals.doc_eval import evaluate_readme; _, report = evaluate_readme('{{path}}'); print(report)"
 
 # Evaluate Wiki page quality
 eval-wiki path type="":
-    #!/usr/bin/env python3
-    from ai_commit_and_readme.evals.wiki_eval import WikiEvaluator
-    evaluator = WikiEvaluator()
-    score, report = evaluator.evaluate("{{path}}", "{{type}}" if "{{type}}" else None)
-    print(report)
+    python -c "from ai_commit_and_readme.evals.doc_eval import evaluate_wiki; _, report = evaluate_wiki('{{path}}', '{{type}}' if '{{type}}' else None); print(report)"
 
-# Evaluate all Wiki pages in directory
-eval-wiki-dir path:
+# Evaluate all documents in directory
+eval-all path:
     #!/usr/bin/env python3
-    from ai_commit_and_readme.evals.wiki_eval import evaluate_directory
-    results = evaluate_directory("{{path}}")
+    from ai_commit_and_readme.evals.doc_eval import evaluate_all
+    results = evaluate_all("{{path}}")
     for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
         print(f"{filename}: {score}")
-    print(f"\nEvaluated {len(results)} wiki pages")
+    print(f"\nEvaluated {len(results)} documents")

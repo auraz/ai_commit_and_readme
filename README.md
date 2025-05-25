@@ -44,8 +44,8 @@ just eval-wiki wiki/Installation.md
 # Evaluate wiki pages with specific type
 just eval-wiki wiki/API.md api
 
-# Evaluate all wiki pages in a directory
-just eval-wiki-dir wiki
+# Evaluate all documents in a directory
+just eval-all wiki
 ```
 
 > **Note:** Requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.
