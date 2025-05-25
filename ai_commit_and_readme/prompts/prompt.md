@@ -9,6 +9,12 @@ Your task is to thoughtfully enhance the following documentation file: {filename
 - Remove outdated or redundant information
 - Ensure the documentation is beautiful, modern, and easy to follow
 
+**IMPORTANT**: Avoid duplicating content that exists in other documentation files:
+- README.md should be concise and point to Wiki for details
+- Wiki pages should not repeat information from other Wiki pages
+- Each document should have a unique purpose and content
+- Reference other documents instead of duplicating their content
+
 If the code changes include updates to the Makefile, meticulously review and update Usage.md or any documentation that describes project commands, ensuring every detail reflects the latest Makefile changes.
 
 **Output only the new or updated sections, not the full {filename}.**

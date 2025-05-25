@@ -1,105 +1,46 @@
 # ai_commit_and_readme 🚀
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/auraz/ai_commit_and_readme)
+[![PyPI](https://img.shields.io/pypi/v/ai-commit-and-readme)](https://pypi.org/project/ai-commit-and-readme/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/auraz/ai_commit_and_readme)
+[![Tests](https://github.com/auraz/ai_commit_and_readme/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/ai_commit_and_readme/actions)
 
-Automate your commit messages and keep your README and Wiki up-to-date with AI.
+AI-powered tool that automatically generates commit messages and keeps documentation up-to-date.
 
-## ✨ Features
+## Features
 
-- AI-powered commit messages
-- Automated README & Wiki enrichment
-- Seamless Just and git integration
-- AI-powered evaluation of README and Markdown files
+- **Smart Commits**: Generate meaningful commit messages from git diffs
+- **Auto Documentation**: Update README and Wiki based on code changes  
+- **Quality Checks**: Evaluate documentation with CrewAI agents
+- **Just Integration**: Simple commands for all workflows
 
-## 📦 Quick Start
+## Quick Start
 
-```sh
+```bash
+# Install
 git clone https://github.com/auraz/ai_commit_and_readme.git
 cd ai_commit_and_readme
 just install
-```
 
-## 📚 Full Documentation
+# Set OpenAI API key
+export OPENAI_API_KEY="your-key-here"
 
-See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
-- Installation & Setup
-- Usage & Just Commands
-- Configuration
-- FAQ & Troubleshooting
-- Changelog & API Reference
+# Use AI for commits
+just cm  # Enriches docs, commits, and pushes
 
-## 📋 AI-Powered Evaluation Tools
-
-Analyze and improve your documentation quality using CrewAI-powered evaluations:
-
-```sh
-# Evaluate any document with AI feedback
+# Evaluate documentation
 just eval README.md
-just eval wiki/Installation.md
-just eval wiki/API.md
-
-# Evaluate all documents in a directory
-just eval-all wiki
+just eval-all wiki/
 ```
 
-> **Note:** Requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.
+## Documentation
 
-### CrewAI Integration with Type-Specific Prompts
+Full documentation available in the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki):
 
-The evaluation system uses [autodoceval-crewai](https://github.com/auraz/autodoceval-crewai) enhanced with specialized evaluation prompts for different wiki page types. This hybrid approach provides:
+- [Installation Guide](https://github.com/auraz/ai_commit_and_readme/wiki/Installation)
+- [Usage & Commands](https://github.com/auraz/ai_commit_and_readme/wiki/Usage)
+- [Configuration](https://github.com/auraz/ai_commit_and_readme/wiki/Configuration)
+- [Architecture](https://github.com/auraz/ai_commit_and_readme/wiki/Architecture)
 
-- **CrewAI agents**: Collaborative evaluation with multi-agent framework
-- **Type-specific prompts**: Tailored evaluation criteria for each documentation type
-- **Automatic type detection**: Identifies document type from content and filename
-- **Specialized feedback**: Context-aware suggestions based on document purpose
+## License
 
-Supported wiki page types with custom evaluation criteria:
-- API Documentation (endpoints, parameters, authentication)
-- Architecture (system design, components, diagrams)
-- Installation (prerequisites, setup steps, troubleshooting)
-- Usage (examples, workflows, best practices)
-- Security (authentication, vulnerabilities, best practices)
-- Contributing (guidelines, development setup, PR process)
-
-## 📝 Contributing
-
-Contributions are welcome! To contribute to this project:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes using this tool (`just cm`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure your code follows the project's style guidelines and includes appropriate tests.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-## 🛠️ Just Commands Overview
-
-This project uses [Just](https://just.systems/) as a command runner. Key commands:
-
-- `just install`: Install the project  
-- `just dev`: Set up development environment
-- `just check`: Run linter and formatter
-- `just test`: Run tests with coverage report
-- `just cm`: Stage changes, run AI enrichment, commit, and push
-- `just build`: Build distribution packages
-- `just deploy`: Full deployment (changelog, build, PyPI, tag, release)
-
-## ✨ Feature Highlights
-
-This tool enhances your development workflow with several powerful capabilities:
-
-- **Intelligent Commit Messages**: Automatically generates meaningful, descriptive commit messages based on your code changes
-- **Content-Aware Documentation**: Updates your README and Wiki with relevant content that accurately reflects your project
-- **Specialized Evaluations**: Analyzes documentation quality with content-type specific criteria
-- **Workflow Integration**: Seamlessly integrates with git hooks and your existing development process
-- **Multi-Format Support**: Works with various documentation formats including README, Wiki pages, and more
-- **Customizable Prompts**: Tailor the AI prompts to match your project's specific documentation needs
-- **Smart Content Detection**: Automatically detects different types of documentation and applies the right evaluation criteria
-
-Each feature is designed to save time and improve documentation quality without disrupting your development workflow.```
+MIT License - see [LICENSE](LICENSE) file for details.
