@@ -7,13 +7,32 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import tiktoken
 from openai import OpenAI
 from rich.logging import RichHandler
 
 from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
+
+
+class PipelineContext(TypedDict, total=False):
+    """Type definition for pipeline context with all possible fields."""
+
+    readme_path: str
+    wiki_path: str
+    api_key: Optional[str]
+    wiki_url: str
+    wiki_url_base: str
+    model: str
+    file_paths: Dict[str, Any]
+    ai_suggestions: Dict[str, Any]
+    wiki_files: List[str]
+    wiki_file_paths: Dict[str, str]
+    diff: str
+    diff_tokens: int
+    selected_wiki_articles: List[str]
+
 
 # Configure logging on import
 logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[RichHandler(markup=True)])
@@ -46,26 +65,24 @@ PROMPTS_DIR = Path(__file__).parent / "prompts"
 logger = get_logger(__name__)
 
 
-def initialize_context(ctx: Dict[str, Any]) -> Dict[str, Any]:
-    """Initialize pipeline context with default values."""
-    if "context_initialized" not in ctx:
-        wiki_files, wiki_file_paths = get_wiki_files()
-        ctx.update(
-            {
-                "readme_path": README_PATH,
-                "wiki_path": WIKI_PATH,
-                "api_key": API_KEY,
-                "wiki_url": WIKI_URL,
-                "wiki_url_base": WIKI_URL_BASE,
-                "model": MODEL,
-                "file_paths": {"README.md": README_PATH, "wiki": wiki_file_paths},
-                "ai_suggestions": {"README.md": None, "wiki": None},
-                "wiki_files": wiki_files,
-                "wiki_file_paths": wiki_file_paths,
-                "context_initialized": True,
-            }
-        )
-    return ctx
+def create_context() -> PipelineContext:
+    """Create fresh pipeline context with all required fields."""
+    wiki_files, wiki_file_paths = get_wiki_files()
+    return {
+        "readme_path": README_PATH,
+        "wiki_path": WIKI_PATH,
+        "api_key": API_KEY or os.getenv("OPENAI_API_KEY"),
+        "wiki_url": WIKI_URL,
+        "wiki_url_base": WIKI_URL_BASE,
+        "model": MODEL,
+        "file_paths": {"README.md": README_PATH, "wiki": wiki_file_paths},
+        "ai_suggestions": {"README.md": None, "wiki": {}},
+        "wiki_files": wiki_files,
+        "wiki_file_paths": wiki_file_paths,
+        "diff": "",
+        "diff_tokens": 0,
+        "selected_wiki_articles": [],
+    }
 
 
 def get_wiki_files() -> Tuple[list[str], Dict[str, str]]:

@@ -25,7 +25,9 @@
       "Bash(source:*)",
       "Bash(python -m pytest tests/test_evaluators.py -xvs)",
       "Bash(pip show:*)",
-      "Bash(uv pip uninstall:*)"
+      "Bash(uv pip uninstall:*)",
+      "Bash(python:*)",
+      "Bash(uv run:*)"
     ],
     "deny": []
   }

@@ -4,7 +4,8 @@ import os
 import sys
 from typing import Any, Dict
 
-from .tools import LogMessages, append_suggestion_and_stage, count_tokens, extract_ai_content, get_ai_response, get_logger, get_prompt_template
+from .enrich_agent import EnrichmentCrew, select_wiki_articles_with_agent
+from .tools import LogMessages, append_suggestion_and_stage, count_tokens, get_logger
 
 logger = get_logger(__name__)
 
@@ -40,22 +41,18 @@ def read_file(ctx: Dict[str, Any], file_key: str, file_path: str) -> Dict[str, A
 
 
 def ai_enrich(ctx: Dict[str, Any], filename: str) -> Dict[str, Any]:
-    """Get AI suggestions for a file."""
-    prompt = get_prompt_template("enrich").format(filename=filename, diff=ctx["diff"], **{filename: ctx[filename]})
-    response = get_ai_response(prompt, ctx)
-    ctx["ai_suggestions"][filename] = extract_ai_content(response)
+    """Get AI suggestions for a file using CrewAI agents."""
+    crew = EnrichmentCrew(model=ctx.get("model", "gpt-4o-mini"))
+    needs_update, suggestion = crew.enrich_documentation(
+        diff=ctx["diff"], doc_content=ctx[filename], doc_type="README" if filename == "README.md" else "wiki", file_path=filename
+    )
+    ctx["ai_suggestions"][filename] = suggestion if needs_update else "NO CHANGES"
     return ctx
 
 
 def select_wiki_articles(ctx: Dict[str, Any]) -> Dict[str, Any]:
-    """Select relevant wiki articles based on the diff."""
-    article_list = "\n".join(ctx["wiki_files"])
-    prompt = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
-    response = get_ai_response(prompt, ctx)
-
-    content = extract_ai_content(response)
-    filenames = [fn.strip() for fn in content.split(",") if fn.strip()]
-    ctx["selected_wiki_articles"] = [fn for fn in filenames if fn in ctx["wiki_files"]]
+    """Select relevant wiki articles based on the diff using CrewAI agent."""
+    ctx["selected_wiki_articles"] = select_wiki_articles_with_agent(diff=ctx["diff"], wiki_files=ctx["wiki_files"], model=ctx.get("model", "gpt-4o-mini"))
 
     if not ctx["selected_wiki_articles"]:
         logger.info(LogMessages.NO_WIKI_ARTICLES)
