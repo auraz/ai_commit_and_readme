@@ -86,8 +86,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This project uses [Just](https://just.systems/) as a command runner. Key commands:
 
-- `just install`: Install the project
-- `just dev-install`: Set up development environment
+- `just install`: Install the project  
+- `just dev`: Set up development environment
 - `just lint`: Run ruff linter
 - `just format`: Format code with ruff
 - `just check`: Run lint and format
