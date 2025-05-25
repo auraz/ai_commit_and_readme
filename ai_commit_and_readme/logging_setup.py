@@ -7,7 +7,9 @@ from rich.logging import RichHandler
 
 
 def setup_logging() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True, markup=True)])
+    """Configure logging with RichHandler for better output."""
+    handler = RichHandler(rich_tracebacks=True, markup=True)
+    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[handler])
 
 
 setup_logging()  # Initialize on import

@@ -19,7 +19,7 @@ class TestMain:
         usage_file.write_text("usage content")
         readme_path = tmp_path / "README.md"
         readme_path.write_text("readme content")
-        
+
         # Patch WIKI_PATH and README_PATH
         monkeypatch.setattr(constants_mod, "WIKI_PATH", str(wiki_dir))
         monkeypatch.setattr(constants_mod, "README_PATH", str(readme_path))
@@ -34,16 +34,16 @@ class TestMain:
                 },
             ),
         )
-        
+
         # Patch subprocess.run to avoid actual git commands
         monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", lambda *_a, **_k: None)
         monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff content")
         monkeypatch.setenv("OPENAI_API_KEY", "test")
-        monkeypatch.setattr("openai.OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
-        
+        monkeypatch.setattr("openai.OpenAI", lambda *args, **kwargs: FakeClient)
+
         # Run enrich
         main_mod.enrich()
-        
+
         # Assert files exist and are readable
         assert api_file.exists()
         assert usage_file.exists()

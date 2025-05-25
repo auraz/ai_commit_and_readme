@@ -21,7 +21,7 @@ class FakeClient:
     class chat:  # noqa: N801
         class completions:  # noqa: N801
             @staticmethod
-            def create(*args: Any, **kwargs: Any) -> Any:  # noqa: ARG004
+            def create(*args: Any, **kwargs: Any) -> Any:
                 class R:
                     choices: ClassVar = [type("msg", (), {"message": type("msg", (), {"content": "SUGGESTION"})()})]
 
@@ -32,7 +32,7 @@ class FakeClientFail(FakeClient):
     class chat(FakeClient.chat):  # noqa: N801
         class completions(FakeClient.chat.completions):  # noqa: N801
             @staticmethod
-            def create(*args: Any, **kwargs: Any) -> Any:  # noqa: ARG004
+            def create(*args: Any, **kwargs: Any) -> Any:
                 raise Exception("fail")
 
 
@@ -162,7 +162,8 @@ class TestAIEnrich:
     def test_ai_enrich_success(self, monkeypatch: MonkeyPatch) -> None:
         """Should set ai_suggestions from OpenAI response."""
         monkeypatch.setattr(
-            "ai_commit_and_readme.main.get_ai_response", lambda _prompt, _ctx: type("obj", (), {"choices": [type("obj", (), {"message": type("obj", (), {"content": "SUGGESTION"})()})]})
+            "ai_commit_and_readme.main.get_ai_response",
+            lambda _prompt, _ctx: type("obj", (), {"choices": [type("obj", (), {"message": type("obj", (), {"content": "SUGGESTION"})()})]}),
         )
         self.ctx["README.md"] = "r"
         self.ctx["context_initialized"] = True

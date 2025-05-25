@@ -1,7 +1,6 @@
 """AI enrichment utilities and context management."""
 
 import glob
-import json
 import os
 import re
 import subprocess
@@ -23,19 +22,21 @@ def initialize_context(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Initialize pipeline context with default values."""
     if "context_initialized" not in ctx:
         wiki_files, wiki_file_paths = get_wiki_files()
-        ctx.update({
-            "readme_path": README_PATH,
-            "wiki_path": WIKI_PATH,
-            "api_key": API_KEY,
-            "wiki_url": WIKI_URL,
-            "wiki_url_base": WIKI_URL_BASE,
-            "model": MODEL,
-            "file_paths": {"README.md": README_PATH, "wiki": wiki_file_paths},
-            "ai_suggestions": {"README.md": None, "wiki": None},
-            "wiki_files": wiki_files,
-            "wiki_file_paths": wiki_file_paths,
-            "context_initialized": True
-        })
+        ctx.update(
+            {
+                "readme_path": README_PATH,
+                "wiki_path": WIKI_PATH,
+                "api_key": API_KEY,
+                "wiki_url": WIKI_URL,
+                "wiki_url_base": WIKI_URL_BASE,
+                "model": MODEL,
+                "file_paths": {"README.md": README_PATH, "wiki": wiki_file_paths},
+                "ai_suggestions": {"README.md": None, "wiki": None},
+                "wiki_files": wiki_files,
+                "wiki_file_paths": wiki_file_paths,
+                "context_initialized": True,
+            }
+        )
     return ctx
 
 
@@ -93,7 +94,7 @@ def get_diff_text(cmd: Optional[list[str]] = None) -> str:
     setup_logging()
     logger.info(LogMessages.GETTING_DIFF)
     cmd = cmd or ["git", "diff", "--cached", "-U1"]
-    
+
     try:
         diff = subprocess.check_output(cmd, text=True)
     except subprocess.CalledProcessError as e:
@@ -137,7 +138,13 @@ def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None, json_resp
 
 def extract_ai_content(response: Any) -> str:
     """Extract content from OpenAI API response."""
-    if hasattr(response, "choices") and response.choices and hasattr(response.choices[0], "message") and hasattr(response.choices[0].message, "content") and response.choices[0].message.content:
+    if (
+        hasattr(response, "choices")
+        and response.choices
+        and hasattr(response.choices[0], "message")
+        and hasattr(response.choices[0].message, "content")
+        and response.choices[0].message.content
+    ):
         return response.choices[0].message.content.strip()
     return ""
 

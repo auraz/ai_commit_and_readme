@@ -3,13 +3,12 @@
 
 import os
 import sys
-from typing import Dict, Any
+from typing import Any, Dict
 
 from pipetools import pipe
 
 from .logging_setup import LogMessages, get_logger
-from .tools import (append_suggestion_and_stage, count_tokens, extract_ai_content, get_ai_response, 
-                    get_diff, get_diff_text, get_prompt_template, initialize_context)
+from .tools import append_suggestion_and_stage, count_tokens, extract_ai_content, get_ai_response, get_diff, get_diff_text, get_prompt_template, initialize_context
 
 logger = get_logger(__name__)
 
@@ -26,7 +25,7 @@ def check_api_key(ctx: Dict[str, Any]) -> Dict[str, Any]:
 def generate_summary() -> str:
     """Generate a summary of changes based on git diff."""
     ctx = check_api_key(initialize_context({}))
-    
+
     try:
         diff = get_diff_text()  # Try staged changes first
     except SystemExit:
@@ -52,7 +51,7 @@ def read_file(ctx: Dict[str, Any], file_key: str, file_path: str) -> Dict[str, A
     """Read a file and calculate token count."""
     with open(file_path, encoding="utf-8") as f:
         ctx[file_key] = f.read()
-    
+
     content = ctx[file_key]
     logger.info(LogMessages.FILE_SIZE.format(file_key, len(content)))
     tokens = count_tokens(content, ctx["model"])
@@ -74,14 +73,14 @@ def select_wiki_articles(ctx: Dict[str, Any]) -> Dict[str, Any]:
     article_list = "\n".join(ctx["wiki_files"])
     prompt = get_prompt_template("select_articles").format(diff=ctx["diff"], article_list=article_list)
     response = get_ai_response(prompt, ctx)
-    
+
     content = extract_ai_content(response)
     filenames = [fn.strip() for fn in content.split(",") if fn.strip()]
     ctx["selected_wiki_articles"] = [fn for fn in filenames if fn in ctx["wiki_files"]]
-    
+
     if not ctx["selected_wiki_articles"]:
         logger.info(LogMessages.NO_WIKI_ARTICLES)
-    
+
     return ctx
 
 
@@ -89,23 +88,23 @@ def process_selected_wikis(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Read and enrich selected wiki files."""
     if not ctx["selected_wiki_articles"]:
         return ctx
-    
+
     ctx["ai_suggestions"]["wiki"] = {}
     for filename in ctx["selected_wiki_articles"]:
         ctx = read_file(ctx, filename, ctx["wiki_file_paths"][filename])
         ctx = ai_enrich(ctx, filename)
         ctx["ai_suggestions"]["wiki"][filename] = ctx["ai_suggestions"][filename]
-    
+
     return ctx
 
 
 def write_outputs(ctx: Dict[str, Any]) -> Dict[str, Any]:
     """Write AI suggestions to files and stage them."""
     append_suggestion_and_stage(ctx["file_paths"]["README.md"], ctx["ai_suggestions"]["README.md"], "README")
-    
+
     for filename, suggestion in ctx["ai_suggestions"].get("wiki", {}).items():
         append_suggestion_and_stage(ctx["file_paths"]["wiki"][filename], suggestion, filename)
-    
+
     return ctx
 
 
@@ -123,5 +122,5 @@ def enrich() -> None:
         | process_selected_wikis
         | write_outputs
     )
-    
+
     enrichment_pipeline({})
