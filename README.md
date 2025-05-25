@@ -50,14 +50,22 @@ just eval-wiki-dir wiki
 
 > **Note:** Requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.
 
-### CrewAI Integration
+### CrewAI Integration with Type-Specific Prompts
 
-The evaluation system now uses [autodoceval-crewai](https://github.com/auraz/autodoceval-crewai), which leverages CrewAI's multi-agent framework for more sophisticated document analysis. This provides:
+The evaluation system uses [autodoceval-crewai](https://github.com/auraz/autodoceval-crewai) enhanced with specialized evaluation prompts for different wiki page types. This hybrid approach provides:
 
-- Collaborative AI agents for comprehensive evaluation
-- Iterative improvement capabilities
-- Consistent scoring across different document types
-- Detailed feedback for documentation enhancement
+- **CrewAI agents**: Collaborative evaluation with multi-agent framework
+- **Type-specific prompts**: Tailored evaluation criteria for each documentation type
+- **Automatic type detection**: Identifies document type from content and filename
+- **Specialized feedback**: Context-aware suggestions based on document purpose
+
+Supported wiki page types with custom evaluation criteria:
+- API Documentation (endpoints, parameters, authentication)
+- Architecture (system design, components, diagrams)
+- Installation (prerequisites, setup steps, troubleshooting)
+- Usage (examples, workflows, best practices)
+- Security (authentication, vulnerabilities, best practices)
+- Contributing (guidelines, development setup, PR process)
 
 ## 📝 Contributing
 
