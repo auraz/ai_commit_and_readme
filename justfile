@@ -1,4 +1,4 @@
-# Command runner for ai_commit_and_readme
+# Command runner for autodoc_ai
 
 # Default recipe
 default:
@@ -54,24 +54,24 @@ version:
 
 # Enrich README and Wiki with AI
 enrich:
-    python -m ai_commit_and_readme.process
+    python -m autodoc_ai.process
 
 # Generate summary of changes
 summary:
-    python -c "from ai_commit_and_readme.process import generate_summary; print(generate_summary())"
+    python -c "from autodoc_ai.process import generate_summary; print(generate_summary())"
 
 # Evaluate document quality
 eval path:
-    python -c "from ai_commit_and_readme.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}'); print(report)"
+    python -c "from autodoc_ai.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}'); print(report)"
 
 # Evaluate document with extra criteria
 eval-with-prompt path prompt:
-    python -c "from ai_commit_and_readme.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}', extra_prompt='{{prompt}}'); print(report)"
+    python -c "from autodoc_ai.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}', extra_prompt='{{prompt}}'); print(report)"
 
 # Evaluate all documents in directory
 eval-all path:
     #!/usr/bin/env python3
-    from ai_commit_and_readme.doc_eval import evaluate_all
+    from autodoc_ai.doc_eval import evaluate_all
     results = evaluate_all("{{path}}")
     for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
         print(f"{filename}: {score}")
@@ -79,12 +79,12 @@ eval-all path:
 
 # Improve document iteratively
 improve path:
-    python -c "from ai_commit_and_readme.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}'), indent=2))"
+    python -c "from autodoc_ai.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}'), indent=2))"
 
 # Improve document with custom settings
 improve-with-settings path target_score="85" max_iterations="3":
-    python -c "from ai_commit_and_readme.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}', target_score={{target_score}}, max_iterations={{max_iterations}}), indent=2))"
+    python -c "from autodoc_ai.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}', target_score={{target_score}}, max_iterations={{max_iterations}}), indent=2))"
 
 # Improve all documents in directory
 improve-all path:
-    python -c "from ai_commit_and_readme.doc_eval import improve_all; improve_all('{{path}}')"
+    python -c "from autodoc_ai.doc_eval import improve_all; improve_all('{{path}}')"

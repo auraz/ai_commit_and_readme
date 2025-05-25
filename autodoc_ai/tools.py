@@ -66,7 +66,7 @@ def create_context(
     model: str = "gpt-4o-mini",
     readme_path: Optional[str] = None,
     wiki_path: Optional[str] = None,
-    wiki_url: str = "https://github.com/auraz/ai_commit_and_readme/wiki/",
+    wiki_url: str = "https://github.com/auraz/autodoc-ai/wiki/",
     wiki_url_base: Optional[str] = None,
 ) -> PipelineContext:
     """Create fresh pipeline context with all required fields."""

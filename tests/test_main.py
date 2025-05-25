@@ -1,4 +1,4 @@
-"""Tests for ai_commit_and_readme.main handlers, AI logic, and file operations."""
+"""Tests for autodoc_ai.main handlers, AI logic, and file operations."""
 
 import sys
 import uuid
@@ -9,7 +9,7 @@ from unittest import mock
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
-import ai_commit_and_readme.main as mod
+import autodoc_ai.main as mod
 
 
 # Shared test OpenAI client for mocking
@@ -55,7 +55,7 @@ def make_ctx(**kwargs: Any) -> Dict[str, Any]:
 
 
 class TestHandlers:
-    """Tests for handler functions in ai_commit_and_readme.main."""
+    """Tests for handler functions in autodoc_ai.main."""
 
     @pytest.fixture(autouse=True)
     def setup_ctx(self) -> None:
@@ -67,8 +67,8 @@ class TestHandlers:
         ctx: Dict[str, Any] = make_ctx(api_key=None, context_initialized=True)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setenv("OPENAI_API_KEY", "test")
-        monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", "test")
-        from ai_commit_and_readme.process import check_api_key
+        monkeypatch.setattr("autodoc_ai.tools.API_KEY", "test")
+        from autodoc_ai.process import check_api_key
 
         result = check_api_key(ctx)
         assert result["api_key"] == "test"
@@ -77,7 +77,7 @@ class TestHandlers:
         """Should exit if API key is missing."""
         ctx: Dict[str, Any] = make_ctx(api_key=None, context_initialized=True)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-        monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", None)
+        monkeypatch.setattr("autodoc_ai.tools.API_KEY", None)
         monkeypatch.setattr("os.getenv", lambda _key, _default=None: None)
         with pytest.raises(SystemExit):
             mod.check_api_key(ctx)
@@ -91,7 +91,7 @@ class TestHandlers:
     def test_get_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should set diff from subprocess output."""
         ctx: Dict[str, Any] = make_ctx(context_initialized=True)
-        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff")
+        monkeypatch.setattr("autodoc_ai.tools.subprocess.check_output", lambda *_a, **_k: b"diff")
         # Direct call to get_diff with context
         result = mod.get_diff(ctx)
         assert result["diff"] == "diff"
@@ -106,7 +106,7 @@ class TestHandlers:
                 return b"file1.py\nfile2.py\n"
             return b"x" * 100001
 
-        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", mock_check_output)
+        monkeypatch.setattr("autodoc_ai.tools.subprocess.check_output", mock_check_output)
         result = mod.get_diff(ctx)
         assert "file1.py" in result["diff"]
 
@@ -142,7 +142,7 @@ class TestHandlers:
         ctx: Dict[str, Any] = make_ctx(model="gpt-4", context_initialized=True)
         fake_enc: mock.Mock = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
-        monkeypatch.setattr("ai_commit_and_readme.main.count_tokens", lambda _text, _model: 3)
+        monkeypatch.setattr("autodoc_ai.main.count_tokens", lambda _text, _model: 3)
 
         with caplog.at_level("INFO"):
             result = mod.read_file(ctx, filename, str(test_file))
@@ -163,7 +163,7 @@ class TestAIEnrich:
     def test_ai_enrich_success(self, monkeypatch: MonkeyPatch) -> None:
         """Should set ai_suggestions from OpenAI response."""
         monkeypatch.setattr(
-            "ai_commit_and_readme.main.get_ai_response",
+            "autodoc_ai.main.get_ai_response",
             lambda _prompt, _ctx: type("obj", (), {"choices": [type("obj", (), {"message": type("obj", (), {"content": "SUGGESTION"})()})]}),
         )
         self.ctx["README.md"] = "r"
@@ -178,7 +178,7 @@ class TestAIEnrich:
             # Simulate the behavior in get_ai_response that calls sys.exit(1)
             sys.exit(1)
 
-        monkeypatch.setattr("ai_commit_and_readme.main.get_ai_response", mock_get_ai_response)
+        monkeypatch.setattr("autodoc_ai.main.get_ai_response", mock_get_ai_response)
         self.ctx["README.md"] = "r"
         self.ctx["context_initialized"] = True
         with pytest.raises(SystemExit):
@@ -198,7 +198,7 @@ class TestFileOps:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 
-        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", fake_run)
+        monkeypatch.setattr("autodoc_ai.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
             mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
         content = file_path.read_text()
@@ -216,7 +216,7 @@ class TestFileOps:
             """Fake subprocess.run for git add."""
             called["ran"] = True
 
-        monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", fake_run)
+        monkeypatch.setattr("autodoc_ai.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
             mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
         content = file_path.read_text()

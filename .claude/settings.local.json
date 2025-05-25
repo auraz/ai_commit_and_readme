@@ -27,7 +27,10 @@
       "Bash(pip show:*)",
       "Bash(uv pip uninstall:*)",
       "Bash(python:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:github.com)",
+      "Bash(just lint)"
     ],
     "deny": []
   }

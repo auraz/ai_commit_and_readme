@@ -1,4 +1,4 @@
-"""Tests for ai_commit_and_readme.tools utility functions."""
+"""Tests for autodoc_ai.tools utility functions."""
 
 from pathlib import Path
 from typing import Any, Dict
@@ -6,7 +6,7 @@ from typing import Any, Dict
 import pytest
 from pipetools import pipe
 
-import ai_commit_and_readme.tools as tools
+import autodoc_ai.tools as tools
 
 
 class TestContextInitialization:
