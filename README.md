@@ -32,44 +32,29 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 
 ## 📋 AI-Powered Evaluation Tools
 
-Analyze and improve your documentation quality using OpenAI-powered evaluations:
+Analyze and improve your documentation quality using CrewAI-powered evaluations:
 
 ```sh
 # Evaluate a README file with AI feedback
 python -m ai_commit_and_readme.cli eval-readme README.md
 
-
-
-# Evaluate wiki pages with specialized content-aware criteria
+# Evaluate wiki pages with AI-powered analysis
 python -m ai_commit_and_readme.cli eval-wiki wiki/Installation.md
 
-# Evaluate all wiki pages in a directory with specialized criteria
+# Evaluate all wiki pages in a directory
 python -m ai_commit_and_readme.cli eval-wiki wiki --dir
-
-# Specify a wiki page type manually
-python -m ai_commit_and_readme.cli eval-wiki wiki/API.md --type api
 ```
 
 > **Note:** Requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.
 
-### Supported Wiki Page Types
+### CrewAI Integration
 
-The wiki evaluator automatically detects the following page types and applies specialized evaluation criteria:
+The evaluation system now uses [autodoceval-crewai](https://github.com/auraz/autodoceval-crewai), which leverages CrewAI's multi-agent framework for more sophisticated document analysis. This provides:
 
-- API Documentation
-- Architecture
-- CI/CD
-- Changelog
-- Configuration
-- Contributing
-- Deployment
-- FAQ
-- Home/Index
-- Installation
-- Security
-- Usage
-
-Each page type is evaluated with metrics specifically designed for that content category.
+- Collaborative AI agents for comprehensive evaluation
+- Iterative improvement capabilities
+- Consistent scoring across different document types
+- Detailed feedback for documentation enhancement
 
 ## 📝 Contributing
 

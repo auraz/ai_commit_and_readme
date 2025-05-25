@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
-"""
-Tests for AI-powered README evaluator.
-"""
+"""Tests for evaluators using autodoceval-crewai."""
 
-import json
 import tempfile
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 import pytest
 
-from ai_commit_and_readme.evals.readme_eval import (
-    evaluate as evaluate_readme,
-    CATEGORIES
-)
-from ai_commit_and_readme.tools import (
-    format_evaluation_results,
-    load_file,
-    evaluate_with_ai,
-    get_ai_evaluation
-)
+from ai_commit_and_readme.evals.readme_eval import evaluate as evaluate_readme
+from ai_commit_and_readme.evals.wiki_eval import WikiEvaluator, evaluate_directory
 
 
 class TestReadmeEvaluator(TestCase):
-    """Test suite for AI-powered README evaluator."""
+    """Test suite for README evaluator using autodoceval-crewai."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -66,62 +55,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 """
-        
-        self.mock_evaluation = {
-            "scores": {
-                "title_and_description": [10, "Clear title and description"],
-                "structure_and_organization": [14, "Well organized"],
-                "installation_guide": [12, "Installation steps clear"],
-                "usage_examples": [12, "Good examples"],
-                "feature_explanation": [9, "Features well explained"],
-                "documentation_links": [8, "Some links present"],
-                "badges_and_shields": [3, "Few badges"],
-                "license_information": [5, "License included"],
-                "contributing_guidelines": [5, "Contributing guidelines clear"],
-                "conciseness_and_clarity": [9, "Overall clear and concise"]
-            },
-            "total_score": 87,
-            "max_score": 100,
-            "grade": "Good",
-            "summary": "Good README with clear structure",
-            "top_recommendations": [
-                "Add more badges",
-                "Improve documentation links",
-                "Add more usage examples"
-            ]
-        }
 
-    def test_format_results(self):
-        """Test formatting of evaluation results."""
-        report = format_evaluation_results(
-            self.mock_evaluation, 
-            "README Evaluation (AI-Powered)", 
-            CATEGORIES
-        )
-        
-        # Check the report contains expected sections
-        self.assertIn("README Evaluation (AI-Powered)", report)
-        self.assertIn("Overall Score: 87/100", report)
-        self.assertIn("Grade: Good", report)
-        self.assertIn("Summary: Good README", report)
-        self.assertIn("Category Breakdown:", report)
-        self.assertIn("Top Improvement Recommendations:", report)
-        self.assertIn("Add more badges", report)
-
-    @patch('ai_commit_and_readme.tools.OpenAI')
-    def test_evaluate_file(self, mock_openai_class):
-        """Test readme file evaluation with mock API."""
+    @patch('ai_commit_and_readme.evals.readme_eval.DocumentCrew')
+    def test_evaluate_readme(self, mock_crew_class):
+        """Test README evaluation with mock DocumentCrew."""
         # Configure mock
-        mock_client = MagicMock()
-        mock_openai_class.return_value = mock_client
-        
-        mock_response = MagicMock()
-        mock_choice = MagicMock()
-        mock_message = MagicMock()
-        mock_message.content = json.dumps(self.mock_evaluation)
-        mock_choice.message = mock_message
-        mock_response.choices = [mock_choice]
-        mock_client.chat.completions.create.return_value = mock_response
+        mock_crew = MagicMock()
+        mock_crew_class.return_value = mock_crew
+        mock_crew.evaluate_one.return_value = (85.0, "Good documentation with clear structure.")
         
         with tempfile.NamedTemporaryFile(mode="w+", suffix=".md") as tmp:
             tmp.write(self.good_readme)
@@ -129,14 +70,101 @@ This project is licensed under the MIT License - see the LICENSE file for detail
             
             score, report = evaluate_readme(tmp.name)
             
-            # Check score matches mock
-            self.assertEqual(score, 87)
+            # Check score
+            self.assertEqual(score, 85)
             
             # Verify report contains expected sections
-            self.assertIn("README Evaluation (AI-Powered)", report)
-            self.assertIn("Overall Score: 87/100", report)
-            self.assertIn("Grade: Good", report)
+            self.assertIn("README Evaluation (AI-Powered by CrewAI)", report)
+            self.assertIn("Score: 85/100", report)
+            self.assertIn("Good documentation with clear structure.", report)
+            
+            # Verify DocumentCrew was called correctly
+            mock_crew_class.assert_called_once_with(target_score=85, max_iterations=1)
+            mock_crew.evaluate_one.assert_called_once()
 
+    def test_evaluate_missing_file(self):
+        """Test evaluation of non-existent file."""
+        score, report = evaluate_readme("/nonexistent/file.md")
+        self.assertEqual(score, 0)
+        self.assertIn("Error: Unable to read README file", report)
+
+
+class TestWikiEvaluator(TestCase):
+    """Test suite for Wiki evaluator using autodoceval-crewai."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.wiki_content = """# Installation Guide
+
+This guide covers installation of our software.
+
+## Prerequisites
+
+- Python 3.8 or higher
+- pip package manager
+
+## Installation Steps
+
+1. Clone the repository
+2. Install dependencies
+3. Configure environment
+
+## Troubleshooting
+
+If you encounter issues, check the FAQ.
+"""
+
+    @patch('ai_commit_and_readme.evals.wiki_eval.DocumentCrew')
+    def test_evaluate_wiki(self, mock_crew_class):
+        """Test wiki page evaluation with mock DocumentCrew."""
+        # Configure mock
+        mock_crew = MagicMock()
+        mock_crew_class.return_value = mock_crew
+        mock_crew.evaluate_one.return_value = (90.0, "Excellent installation guide.")
+        
+        evaluator = WikiEvaluator()
+        
+        with tempfile.NamedTemporaryFile(mode="w+", suffix=".md") as tmp:
+            tmp.write(self.wiki_content)
+            tmp.flush()
+            
+            score, report = evaluator.evaluate(tmp.name)
+            
+            # Check score
+            self.assertEqual(score, 90)
+            
+            # Verify report contains expected sections
+            self.assertIn("Wiki Page Evaluation (AI-Powered by CrewAI)", report)
+            self.assertIn("Score: 90/100", report)
+            self.assertIn("Excellent installation guide.", report)
+
+    @patch('ai_commit_and_readme.evals.wiki_eval.DocumentCrew')
+    def test_evaluate_directory(self, mock_crew_class):
+        """Test evaluating directory of wiki pages."""
+        # Configure mock
+        mock_crew = MagicMock()
+        mock_crew_class.return_value = mock_crew
+        mock_crew.evaluate_one.side_effect = [
+            (85.0, "Good guide."),
+            (90.0, "Excellent docs."),
+            (75.0, "Needs improvement.")
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create test files
+            files = ["Installation.md", "Usage.md", "FAQ.md"]
+            for filename in files:
+                filepath = f"{tmpdir}/{filename}"
+                with open(filepath, "w") as f:
+                    f.write(f"# {filename}\n\nTest content.")
+            
+            results = evaluate_directory(tmpdir)
+            
+            # Check results
+            self.assertEqual(len(results), 3)
+            self.assertEqual(results["Installation.md"][0], 85)
+            self.assertEqual(results["Usage.md"][0], 90)
+            self.assertEqual(results["FAQ.md"][0], 75)
 
 
 if __name__ == "__main__":
