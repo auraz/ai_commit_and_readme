@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/auraz/ai_commit_and_readme/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/ai_commit_and_readme/actions)
 
-AI-powered tool that automatically generates commit messages and keeps documentation up-to-date.
+AI-powered tool that automatically generates commit messages and keeps documentation up-to-date. Designed to be used in any repository to maintain its README and Wiki documentation.
 
 ## Features
 
@@ -15,8 +15,13 @@ AI-powered tool that automatically generates commit messages and keeps documenta
 
 ## Quick Start
 
+Use in any repository to maintain its documentation:
+
 ```bash
-# Install
+# Install globally
+pip install ai-commit-and-readme
+
+# Or install from source
 git clone https://github.com/auraz/ai_commit_and_readme.git
 cd ai_commit_and_readme
 just install
@@ -24,10 +29,14 @@ just install
 # Set OpenAI API key
 export OPENAI_API_KEY="your-key-here"
 
-# Use AI for commits
+# In your repository
+cd your-project
+ai-commit-and-readme  # Enriches your README and Wiki based on staged changes
+
+# Or use with Just (if installed from source)
 just cm  # Enriches docs, commits, and pushes
 
-# Evaluate documentation
+# Evaluate documentation quality
 just eval README.md
 just eval-all wiki/
 ```
