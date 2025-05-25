@@ -4,8 +4,10 @@ import os
 import sys
 from typing import Any, Dict
 
-from .enrich_agent import EnrichmentCrew, select_wiki_articles_with_agent
-from .tools import LogMessages, append_suggestion_and_stage, count_tokens, get_logger
+from pipetools import pipe
+
+from .agents import EnrichmentCrew, generate_commit_summary, select_wiki_articles_with_agent
+from .tools import LogMessages, append_suggestion_and_stage, count_tokens, create_context, get_diff, get_diff_text, get_logger
 
 logger = get_logger(__name__)
 
@@ -82,3 +84,36 @@ def write_outputs(ctx: Dict[str, Any]) -> Dict[str, Any]:
         append_suggestion_and_stage(ctx["file_paths"]["wiki"][filename], suggestion, filename)
 
     return ctx
+
+
+def generate_summary() -> str:
+    """Generate a summary of changes based on git diff."""
+    ctx = check_api_key(create_context())
+
+    try:
+        diff = get_diff_text()  # Try staged changes first
+    except SystemExit:
+        try:
+            diff = get_diff_text(["git", "diff", "HEAD~1", "-U1"])  # Try last commit
+        except SystemExit:
+            logger.info("No changes detected in staged files or last commit.")
+            sys.exit(0)
+
+    return generate_commit_summary(diff, model=ctx.get("model", "gpt-4o-mini"))
+
+
+def enrich() -> None:
+    """Main enrichment pipeline."""
+    enrichment_pipeline = (
+        pipe
+        | check_api_key
+        | get_diff
+        | log_diff_stats
+        | (lambda ctx: read_file(ctx, "README.md", ctx["readme_path"]))
+        | select_wiki_articles
+        | (lambda ctx: ai_enrich(ctx, "README.md"))
+        | process_selected_wikis
+        | write_outputs
+    )
+
+    enrichment_pipeline(create_context())

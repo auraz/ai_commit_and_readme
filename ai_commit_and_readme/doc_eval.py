@@ -1,15 +1,14 @@
-"""Document evaluator using autodoceval-crewai with type-specific prompts."""
+"""Document evaluator extending autodoceval-crewai with type-specific prompts."""
 
-import logging
 import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 from evcrew import DocumentCrew
 
-from .tools import load_file
+from .tools import get_logger, load_file
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Wiki page type detection patterns
 WIKI_TYPE_PATTERNS = {
@@ -22,11 +21,12 @@ WIKI_TYPE_PATTERNS = {
 }
 
 
-class DocEvaluator:
-    """Evaluates documentation using autodoceval-crewai with type-specific prompts."""
+class DocEvaluator(DocumentCrew):
+    """Enhanced document evaluator with type-specific prompt support."""
 
-    def __init__(self) -> None:
-        """Initialize evaluator with prompt templates."""
+    def __init__(self, target_score: int = 85, max_iterations: int = 1):
+        """Initialize evaluator with prompt templates and CrewAI settings."""
+        super().__init__(target_score=target_score, max_iterations=max_iterations)
         self.prompts_dir = Path(__file__).parent.parent / "prompts" / "evals"
         self.type_prompts = self._load_type_prompts()
 
@@ -61,8 +61,8 @@ class DocEvaluator:
 
         return "wiki"  # Default type
 
-    def evaluate(self, doc_path: str, doc_type: Optional[str] = None, extra_prompt: Optional[str] = None) -> Tuple[int, str]:
-        """Evaluate a document using type-specific prompts with CrewAI agents."""
+    def evaluate_with_type(self, doc_path: str, doc_type: Optional[str] = None, extra_prompt: Optional[str] = None) -> Tuple[int, str]:
+        """Evaluate a document using type-specific prompts."""
         try:
             content = load_file(doc_path)
             if not content:
@@ -86,9 +86,8 @@ class DocEvaluator:
             if extra_prompt:
                 enhanced_content += f"Additional evaluation criteria:\n{extra_prompt}"
 
-            # Use CrewAI for evaluation
-            crew = DocumentCrew(target_score=85, max_iterations=1)
-            score, feedback = crew.evaluate_one(enhanced_content)
+            # Use parent class evaluation
+            score, feedback = self.evaluate_one(enhanced_content)
 
             report = (
                 f"{doc_type.upper()} Evaluation (AI-Powered by CrewAI)\n"
@@ -107,11 +106,11 @@ class DocEvaluator:
 def evaluate_doc(doc_path: str, doc_type: Optional[str] = None, extra_prompt: Optional[str] = None) -> Tuple[int, str]:
     """Evaluate documentation file with optional type specification and extra evaluation criteria."""
     evaluator = DocEvaluator()
-    return evaluator.evaluate(doc_path, doc_type, extra_prompt)
+    return evaluator.evaluate_with_type(doc_path, doc_type, extra_prompt)
 
 
 def evaluate_all(directory_path: str) -> Dict[str, Tuple[int, str]]:
-    """Evaluate all markdown files in a directory using CrewAI batch processing."""
+    """Evaluate all markdown files in a directory."""
     results = {}
     evaluator = DocEvaluator()
 
@@ -128,7 +127,7 @@ def evaluate_all(directory_path: str) -> Dict[str, Tuple[int, str]]:
     # Process all documents
     for doc_file in markdown_files:
         try:
-            score, report = evaluator.evaluate(str(doc_file))
+            score, report = evaluator.evaluate_with_type(str(doc_file))
             results[doc_file.name] = (score, report)
             logger.info(f"Evaluated {doc_file.name}: Score {score}")
         except Exception as e:

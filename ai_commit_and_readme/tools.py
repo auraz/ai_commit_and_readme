@@ -6,14 +6,11 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import tiktoken
 from openai import OpenAI
 from rich.logging import RichHandler
-
-from .constants import API_KEY, MODEL, README_PATH, WIKI_PATH, WIKI_URL, WIKI_URL_BASE
 
 
 class PipelineContext(TypedDict, total=False):
@@ -61,21 +58,33 @@ class LogMessages:
     DIFF_ERROR = "❌ Error getting diff: {}"
 
 
-PROMPTS_DIR = Path(__file__).parent / "prompts"
 logger = get_logger(__name__)
 
 
-def create_context() -> PipelineContext:
+def create_context(
+    api_key: Optional[str] = None,
+    model: str = "gpt-4o-mini",
+    readme_path: Optional[str] = None,
+    wiki_path: Optional[str] = None,
+    wiki_url: str = "https://github.com/auraz/ai_commit_and_readme/wiki/",
+    wiki_url_base: Optional[str] = None,
+) -> PipelineContext:
     """Create fresh pipeline context with all required fields."""
-    wiki_files, wiki_file_paths = get_wiki_files()
+    # Use environment variables as fallbacks
+    api_key = api_key or os.getenv("OPENAI_API_KEY")
+    readme_path = readme_path or os.path.join(os.getcwd(), "README.md")
+    wiki_path = wiki_path or os.getenv("WIKI_PATH", "wiki")
+    wiki_url_base = wiki_url_base or os.getenv("WIKI_URL_BASE")
+
+    wiki_files, wiki_file_paths = get_wiki_files(wiki_path)
     return {
-        "readme_path": README_PATH,
-        "wiki_path": WIKI_PATH,
-        "api_key": API_KEY or os.getenv("OPENAI_API_KEY"),
-        "wiki_url": WIKI_URL,
-        "wiki_url_base": WIKI_URL_BASE,
-        "model": MODEL,
-        "file_paths": {"README.md": README_PATH, "wiki": wiki_file_paths},
+        "readme_path": readme_path,
+        "wiki_path": wiki_path,
+        "api_key": api_key,
+        "wiki_url": wiki_url,
+        "wiki_url_base": wiki_url_base,
+        "model": model,
+        "file_paths": {"README.md": readme_path, "wiki": wiki_file_paths},
         "ai_suggestions": {"README.md": None, "wiki": {}},
         "wiki_files": wiki_files,
         "wiki_file_paths": wiki_file_paths,
@@ -85,46 +94,12 @@ def create_context() -> PipelineContext:
     }
 
 
-def get_wiki_files() -> Tuple[list[str], Dict[str, str]]:
+def get_wiki_files(wiki_path: str) -> Tuple[list[str], Dict[str, str]]:
     """Get list of wiki files and their paths."""
-    files = glob.glob(f"{WIKI_PATH}/*.md")
+    files = glob.glob(f"{wiki_path}/*.md")
     filenames = [os.path.basename(f) for f in files]
     file_paths = {os.path.basename(f): f for f in files}
     return filenames, file_paths
-
-
-def get_prompt_template(section: str) -> str:
-    """Get prompt template section from prompt files."""
-    if not PROMPTS_DIR.exists():
-        raise RuntimeError(f"Prompts directory not found: {PROMPTS_DIR}")
-
-    prompt_files = list(PROMPTS_DIR.glob("*.md"))
-    if not prompt_files:
-        raise RuntimeError(f"No prompt files found in {PROMPTS_DIR}")
-
-    section_header = f"## {section}"
-    for prompt_file in prompt_files:
-        try:
-            with open(prompt_file, encoding="utf-8") as f:
-                lines = f.readlines()
-
-            in_section = False
-            section_lines: list[str] = []
-
-            for line in lines:
-                if line.strip() == section_header:
-                    in_section = True
-                elif in_section and line.startswith("##"):
-                    break
-                elif in_section:
-                    section_lines.append(line)
-
-            if section_lines:
-                return "".join(section_lines).strip()
-        except Exception as e:
-            logger.debug(f"Error reading {prompt_file}: {e}")
-
-    raise ValueError(f"Section '{section}' not found in any prompt file")
 
 
 def get_diff(ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -164,11 +139,15 @@ def load_file(file_path: str) -> Optional[str]:
 
 def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None, json_response: bool = False, temperature: float = 0.5) -> Any:
     """Get response from OpenAI API."""
-    api_key = ctx.get("api_key", API_KEY) if ctx else API_KEY
+    api_key = ctx.get("api_key") if ctx else os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        logger.error(LogMessages.NO_API_KEY)
+        sys.exit(1)
+
     client = OpenAI(api_key=api_key)
 
     try:
-        model_name = ctx.get("model", MODEL) if ctx else MODEL
+        model_name = ctx.get("model", "gpt-4o-mini") if ctx else "gpt-4o-mini"
         kwargs = {"model": model_name, "messages": [{"role": "user", "content": prompt}], "temperature": temperature}
         if json_response:
             kwargs["response_format"] = {"type": "json_object"}

@@ -54,11 +54,11 @@ version:
 
 # Enrich README and Wiki with AI
 enrich:
-    python -m ai_commit_and_readme.main
+    python -m ai_commit_and_readme.process
 
 # Generate summary of changes
 summary:
-    python -c "from ai_commit_and_readme.main import generate_summary; print(generate_summary())"
+    python -c "from ai_commit_and_readme.process import generate_summary; print(generate_summary())"
 
 # Evaluate document quality
 eval path:
