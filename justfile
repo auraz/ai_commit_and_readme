@@ -76,3 +76,15 @@ eval-all path:
     for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
         print(f"{filename}: {score}")
     print(f"\nEvaluated {len(results)} documents")
+
+# Improve document iteratively
+improve path:
+    python -c "from ai_commit_and_readme.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}'), indent=2))"
+
+# Improve document with custom settings
+improve-with-settings path target_score="85" max_iterations="3":
+    python -c "from ai_commit_and_readme.doc_eval import improve_doc; import json; print(json.dumps(improve_doc('{{path}}', target_score={{target_score}}, max_iterations={{max_iterations}}), indent=2))"
+
+# Improve all documents in directory
+improve-all path:
+    python -c "from ai_commit_and_readme.doc_eval import improve_all; improve_all('{{path}}')"

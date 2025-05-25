@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from evcrew import DocumentCrew
 
@@ -133,5 +133,101 @@ def evaluate_all(directory_path: str) -> Dict[str, Tuple[int, str]]:
         except Exception as e:
             logger.error(f"Error evaluating {doc_file.name}: {e}")
             results[doc_file.name] = (0, f"Error: {e!s}")
+
+    return results
+
+
+class DocImprover(DocumentCrew):
+    """Enhanced document improver with iterative improvement and type-specific support."""
+
+    def __init__(self, target_score: int = 85, max_iterations: int = 3):
+        """Initialize improver with CrewAI settings."""
+        super().__init__(target_score=target_score, max_iterations=max_iterations)
+        self.evaluator_instance = DocEvaluator(target_score=target_score, max_iterations=1)
+
+    def improve_with_type(self, doc_path: str, output_dir: str, doc_type: Optional[str] = None) -> Dict[str, Any]:
+        """Iteratively improve a document using type-specific evaluation."""
+        try:
+            content = load_file(doc_path)
+            if not content:
+                return {"error": f"Document not found or empty: {doc_path}"}
+
+            filename = os.path.basename(doc_path)
+            doc_name = Path(filename).stem
+
+            # Detect type if not provided
+            if not doc_type:
+                doc_type = self.evaluator_instance._detect_doc_type(content, filename)
+
+            # Create output directory
+            output_path = Path(output_dir)
+            output_path.mkdir(parents=True, exist_ok=True)
+
+            # Use auto_improve_one with our custom evaluator
+            print(f"\n🚀 Starting iterative improvement for {filename} ({doc_type} documentation)")
+            print(f"   Target score: {self.target_score}%, Max iterations: {self.max_iterations}\n")
+
+            iterator = self.auto_improve_one(content=content, output_dir=output_dir, doc_name=doc_name, doc_path=doc_path)
+
+            # Create improvement summary
+            summary = {
+                "document": filename,
+                "type": doc_type,
+                "initial_score": iterator._iterations[0].score if iterator._iterations else 0,
+                "final_score": iterator.final_score,
+                "total_improvement": iterator.total_improvement,
+                "iterations": len(iterator._iterations) - 1,  # Exclude initial evaluation
+                "target_reached": iterator.final_score >= self.target_score,
+                "output_files": {"improved_document": str(output_path / f"{doc_name}_final.md"), "results": str(output_path / f"{doc_name}_results.json")},
+            }
+
+            return summary
+
+        except Exception as e:
+            logger.error(f"Error improving document: {e}")
+            return {"error": f"Error improving document: {e!s}"}
+
+
+def improve_doc(doc_path: str, output_dir: str = "./improved", doc_type: Optional[str] = None, target_score: int = 85, max_iterations: int = 3) -> Dict[str, Any]:
+    """Improve a document iteratively until target score is reached."""
+    improver = DocImprover(target_score=target_score, max_iterations=max_iterations)
+    return improver.improve_with_type(doc_path, output_dir, doc_type)
+
+
+def improve_all(directory_path: str, output_dir: str = "./improved", target_score: int = 85, max_iterations: int = 3) -> Dict[str, Dict[str, Any]]:
+    """Improve all markdown files in a directory."""
+    results = {}
+    improver = DocImprover(target_score=target_score, max_iterations=max_iterations)
+
+    doc_dir = Path(directory_path)
+    if not doc_dir.exists() or not doc_dir.is_dir():
+        logger.error(f"Directory not found: {directory_path}")
+        return results
+
+    markdown_files = list(doc_dir.glob("*.md"))
+    if not markdown_files:
+        logger.warning(f"No markdown files found in {directory_path}")
+        return results
+
+    print(f"\n📁 Found {len(markdown_files)} markdown files to improve\n")
+
+    # Process all documents
+    for doc_file in markdown_files:
+        try:
+            result = improver.improve_with_type(str(doc_file), output_dir)
+            results[doc_file.name] = result
+        except Exception as e:
+            logger.error(f"Error improving {doc_file.name}: {e}")
+            results[doc_file.name] = {"error": f"Error: {e!s}"}
+
+    # Print summary
+    print("\n📊 Improvement Summary:")
+    print("=" * 60)
+    for filename, result in results.items():
+        if "error" not in result:
+            print(f"{filename}: {result['initial_score']:.0f}% → {result['final_score']:.0f}% ({result['total_improvement']:+.0f}%)")
+        else:
+            print(f"{filename}: {result['error']}")
+    print("=" * 60)
 
     return results
