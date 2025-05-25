@@ -62,12 +62,12 @@ summary:
 
 # Evaluate document quality
 eval path:
-    python -c "from ai_commit_and_readme.evals.doc_eval import DocEvaluator; e = DocEvaluator(); _, report = e.evaluate('{{path}}'); print(report)"
+    python -c "from ai_commit_and_readme.doc_eval import DocEvaluator; e = DocEvaluator(); _, report = e.evaluate('{{path}}'); print(report)"
 
 # Evaluate all documents in directory
 eval-all path:
     #!/usr/bin/env python3
-    from ai_commit_and_readme.evals.doc_eval import evaluate_all
+    from ai_commit_and_readme.doc_eval import evaluate_all
     results = evaluate_all("{{path}}")
     for filename, (score, _) in sorted(results.items(), key=lambda x: x[1][0], reverse=True):
         print(f"{filename}: {score}")

@@ -7,7 +7,7 @@ from typing import Dict, Optional, Tuple
 
 from evcrew import DocumentCrew
 
-from ..tools import load_file
+from .tools import load_file
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ WIKI_TYPE_PATTERNS = {
 class DocEvaluator:
     """Evaluates documentation using autodoceval-crewai with type-specific prompts."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize evaluator with prompt templates."""
         self.prompts_dir = Path(__file__).parent.parent / "prompts" / "evals"
         self.type_prompts = self._load_type_prompts()
@@ -79,12 +79,7 @@ class DocEvaluator:
 
             # Create enhanced content with type-specific criteria
             if type_prompt:
-                enhanced_content = f"""Please evaluate this {doc_type} documentation:
-
-{content}
-
-Use these specific evaluation criteria:
-{type_prompt}"""
+                enhanced_content = f"Please evaluate this {doc_type} documentation:\n\n{content}\n\nUse these specific evaluation criteria:\n{type_prompt}"
             else:
                 enhanced_content = content
 
@@ -92,17 +87,12 @@ Use these specific evaluation criteria:
             crew = DocumentCrew(target_score=85, max_iterations=1)
             score, feedback = crew.evaluate_one(enhanced_content)
 
-            report = f"""{doc_type.upper()} Evaluation (AI-Powered by CrewAI)
-{"=" * 60}
-
-File: {filename}
-Type: {doc_type.title()} Documentation
-Score: {score:.0f}/100
-
-Evaluation Feedback:
-{feedback}
-
-{"=" * 60}"""
+            report = (
+                f"{doc_type.upper()} Evaluation (AI-Powered by CrewAI)\n"
+                + "=" * 60
+                + f"\n\nFile: {filename}\nType: {doc_type.title()} Documentation\nScore: {score:.0f}/100\n\nEvaluation Feedback:\n{feedback}\n\n"
+                + "=" * 60
+            )
 
             return int(score), report
 

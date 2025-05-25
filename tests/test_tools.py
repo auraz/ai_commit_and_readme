@@ -1,12 +1,12 @@
 """Tests for ai_commit_and_readme.tools utility functions."""
 
 from pathlib import Path
+from typing import Any, Dict
 
 import pytest
 from pipetools import pipe
 
 import ai_commit_and_readme.tools as tools
-from ai_commit_and_readme.tools import CtxDict
 
 
 class TestContextInitialization:
@@ -15,7 +15,7 @@ class TestContextInitialization:
     def test_initialize_context(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """initialize_context should populate context with defaults."""
         # Setup
-        ctx: CtxDict = {}
+        ctx: Dict[str, Any] = {}
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
 
         # Execute
@@ -36,13 +36,13 @@ class TestContextInitialization:
 
         # Define a test function with the decorator
         @tools.ensure_initialized
-        def dummy(ctx: CtxDict) -> CtxDict:
+        def dummy(ctx: Dict[str, Any]) -> Dict[str, Any]:
             """Dummy function for testing ensure_initialized."""
             ctx["touched"] = True
             return ctx
 
         # Setup
-        ctx: CtxDict = {}
+        ctx: Dict[str, Any] = {}
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
 
         # Execute
@@ -125,11 +125,11 @@ class TestPipeline:
         """Test that functions can be combined in a pipeline using the pipe operator."""
 
         # Define simple test functions for the pipeline
-        def step1(ctx: CtxDict) -> CtxDict:
+        def step1(ctx: Dict[str, Any]) -> Dict[str, Any]:
             ctx["step1"] = True
             return ctx
 
-        def step2(ctx: CtxDict) -> CtxDict:
+        def step2(ctx: Dict[str, Any]) -> Dict[str, Any]:
             ctx["step2"] = True
             return ctx
 
@@ -137,7 +137,7 @@ class TestPipeline:
         monkeypatch.setattr(tools, "get_wiki_files", lambda: (["A.md"], {"A.md": "wiki/A.md"}))
 
         # Create and execute a pipeline using the pipe operator
-        empty_ctx: CtxDict = {}
+        empty_ctx: Dict[str, Any] = {}
         pipeline = pipe | tools.initialize_context | step1 | step2
         result = pipeline(empty_ctx)
 

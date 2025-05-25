@@ -3,14 +3,13 @@
 import sys
 import uuid
 from pathlib import Path
-from typing import Any, ClassVar  # For annotating mutable class attributes in tests
+from typing import Any, ClassVar, Dict  # For annotating mutable class attributes in tests
 from unittest import mock
 
 import pytest
 from pytest import LogCaptureFixture, MonkeyPatch
 
 import ai_commit_and_readme.main as mod
-from ai_commit_and_readme.tools import CtxDict
 
 
 # Shared test OpenAI client for mocking
@@ -36,9 +35,9 @@ class FakeClientFail(FakeClient):
                 raise Exception("fail")
 
 
-def make_ctx(**kwargs: Any) -> CtxDict:
+def make_ctx(**kwargs: Any) -> Dict[str, Any]:
     """Create a test context dictionary with defaults and overrides."""
-    ctx: CtxDict = {
+    ctx: Dict[str, Any] = {
         "readme_path": "README.md",
         "api_key": "test",
         "model": "gpt-4o",
@@ -61,20 +60,22 @@ class TestHandlers:
     @pytest.fixture(autouse=True)
     def setup_ctx(self) -> None:
         """Set up a default context for handler tests."""
-        self.ctx: CtxDict = make_ctx()
+        self.ctx: Dict[str, Any] = make_ctx()
 
     def test_check_api_key_present(self, monkeypatch: MonkeyPatch) -> None:
         """Should set API key from environment variable."""
-        ctx: CtxDict = make_ctx(api_key=None, context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(api_key=None, context_initialized=True)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setenv("OPENAI_API_KEY", "test")
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", "test")
-        result = mod.check_api_key(ctx)
+        from ai_commit_and_readme.process import check_api_key
+
+        result = check_api_key(ctx)
         assert result["api_key"] == "test"
 
     def test_check_api_key_missing(self, monkeypatch: MonkeyPatch) -> None:
         """Should exit if API key is missing."""
-        ctx: CtxDict = make_ctx(api_key=None, context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(api_key=None, context_initialized=True)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setattr("ai_commit_and_readme.tools.API_KEY", None)
         monkeypatch.setattr("os.getenv", lambda _key, _default=None: None)
@@ -83,13 +84,13 @@ class TestHandlers:
 
     def test_check_diff_empty_exits(self) -> None:
         """Should exit if diff is empty."""
-        ctx: CtxDict = make_ctx(diff="", context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(diff="", context_initialized=True)
         with pytest.raises(SystemExit):
             mod.get_diff(ctx)
 
     def test_get_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should set diff from subprocess output."""
-        ctx: CtxDict = make_ctx(context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(context_initialized=True)
         monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff")
         # Direct call to get_diff with context
         result = mod.get_diff(ctx)
@@ -97,7 +98,7 @@ class TestHandlers:
 
     def test_fallback_large_diff(self, monkeypatch: MonkeyPatch) -> None:
         """Should fallback to file list if diff is too large."""
-        ctx: CtxDict = make_ctx(diff="x" * 100001, context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(diff="x" * 100001, context_initialized=True)
 
         # Test the large diff logic in get_diff
         def mock_check_output(cmd):
@@ -114,7 +115,7 @@ class TestHandlers:
         test_file: Path = tmp_path / "some_unique_file.md"
         test_content: str = "hello"
         test_file.write_text(test_content)
-        ctx: CtxDict = {"context_initialized": True, "model": "gpt-4"}
+        ctx: Dict[str, Any] = {"context_initialized": True, "model": "gpt-4"}
         # Pass the file path directly
         result = mod.read_file(ctx, "some_unique_file.md", str(test_file))
         assert result["some_unique_file.md"] == test_content
@@ -126,7 +127,7 @@ class TestHandlers:
         # Use a key that matches what we're looking up
         filename = "test_file"
         # Initialize context with initialization flag
-        ctx: CtxDict = {"context_initialized": True}
+        ctx: Dict[str, Any] = {"context_initialized": True}
         # This should raise FileNotFoundError when trying to open the non-existent file
         with pytest.raises(FileNotFoundError):
             mod.read_file(ctx, filename, nonexistent_path)
@@ -138,7 +139,7 @@ class TestHandlers:
         test_file: Path = tmp_path / filename
         test_file.write_text(content)
 
-        ctx: CtxDict = make_ctx(model="gpt-4", context_initialized=True)
+        ctx: Dict[str, Any] = make_ctx(model="gpt-4", context_initialized=True)
         fake_enc: mock.Mock = mock.Mock()
         fake_enc.encode.return_value = [1, 2, 3]
         monkeypatch.setattr("ai_commit_and_readme.main.count_tokens", lambda _text, _model: 3)
@@ -157,7 +158,7 @@ class TestAIEnrich:
     @pytest.fixture(autouse=True)
     def setup_ctx(self) -> None:
         """Set up a default context for AI enrich tests."""
-        self.ctx: CtxDict = make_ctx(diff="d", readme="r")
+        self.ctx: Dict[str, Any] = make_ctx(diff="d", readme="r")
 
     def test_ai_enrich_success(self, monkeypatch: MonkeyPatch) -> None:
         """Should set ai_suggestions from OpenAI response."""
