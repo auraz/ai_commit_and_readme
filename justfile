@@ -64,6 +64,10 @@ summary:
 eval path:
     python -c "from ai_commit_and_readme.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}'); print(report)"
 
+# Evaluate document with extra criteria
+eval-with-prompt path prompt:
+    python -c "from ai_commit_and_readme.doc_eval import evaluate_doc; _, report = evaluate_doc('{{path}}', extra_prompt='{{prompt}}'); print(report)"
+
 # Evaluate all documents in directory
 eval-all path:
     #!/usr/bin/env python3

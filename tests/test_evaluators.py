@@ -35,11 +35,34 @@ def test_evaluate_missing_file(mock_crew_class):
 
 
 @patch("ai_commit_and_readme.doc_eval.DocumentCrew")
+def test_evaluate_with_extra_prompt(mock_crew_class):
+    """Test evaluation with extra prompt criteria."""
+    mock_crew = MagicMock()
+    mock_crew_class.return_value = mock_crew
+    mock_crew.evaluate_one.return_value = (90.0, "Excellent documentation with security focus.")
+
+    with tempfile.NamedTemporaryFile(mode="w+", suffix=".md") as tmp:
+        tmp.write("# Security Guide\n\nThis document covers security best practices.")
+        tmp.flush()
+
+        score, report = evaluate_doc(tmp.name, "security", "Focus on authentication and authorization practices")
+
+        assert score == 90
+        assert "SECURITY Evaluation" in report
+        assert "Score: 90/100" in report
+
+        # Verify the extra prompt was included in the call
+        call_args = mock_crew.evaluate_one.call_args[0][0]
+        assert "Additional evaluation criteria:" in call_args
+        assert "Focus on authentication and authorization practices" in call_args
+
+
+@patch("ai_commit_and_readme.doc_eval.DocumentCrew")
 def test_evaluate_all(mock_crew_class):
     """Test evaluating directory of documents."""
     mock_crew = MagicMock()
     mock_crew_class.return_value = mock_crew
-    
+
     # Set up mock to return different scores based on filename
     def mock_evaluate(doc_path, doc_type=None):
         if "README" in doc_path:
@@ -49,7 +72,7 @@ def test_evaluate_all(mock_crew_class):
         elif "FAQ" in doc_path:
             return (75.0, "Needs work.")
         return (0.0, "Unknown")
-    
+
     mock_crew.evaluate_one.side_effect = mock_evaluate
 
     with tempfile.TemporaryDirectory() as tmpdir:

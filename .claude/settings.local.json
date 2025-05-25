@@ -23,7 +23,9 @@
       "Bash(just coverage)",
       "Bash(just test)",
       "Bash(source:*)",
-      "Bash(python -m pytest tests/test_evaluators.py -xvs)"
+      "Bash(python -m pytest tests/test_evaluators.py -xvs)",
+      "Bash(pip show:*)",
+      "Bash(uv pip uninstall:*)"
     ],
     "deny": []
   }

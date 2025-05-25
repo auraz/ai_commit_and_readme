@@ -40,6 +40,9 @@ just cm  # Enriches docs, commits, and pushes
 just eval README.md  # Auto-detects as README type
 just eval wiki/Usage.md  # Auto-detects wiki page type
 just eval-all wiki/  # Evaluate all docs in directory
+
+# Evaluate with custom criteria
+just eval-with-prompt README.md "Check for clear installation instructions and examples"
 ```
 
 ## Documentation

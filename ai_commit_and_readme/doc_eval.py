@@ -61,7 +61,7 @@ class DocEvaluator:
 
         return "wiki"  # Default type
 
-    def evaluate(self, doc_path: str, doc_type: Optional[str] = None) -> Tuple[int, str]:
+    def evaluate(self, doc_path: str, doc_type: Optional[str] = None, extra_prompt: Optional[str] = None) -> Tuple[int, str]:
         """Evaluate a document using type-specific prompts with CrewAI agents."""
         try:
             content = load_file(doc_path)
@@ -78,10 +78,13 @@ class DocEvaluator:
             type_prompt = self.type_prompts.get(doc_type, "")
 
             # Create enhanced content with type-specific criteria
+            enhanced_content = f"Please evaluate this {doc_type} documentation:\n\n{content}\n\n"
+
             if type_prompt:
-                enhanced_content = f"Please evaluate this {doc_type} documentation:\n\n{content}\n\nUse these specific evaluation criteria:\n{type_prompt}"
-            else:
-                enhanced_content = content
+                enhanced_content += f"Use these specific evaluation criteria:\n{type_prompt}\n\n"
+
+            if extra_prompt:
+                enhanced_content += f"Additional evaluation criteria:\n{extra_prompt}"
 
             # Use CrewAI for evaluation
             crew = DocumentCrew(target_score=85, max_iterations=1)
@@ -101,10 +104,10 @@ class DocEvaluator:
             return 0, f"Error evaluating document: {e!s}"
 
 
-def evaluate_doc(doc_path: str, doc_type: Optional[str] = None) -> Tuple[int, str]:
-    """Evaluate documentation file with optional type specification."""
+def evaluate_doc(doc_path: str, doc_type: Optional[str] = None, extra_prompt: Optional[str] = None) -> Tuple[int, str]:
+    """Evaluate documentation file with optional type specification and extra evaluation criteria."""
     evaluator = DocEvaluator()
-    return evaluator.evaluate(doc_path, doc_type)
+    return evaluator.evaluate(doc_path, doc_type, extra_prompt)
 
 
 def evaluate_all(directory_path: str) -> Dict[str, Tuple[int, str]]:
