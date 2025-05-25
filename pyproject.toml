@@ -29,14 +29,19 @@ classifiers = [
 "Bug Tracker" = "https://github.com/auraz/ai_commit_and_readme/issues"
 "Documentation" = "https://github.com/auraz/ai_commit_and_readme/wiki"
 
-[project.scripts]
-ai-commit-and-readme = "ai_commit_and_readme.cli:main"
 
 [tool.setuptools]
 packages = ["ai_commit_and_readme", "ai_commit_and_readme.prompts"]
 
 [tool.setuptools.package-data]
 "ai_commit_and_readme" = ["prompts/*.md"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "coverage>=7.0.0",
+    "ruff>=0.1.0",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true

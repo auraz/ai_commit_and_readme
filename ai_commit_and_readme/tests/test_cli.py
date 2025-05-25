@@ -1,16 +1,16 @@
-import sys
+"""Test main module functionality."""
 
-import ai_commit_and_readme.cli as cli_mod
 import ai_commit_and_readme.constants as constants_mod
+import ai_commit_and_readme.main as main_mod
 import ai_commit_and_readme.tools as tools_mod
 from ai_commit_and_readme.tests.test_main import FakeClient
 
 
-class TestCLI:
-    """Test CLI and command dispatch logic in ai_commit_and_readme.main."""
+class TestMain:
+    """Test main module enrichment functionality."""
 
-    def test_cli_enrich_command(self, monkeypatch, tmp_path):
-        """Test cli_enrich_command runs without error and updates files."""
+    def test_enrich_command(self, monkeypatch, tmp_path):
+        """Test enrich command runs without error and updates files."""
         wiki_dir = tmp_path / "wiki"
         wiki_dir.mkdir()
         api_file = wiki_dir / "API.md"
@@ -19,6 +19,7 @@ class TestCLI:
         usage_file.write_text("usage content")
         readme_path = tmp_path / "README.md"
         readme_path.write_text("readme content")
+        
         # Patch WIKI_PATH and README_PATH
         monkeypatch.setattr(constants_mod, "WIKI_PATH", str(wiki_dir))
         monkeypatch.setattr(constants_mod, "README_PATH", str(readme_path))
@@ -33,17 +34,16 @@ class TestCLI:
                 },
             ),
         )
+        
         # Patch subprocess.run to avoid actual git commands
         monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.run", lambda *_a, **_k: None)
         monkeypatch.setattr("ai_commit_and_readme.tools.subprocess.check_output", lambda *_a, **_k: b"diff content")
         monkeypatch.setenv("OPENAI_API_KEY", "test")
         monkeypatch.setattr("openai.OpenAI", lambda *args, **kwargs: FakeClient)  # noqa: ARG005
-        sys_argv = sys.argv
-        sys.argv = ["prog", "enrich"]
-        try:
-            cli_mod.main()
-        finally:
-            sys.argv = sys_argv
+        
+        # Run enrich
+        main_mod.enrich()
+        
         # Assert files exist and are readable
         assert api_file.exists()
         assert usage_file.exists()

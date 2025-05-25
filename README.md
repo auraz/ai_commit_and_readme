@@ -36,13 +36,16 @@ Analyze and improve your documentation quality using CrewAI-powered evaluations:
 
 ```sh
 # Evaluate a README file with AI feedback
-python -m ai_commit_and_readme.cli eval-readme README.md
+just eval-readme README.md
 
 # Evaluate wiki pages with AI-powered analysis
-python -m ai_commit_and_readme.cli eval-wiki wiki/Installation.md
+just eval-wiki wiki/Installation.md
+
+# Evaluate wiki pages with specific type
+just eval-wiki wiki/API.md api
 
 # Evaluate all wiki pages in a directory
-python -m ai_commit_and_readme.cli eval-wiki wiki --dir
+just eval-wiki-dir wiki
 ```
 
 > **Note:** Requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.

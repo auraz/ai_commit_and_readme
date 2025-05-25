@@ -5,7 +5,8 @@ This guide covers how to install and set up `ai_commit_and_readme` for both regu
 ## Requirements
 
 - Python 3.8+
-- [aicommit](https://github.com/coder/aicommit) CLI tool (requires Go)
+- [uv](https://github.com/astral-sh/uv) for Python package management
+- [aicommit](https://github.com/coder/aicommit) CLI tool
 - [ruff](https://github.com/astral-sh/ruff) for linting and formatting
 - An OpenAI API key for accessing GPT models
 
@@ -34,7 +35,7 @@ For persistent storage, add it to your shell profile or use a `.env` file (see [
 ### Option 1: Install from PyPI (Recommended for Users)
 
 ```sh
-pip install ai-commit-and-readme
+uv pip install ai-commit-and-readme
 ```
 
 ### Option 2: Install from Source (Recommended for Contributors)
@@ -44,77 +45,70 @@ Clone the repository and install in development mode:
 ```sh
 git clone https://github.com/auraz/ai_commit_and_readme.git
 cd ai_commit_and_readme
-pip install -e .
-```
-
-### Option 3: Using the Makefile (Full Setup)
-
-For a complete setup including the aicommit CLI tool:
-
-```sh
-git clone https://github.com/auraz/ai_commit_and_readme.git
-cd ai_commit_and_readme
-make install
+just install
 ```
 
 ## Development Environment Setup
 
-### Virtual Environment (Recommended)
+### Using Just Commands
 
-It is recommended to use a Python virtual environment for development:
-
-```sh
-python3 -m venv .venv
-source .venv/bin/activate
-export PATH="$PWD/.venv/bin:$PATH"
-```
-
-To deactivate the environment later, simply run:
+The project uses [Just](https://just.systems/) as a command runner. Install it first:
 
 ```sh
-deactivate
+# macOS
+brew install just
+
+# Or using cargo
+cargo install just
 ```
 
-### Installing Development Dependencies
-
-For contributing to the project, install development dependencies:
+Then set up the development environment:
 
 ```sh
-# From the project root
-pip install -e ".[dev]"
+just dev
 ```
 
-This installs:
-- Testing tools (pytest, coverage)
-- Linting and formatting tools (ruff, pyright)
-- Build tools for packaging
+This will:
+- Create a virtual environment using uv
+- Install the project in editable mode
+- Install all development dependencies
+
+### Manual Setup
+
+If you prefer manual setup:
+
+```sh
+# Create virtual environment
+uv venv
+
+# Activate it
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install in development mode
+uv pip install -e ".[dev]"
+```
 
 ## Operating System Specific Notes
 
 ### macOS
 
-If using Homebrew, you can install Go (for aicommit) with:
+If using Homebrew:
 
 ```sh
-brew install go
+brew install just uv
 ```
 
 ### Linux
 
-Use your distribution's package manager to install Go, for example:
+Install uv using the official installer:
 
 ```sh
-# Ubuntu/Debian
-sudo apt update
-sudo apt install golang-go
-
-# Fedora
-sudo dnf install golang
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ### Windows
 
-1. Install Go from [golang.org](https://golang.org/dl/)
+1. Install uv from [astral.sh](https://astral.sh/uv/)
 2. Consider using WSL (Windows Subsystem for Linux) for a better experience
 
 ## Verification
@@ -126,7 +120,7 @@ After installation, verify everything works correctly:
 ai-commit-and-readme --help
 
 # For developers, run the test suite
-pytest
+just test
 ```
 
 ## Troubleshooting
@@ -138,12 +132,10 @@ pytest
    - Try restarting your terminal or IDE
 
 2. **aicommit not found:**
-   - Ensure Go is installed and in your PATH
-   - Try installing manually: `go install github.com/Nutlope/aicommit@latest`
+   - Install using: `brew install aicommit` (macOS) or follow [aicommit installation guide](https://github.com/coder/aicommit)
 
-3. **Import errors after installation:**
-   - Ensure you're using the correct Python environment
-   - Try reinstalling with: `pip uninstall ai-commit-and-readme && pip install ai-commit-and-readme`
+3. **uv not found:**
+   - Install using the official installer: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 For other issues, please [open an issue](https://github.com/auraz/ai_commit_and_readme/issues) on GitHub.
 
