@@ -1,7 +1,0 @@
-openai>=1.0.0
-tiktoken>=0.5.1
-ruff
-pytest
-coverage
-rich
-pipetools

@@ -10,7 +10,7 @@ Automate your commit messages and keep your README and Wiki up-to-date with AI.
 
 - AI-powered commit messages
 - Automated README & Wiki enrichment
-- Seamless Makefile and git integration
+- Seamless Just and git integration
 - AI-powered evaluation of README and Markdown files
 
 ## 📦 Quick Start
@@ -18,14 +18,14 @@ Automate your commit messages and keep your README and Wiki up-to-date with AI.
 ```sh
 git clone https://github.com/auraz/ai_commit_and_readme.git
 cd ai_commit_and_readme
-make install
+just install
 ```
 
 ## 📚 Full Documentation
 
 See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 - Installation & Setup
-- Usage & Makefile Commands
+- Usage & Just Commands
 - Configuration
 - FAQ & Troubleshooting
 - Changelog & API Reference
@@ -77,7 +77,7 @@ Contributions are welcome! To contribute to this project:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes using this tool (`make commit`)
+3. Commit your changes using this tool (`just cm`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
@@ -86,8 +86,19 @@ Please ensure your code follows the project's style guidelines and includes appr
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-## 🛠️ Makefile Commands Overview
-[Your updated content here...]
+## 🛠️ Just Commands Overview
+
+This project uses [Just](https://just.systems/) as a command runner. Key commands:
+
+- `just install`: Install the project
+- `just dev-install`: Set up development environment
+- `just lint`: Run ruff linter
+- `just format`: Format code with ruff
+- `just check`: Run lint and format
+- `just coverage`: Run tests with coverage report
+- `just cm`: Stage changes, run AI enrichment, commit, and push
+- `just build`: Build distribution packages
+- `just deploy`: Full deployment (changelog, build, PyPI, tag, release)
 
 ## ✨ Feature Highlights
 
@@ -102,15 +113,3 @@ This tool enhances your development workflow with several powerful capabilities:
 - **Smart Content Detection**: Automatically detects different types of documentation and applies the right evaluation criteria
 
 Each feature is designed to save time and improve documentation quality without disrupting your development workflow.```
-## 🛠️ Makefile Commands Overview
-
-Please find below the updated commands as per the latest changes to the Makefile:
-
-- `make install`: Installs the project's dependencies. Please ensure that you run this command first to set up your environment.
-- `make build`: Compiles the source code into an executable. This has been updated to include new compilation flags for enhanced performance.
-- `make test`: Executes the full suite of automated tests. Recently, we've integrated new test cases to improve coverage.
-- `make clean`: Cleans up any generated files that are not part of the source code. This now also clears any temporary files used during debugging.
-- `make doc`: Generates the project documentation. The documentation process has been refined for better accuracy and presentation.
-
-For details on each command and its usage, refer to the `Usage.md` document which has been updated accordingly.
-```
