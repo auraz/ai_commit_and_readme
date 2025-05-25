@@ -21,9 +21,7 @@ check:
     ruff format .
 
 # Run tests with coverage
-test:
-    ruff check --fix .
-    ruff format .
+test: check
     coverage run -m pytest
     coverage report
     coverage html
@@ -62,13 +60,9 @@ enrich:
 summary:
     python -c "from ai_commit_and_readme.main import generate_summary; print(generate_summary())"
 
-# Evaluate README quality
-eval-readme path:
-    python -c "from ai_commit_and_readme.evals.doc_eval import evaluate_readme; _, report = evaluate_readme('{{path}}'); print(report)"
-
-# Evaluate Wiki page quality
-eval-wiki path type="":
-    python -c "from ai_commit_and_readme.evals.doc_eval import evaluate_wiki; _, report = evaluate_wiki('{{path}}', '{{type}}' if '{{type}}' else None); print(report)"
+# Evaluate document quality
+eval path type="":
+    python -c "from ai_commit_and_readme.evals.doc_eval import DocEvaluator; e = DocEvaluator(); _, report = e.evaluate('{{path}}', '{{type}}' if '{{type}}' else None); print(report)"
 
 # Evaluate all documents in directory
 eval-all path:

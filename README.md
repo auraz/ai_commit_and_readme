@@ -35,14 +35,12 @@ See the [GitHub Wiki](https://github.com/auraz/ai_commit_and_readme/wiki) for:
 Analyze and improve your documentation quality using CrewAI-powered evaluations:
 
 ```sh
-# Evaluate a README file with AI feedback
-just eval-readme README.md
+# Evaluate any document with AI feedback
+just eval README.md
+just eval wiki/Installation.md
 
-# Evaluate wiki pages with AI-powered analysis
-just eval-wiki wiki/Installation.md
-
-# Evaluate wiki pages with specific type
-just eval-wiki wiki/API.md api
+# Evaluate with specific type hint
+just eval wiki/API.md api
 
 # Evaluate all documents in a directory
 just eval-all wiki
@@ -88,10 +86,8 @@ This project uses [Just](https://just.systems/) as a command runner. Key command
 
 - `just install`: Install the project  
 - `just dev`: Set up development environment
-- `just lint`: Run ruff linter
-- `just format`: Format code with ruff
-- `just check`: Run lint and format
-- `just coverage`: Run tests with coverage report
+- `just check`: Run linter and formatter
+- `just test`: Run tests with coverage report
 - `just cm`: Stage changes, run AI enrichment, commit, and push
 - `just build`: Build distribution packages
 - `just deploy`: Full deployment (changelog, build, PyPI, tag, release)
