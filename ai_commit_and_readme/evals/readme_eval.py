@@ -12,11 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def evaluate(readme_path: str) -> Tuple[int, str]:
-    """Evaluate README using autodoceval-crewai.
-    
-    Returns:
-        tuple of (total score, formatted report)
-    """
+    """Evaluate README using autodoceval-crewai returning score and report."""
     try:
         content = load_file(readme_path)
         if not content:
@@ -40,17 +36,3 @@ Evaluation Feedback:
     except Exception as e:
         logger.error(f"Error evaluating README: {e}")
         return 0, f"Error evaluating README: {str(e)}"
-
-
-
-
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: python -m ai_commit_and_readme.evals.readme_eval <path/to/README.md>\n")
-        sys.exit(1)
-
-    score, report = evaluate(sys.argv[1])
-    sys.stdout.write(report + "\n")
