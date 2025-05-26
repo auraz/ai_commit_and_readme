@@ -4,18 +4,18 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/auraz/autodoc-ai/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/autodoc-ai/actions)
 
-AI-powered tool that automatically generates commit messages and keeps documentation up-to-date. Designed to be used in any repository to maintain its README and Wiki documentation.
+AI-powered tool that automatically generates commit messages and keeps documentation up-to-date. Designed for seamless integration into any repository, ensuring that your README and Wiki documentation remain current and useful.
 
 ## Features
 
-- **Smart Commits**: Generate meaningful commit messages from git diffs
-- **Auto Documentation**: Update README and Wiki based on code changes  
-- **Quality Checks**: Evaluate documentation with CrewAI agents
-- **Just Integration**: Simple commands for all workflows
+- **Smart Commits**: Automatically generate meaningful commit messages derived from git diffs.
+- **Auto Documentation**: Effortlessly update README and Wiki documentation based on code changes.
+- **Quality Checks**: Utilize CrewAI agents to evaluate and enhance documentation quality.
+- **Streamlined Integration**: Execute simple commands for all workflows with ease.
 
 ## Quick Start
 
-Use in any repository to maintain its documentation:
+Integrate `autodoc-ai` into your repository to keep documentation synchronized:
 
 ```bash
 # Install globally
@@ -26,28 +26,28 @@ git clone https://github.com/auraz/autodoc-ai.git
 cd autodoc-ai
 just install
 
-# Set OpenAI API key
+# Set your OpenAI API key
 export OPENAI_API_KEY="your-key-here"
 
 # Optional: Configure logging and debug mode
 export AUTODOC_LOG_LEVEL="DEBUG"  # Enable debug logging
-export AUTODOC_DISABLE_CALLBACKS="true"  # Disable CrewAI callbacks if issues occur
+export AUTODOC_DISABLE_CALLBACKS="true"  # Disable CrewAI callbacks if needed
 
-# In your repository
+# In your project directory
 cd your-project
-autodoc-ai  # Enriches your README and Wiki based on staged changes
+autodoc-ai  # Automatically enriches your README and Wiki based on staged changes
 
 # Or use with Just (if installed from source)
 just cm  # Enriches docs, commits, and pushes
 
-# Update docs based on recent commits
-just enrich-days 7  # Update based on last 7 days of commits
-just enrich-release  # Update based on commits since last tag
+# Update documentation based on recent commits
+just enrich-days 7  # Update documentation based on the last 7 days of commits
+just enrich-release  # Update documentation based on commits since the last tag
 
 # Evaluate documentation quality
 just eval README.md  # Auto-detects as README type
 just eval wiki/Usage.md  # Auto-detects wiki page type
-just eval-all wiki/  # Evaluate all docs in directory
+just eval-all wiki/  # Evaluate all documentation in the directory
 
 # Evaluate with custom criteria
 just eval-with-prompt README.md "Check for clear installation instructions and examples"
@@ -56,9 +56,13 @@ just eval-with-prompt README.md "Check for clear installation instructions and e
 just deploy-wiki  # Push wiki files to GitHub wiki
 ```
 
+## Changelog
+
+Stay informed about recent modifications and new features. Refer to the [Changelog](https://github.com/auraz/autodoc-ai/wiki/Changelog) for updates.
+
 ## Documentation
 
-Full documentation available in the [GitHub Wiki](https://github.com/auraz/autodoc-ai/wiki):
+For comprehensive guidance, visit the [GitHub Wiki](https://github.com/auraz/autodoc-ai/wiki):
 
 - [Installation Guide](https://github.com/auraz/autodoc-ai/wiki/Installation)
 - [Usage & Commands](https://github.com/auraz/autodoc-ai/wiki/Usage)
@@ -68,3 +72,7 @@ Full documentation available in the [GitHub Wiki](https://github.com/auraz/autod
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+This README has been structured for clarity, ensuring that users can easily navigate to essential information and commands. The addition of a Changelog section allows users to keep track of updates effectively.

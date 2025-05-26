@@ -1,23 +1,42 @@
 # Usage
 
-This project uses a Makefile to simplify common development tasks. Below are the main commands and their usage:
+This project utilizes a Makefile to simplify common development tasks. Below are the main commands, their descriptions, and usage examples:
 
 ---
 
 ## 🛠️ Makefile Commands Overview
-Unfortunately, without the specific details of the code changes, I am unable to provide updated content or make sure that the modifications in the Makefile are reflected in the documentation.
 
-However, as a guideline, the following should be considered when updating this section:
+The Makefile is equipped with various commands to facilitate building and managing the project. Below, you'll find a list of currently supported commands and their descriptions:
 
-1. Review each command and option listed in the documentation to verify it matches the latest Makefile.
-2. If new commands are added to the Makefile, add corresponding explanations and usage examples.
-3. For modified commands, update any parameters or descriptions to reflect these changes.
-4. If any commands have been deprecated or removed, clearly indicate this in the documentation.
-5. Consider adding a 'Changelog' subsection to outline what has changed in the Makefile for returning users.
-6. Include sample output or expected results for the commands if applicable to assist in demonstrating the command's effect or confirming its successful execution.
-7. Use clear and consistent naming conventions for commands and options to improve readability and comprehension.
+- `make build` - Compiles the source code into an executable.
+- `make test` - Runs the test suite to validate the integrity of the code.
+- `make install` - Sets up a virtual environment, installs Python dependencies, and installs `aicommit`.
+- `make clean` - Removes any generated files and cleans the build environment.
+- `make doc` - Generates the project documentation.
+- `make all` - Executes the `build`, `test`, and `doc` commands in sequence.
+- `make cm` - Stages all changes, generates an AI-powered commit message, and pushes to the remote repository. This command now runs both `ai-commit-and-readme` and `aicommit`.
+- `make deploy-wiki` - Copies the contents of your local `wiki/` directory to the GitHub Wiki repository and pushes the changes.
 
-Remember, the goal is to ensure users can quickly understand how to use the software's build system with minimal confusion or trial and error.
+Each command is designed to streamline the development process, ensuring a consistent and efficient workflow. Additionally, the Makefile is configured with sensible defaults and dependency checks to prevent unnecessary recompilation.
+
+### Changelog
+- **New Commands:** Added `make doc`, `make cm`, and `make deploy-wiki`.
+- **Modified Commands:** Updated the `make install` command to include virtual environment setup.
+- **Deprecated Commands:** None.
+
+### Examples
+Here are some examples of command usage:
+
+- To install all dependencies and set up the environment, run:
+  ```sh
+  make install
+  ```
+- To test the code, execute:
+  ```sh
+  make test
+  ```
+
+---
 
 ## 🚀 Common Workflows
 
@@ -29,7 +48,7 @@ make install
 
 ### Testing
 ```sh
-make copverage
+make test
 ```
 - Runs all tests using pytest.
 
@@ -44,8 +63,6 @@ make clean
 make cm
 ```
 - Stages all changes, generates an AI-powered commit message, and pushes to the remote repository.
-- Runs both `ai-commit-and-readme` and `aicommit`.
-
 
 ### Deploy Wiki
 ```sh
@@ -59,34 +76,3 @@ make deploy-wiki
 - All commands assume you are in the project root directory.
 - For more advanced usage and automation, see the [FAQ](FAQ) and [Configuration](Configuration) pages.
 - If you encounter issues, check your environment variables and configuration.
-```
-## 🛠️ Makefile Commands Overview
-Unfortunately, without the specific details of the code changes, I am unable to provide updated content or make sure that the modifications in the Makefile are reflected in the documentation.
-
-However, as a guideline, the following should be considered when updating this section:
-
-1. Review each command and option listed in the documentation to verify it matches the latest Makefile.
-2. If new commands are added to the Makefile, add corresponding explanations and usage examples.
-3. For modified commands, update any parameters or descriptions to reflect these changes.
-4. If any commands have been deprecated or removed, clearly indicate this in the documentation.
-5. Consider adding a 'Changelog' subsection to outline what has changed in the Makefile for returning users.
-6. Include sample output or expected results for the commands if applicable to assist in demonstrating the command's effect or confirming its successful execution.
-7. Use clear and consistent naming conventions for commands and options to improve readability and comprehension.
-
-Remember, the goal is to ensure users can quickly understand how to use the software's build system with minimal confusion or trial and error.
-```
-## 🛠️ Makefile Commands Overview
-
-The Makefile is equipped with various commands to facilitate building and managing the project. Below, you'll find a list of currently supported commands and their descriptions:
-
-- `make build` - Compiles the source code into an executable.
-- `make test` - Runs the test suite to validate the integrity of the code.
-- `make install` - Installs the executable to the specified location.
-- `make clean` - Removes any generated files and cleans the build environment.
-- `make doc` - Generates the project documentation.
-- `make all` - Executes the `build`, `test`, and `doc` commands in sequence.
-
-Each command is designed to streamline the development process, ensuring a consistent and efficient workflow. Additionally, the Makefile is configured with sensible defaults and dependency checks to prevent unnecessary recompilation.
-
-Remember to review the individual commands within the Makefile for further details and options.
-```

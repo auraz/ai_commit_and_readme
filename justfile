@@ -31,10 +31,14 @@ clean:
     rm -rf dist build *.egg-info .pytest_cache .mypy_cache .ruff_cache htmlcov
     find . -type d -name "__pycache__" -exec rm -rf {} +
 
-# Commit with AI
+# Commit with AI (without push)
 cm:
     git add .
     @if git diff --cached --quiet; then echo "No changes to commit"; else just enrich && aicommit; fi
+
+# Commit with AI and push
+cmp:
+    just cm
     git push
 
 # Build packages

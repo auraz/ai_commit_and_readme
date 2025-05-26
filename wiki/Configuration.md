@@ -1,25 +1,27 @@
 # ⚙️ Configuration
 
-Easily configure **autodoc_ai** to fit your workflow using environment variables and optional config files. This page covers all available options, best practices, and troubleshooting tips.
+Easily configure **autodoc_ai** to fit your workflow using environment variables and optional config files. This page covers all available options, best practices, and troubleshooting tips, including new Bash command integrations.
 
 ---
 
 ## 🌍 Environment Variables
 
-| Variable              | Description                                              | Required | Default                                      |
-|-----------------------|----------------------------------------------------------|----------|----------------------------------------------|
-| `OPENAI_API_KEY`      | API key for OpenAI (enables AI features)                | Yes      | –                                            |
-| `AUTODOC_MODEL`       | OpenAI model to use (see supported models below)       | No       | `gpt-4o-mini`                                |
-| `AICOMMIT_API_KEY`    | API key for aicommit (if different from OpenAI)         | No       | –                                            |
-| `AICOMMIT_CONFIG_PATH`| Path to a custom aicommit config file                   | No       | `.aicommit/config.toml`                      |
-| `WIKI_PATH`           | Path to your Wiki directory                            | No       | `wiki`                                       |
-| `README_PATH`         | Path to your README file                               | No       | `README.md`                                  |
-| `WIKI_URL`            | Base URL for your Wiki (for links in README)           | No       | `https://github.com/auraz/autodoc_ai/wiki/` |
-| `WIKI_URL_BASE`       | Base URL for Wiki articles                             | No       | –                                            |
-| `AUTODOC_TARGET_SCORE`| Target score for document improvement (0-100)          | No       | `85`                                         |
-| `AUTODOC_MAX_ITERATIONS`| Max iterations for document improvement              | No       | `3`                                          |
-| `AUTODOC_LOG_LEVEL`   | Logging level (DEBUG, INFO, WARNING, ERROR)           | No       | `INFO`                                       |
-| `AUTODOC_DISABLE_CALLBACKS`| Disable CrewAI callbacks (troubleshooting)       | No       | `false`                                      |
+| Variable                  | Description                                              | Required | Default                                      |
+|---------------------------|----------------------------------------------------------|----------|----------------------------------------------|
+| `OPENAI_API_KEY`         | API key for OpenAI (enables AI features)                | Yes      | –                                            |
+| `AUTODOC_MODEL`          | OpenAI model to use (see supported models below)       | No       | `gpt-4o-mini`                                |
+| `AICOMMIT_API_KEY`       | API key for aicommit (if different from OpenAI)         | No       | –                                            |
+| `AICOMMIT_CONFIG_PATH`   | Path to a custom aicommit config file                   | No       | `.aicommit/config.toml`                      |
+| `WIKI_PATH`              | Path to your Wiki directory                            | No       | `wiki`                                       |
+| `README_PATH`            | Path to your README file                               | No       | `README.md`                                  |
+| `WIKI_URL`               | Base URL for your Wiki (for links in README)           | No       | `https://github.com/auraz/autodoc_ai/wiki/` |
+| `WIKI_URL_BASE`          | Base URL for Wiki articles                             | No       | –                                            |
+| `AUTODOC_TARGET_SCORE`    | Target score for document improvement (0-100)          | No       | `85`                                         |
+| `AUTODOC_MAX_ITERATIONS` | Max iterations for document improvement                  | No       | `3`                                          |
+| `AUTODOC_LOG_LEVEL`      | Logging level (DEBUG, INFO, WARNING, ERROR)           | No       | `INFO`                                       |
+| `AUTODOC_DISABLE_CALLBACKS` | Disable CrewAI callbacks (troubleshooting)         | No       | `false`                                      |
+| `BASH_COMMIT_COMMAND`    | Bash command for committing changes                     | No       | `Bash(just commit:*)`                        |
+| `BASH_COMMIT_SHORTCUT`   | Short Bash command for committing changes               | No       | `Bash(just cm:*)`                            |
 
 ---
 
@@ -74,8 +76,10 @@ Additional debug features in DEBUG mode:
 - **CrewAI Callback Errors:**
   - If you encounter issues with CrewAI callbacks returning None or causing errors, set `AUTODOC_DISABLE_CALLBACKS="true"` to disable them temporarily.
   - This disables step-by-step execution tracking but allows the crews to complete successfully.
+- **Bash Command Issues:**
+  - If you encounter issues with the new Bash commands, ensure they are formatted correctly and match the expected patterns.
+  - Verify that your environment is set up to support these Bash commands.
 
 ---
 
 For more advanced configuration, see the [Usage](Usage) and [FAQ](FAQ) pages.
-
