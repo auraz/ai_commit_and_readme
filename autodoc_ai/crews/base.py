@@ -17,8 +17,12 @@ class BaseCrew:
         self.agents = []
         logger.debug(f"Initialized {self.__class__.__name__} with model: {self.model}")
 
-    def _create_crew(self, tasks: List[Task], verbose: bool = True) -> Crew:
+    def _create_crew(self, tasks: List[Task], verbose: Optional[bool] = None) -> Crew:
         """Create crew with agents and tasks."""
+
+        # Set verbose based on log level if not specified
+        if verbose is None:
+            verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
 
         def step_callback(agent, task, step_output):
             """Callback for each step in task execution."""

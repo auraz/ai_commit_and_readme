@@ -20,7 +20,8 @@ class BaseAgent:
         llm = LLM(model=self.model, temperature=0.7)
 
         # Create the CrewAI agent
-        self.agent = Agent(role=self.role, goal=self.goal, backstory=self.backstory, verbose=True, llm=llm, allow_delegation=False)
+        verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
+        self.agent = Agent(role=self.role, goal=self.goal, backstory=self.backstory, verbose=verbose, llm=llm, allow_delegation=False)
 
     def save(self, *args, **kwargs) -> None:
         """Documentation agents don't save results directly."""

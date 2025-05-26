@@ -22,7 +22,7 @@ class WikiSelectorCrew(BaseCrew):
         logger.info(f"🗂️ Starting wiki selection from {len(wiki_files)} available articles")
 
         task = self.selector.create_task(diff, wiki_files=wiki_files)
-        crew = self._create_crew([task], verbose=True)
+        crew = self._create_crew([task])
 
         logger.info("🎯 Kicking off wiki selector crew...")
         result = crew.kickoff()

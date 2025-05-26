@@ -20,7 +20,7 @@ class CommitSummaryCrew(BaseCrew):
         logger.info("💬 Starting commit summary generation...")
 
         task = self.summary_agent.create_task(diff)
-        crew = self._create_crew([task], verbose=True)
+        crew = self._create_crew([task])
 
         logger.info("🎯 Kicking off commit summary crew...")
         result = crew.kickoff()
