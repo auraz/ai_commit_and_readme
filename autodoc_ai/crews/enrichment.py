@@ -30,6 +30,13 @@ class EnrichmentCrew(BaseCrew):
         logger.info(f"🎯 Kicking off enrichment crew for {file_path}...")
         result = crew.kickoff()
         logger.info(f"✨ Enrichment crew completed for {file_path}")
+        logger.debug(f"Enrichment crew result type: {type(result)}")
+        logger.debug(f"Enrichment crew result: {result}")
+
+        # Handle None result (error case)
+        if result is None:
+            logger.warning(f"Enrichment crew returned None for {file_path} - likely due to an error")
+            return False, "NO CHANGES"
 
         # Handle string output from CrewAI
         if isinstance(result, str):

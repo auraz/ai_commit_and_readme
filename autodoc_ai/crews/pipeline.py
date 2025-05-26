@@ -142,9 +142,14 @@ class PipelineCrew(BaseCrew):
             logger.info(f"🔢 That's {self._count_tokens(readme_content):,} tokens in update to README.md!")
 
             needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=readme_content, doc_type="README", file_path="README.md")
-
+            
+            logger.debug(f"README enrichment result - needs_update: {needs_update}, suggestion length: {len(suggestion) if suggestion else 0}")
+            
             if needs_update and suggestion != "NO CHANGES":
                 ai_suggestions["README.md"] = suggestion
+                logger.info("📝 README will be updated")
+            else:
+                logger.info("📝 README does not need updates")
 
         # Select and process wiki articles
         selected_articles = []
@@ -193,6 +198,9 @@ class PipelineCrew(BaseCrew):
 
     def _write_outputs(self, ai_suggestions: Dict[str, Any], ctx: Dict[str, Any]) -> None:
         """Write suggestions to files and stage them."""
+        logger.debug(f"Writing outputs - suggestions: {list(ai_suggestions.keys())}")
+        logger.debug(f"Wiki suggestions: {list(ai_suggestions.get('wiki', {}).keys())}")
+        
         if ai_suggestions.get("README.md"):
             self._write_suggestion_and_stage(ctx["readme_path"], ai_suggestions["README.md"], "README")
 

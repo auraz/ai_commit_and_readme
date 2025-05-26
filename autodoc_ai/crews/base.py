@@ -74,6 +74,9 @@ class BaseCrew:
             return self._execute(*args, **kwargs)
         except Exception as e:
             logger.error(f"Error in {self.__class__.__name__}: {e}")
+            if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
+                import traceback
+                logger.debug(f"Full traceback:\n{traceback.format_exc()}")
             return self._handle_error(e)
 
     def _execute(self, *args, **kwargs) -> Any:
