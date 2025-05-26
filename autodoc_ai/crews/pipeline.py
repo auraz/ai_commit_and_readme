@@ -6,8 +6,10 @@ import os
 import subprocess
 from typing import Any, Dict, List, Optional, Tuple
 
+import tiktoken
+
 from ..settings import Settings
-from ..tools import count_tokens, load_file, logger
+from ..tools import load_file, logger
 from .base import BaseCrew
 from .commit_summary import CommitSummaryCrew
 from .enrichment import EnrichmentCrew
@@ -62,6 +64,21 @@ class PipelineCrew(BaseCrew):
         logger.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
         subprocess.run(["git", "add", file_path])
 
+    def _count_tokens(self, text: str) -> int:
+        """Count tokens in text for specific model."""
+        # Use cl100k_base for Claude models
+        if self.model.startswith("claude"):
+            enc = tiktoken.get_encoding("cl100k_base")
+            return len(enc.encode(text))
+
+        # Try to get encoding for specific model
+        try:
+            enc = tiktoken.encoding_for_model(self.model)
+        except KeyError:
+            enc = tiktoken.get_encoding("cl100k_base")
+
+        return len(enc.encode(text))
+
     def _get_git_diff(self) -> str:
         """Get git diff from staged changes."""
         logger.info("📊 Getting staged changes...")
@@ -83,7 +100,7 @@ class PipelineCrew(BaseCrew):
         readme_content = load_file(ctx["readme_path"])
         if readme_content:
             logger.info(f"📄 Update to README.md is currently {len(readme_content):,} characters.")
-            logger.info(f"🔢 That's {count_tokens(readme_content, self.model):,} tokens in update to README.md!")
+            logger.info(f"🔢 That's {self._count_tokens(readme_content):,} tokens in update to README.md!")
 
             needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=readme_content, doc_type="README", file_path="README.md")
 
@@ -103,7 +120,7 @@ class PipelineCrew(BaseCrew):
                     content = load_file(filepath)
                     if content:
                         logger.info(f"📄 Update to {filename} is currently {len(content):,} characters.")
-                        logger.info(f"🔢 That's {count_tokens(content, self.model):,} tokens in update to {filename}!")
+                        logger.info(f"🔢 That's {self._count_tokens(content):,} tokens in update to {filename}!")
 
                         needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=content, doc_type="wiki", file_path=filename)
 
@@ -140,7 +157,7 @@ class PipelineCrew(BaseCrew):
 
         # Log diff stats
         logger.info(f"📏 Your staged changes are {len(diff):,} characters long!")
-        logger.info(f"🔢 That's about {count_tokens(diff, self.model):,} tokens for the AI to read.")
+        logger.info(f"🔢 That's about {self._count_tokens(diff):,} tokens for the AI to read.")
 
         # Process documents
         result = self._process_documents(diff, ctx)
