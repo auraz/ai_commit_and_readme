@@ -55,7 +55,10 @@
       "Bash(git pull:*)",
       "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-time:*)",
       "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days 1 2 >& 1)",
-      "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days:*)"
+      "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(coverage run:*)",
+      "Bash(coverage report)"
     ],
     "deny": []
   }

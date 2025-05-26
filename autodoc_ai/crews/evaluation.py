@@ -37,6 +37,15 @@ class EvaluationCrew(DocumentCrew):
                 prompts[page_type] = f.read()
         return prompts
 
+    def load_file(self, file_path: str) -> Optional[str]:
+        """Load file content."""
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return None
+
     def run(self, doc_path: str, doc_type: Optional[str] = None, extra_criteria: Optional[str] = None) -> Tuple[int, str]:
         """Evaluate a document's quality with type-specific prompts."""
         content = self.load_file(doc_path)
