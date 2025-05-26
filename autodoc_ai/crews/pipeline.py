@@ -81,8 +81,12 @@ class PipelineCrew(BaseCrew):
             if not diff:
                 logger.info("✅ No staged changes detected. Nothing to enrich.")
                 raise ValueError("No staged changes")
-            logger.debug(f"Git diff length: {len(diff)} characters")
-            logger.debug(f"Git diff preview: {diff[:500]}...")
+            if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
+                logger.debug(f"Git diff length: {len(diff)} characters")
+                logger.debug(f"Git diff preview (first 1000 chars):")
+                logger.debug("="*80)
+                logger.debug(diff[:1000])
+                logger.debug("="*80)
             return diff
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Error getting diff: {e}")

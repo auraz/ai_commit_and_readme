@@ -23,18 +23,30 @@ class BaseCrew:
         # Set verbose based on log level if not specified
         if verbose is None:
             verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
+        
+        # Force verbose=True in debug mode
+        if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
+            verbose = True
+            logger.debug(f"Debug mode: Forcing verbose=True for crew execution")
 
         def step_callback(agent, task, step_output):
             """Callback for each step in task execution."""
             logger.info(f"🔄 Step: Agent '{agent.role}' working on task '{task.description[:50]}...'")
-            logger.debug(f"Step output: {step_output}")
+            if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
+                logger.debug(f"Step details:")
+                logger.debug(f"  Agent: {agent}")
+                logger.debug(f"  Task: {task}")
+                logger.debug(f"  Step output: {step_output}")
 
         def task_callback(task, output):
             """Callback for task completion."""
             logger.info(f"✅ Task completed: '{task.description[:50]}...'")
             if hasattr(output, "raw"):
                 logger.info(f"   Output preview: {str(output.raw)[:100]}...")
-                logger.debug(f"Full task output: {output.raw}")
+                if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
+                    logger.debug(f"Full task output: {output.raw}")
+                    logger.debug(f"Task details: {task}")
+                    logger.debug(f"Output object: {output}")
 
         def before_kickoff(crew):
             """Callback before crew execution starts."""

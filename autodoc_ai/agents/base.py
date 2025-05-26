@@ -19,9 +19,17 @@ class BaseAgent:
         # Create LLM instance
         llm = LLM(model=self.model, temperature=0.7)
 
-        # Create the CrewAI agent
+        # Create the CrewAI agent with maximum verbosity in debug mode
         verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
-        self.agent = Agent(role=self.role, goal=self.goal, backstory=self.backstory, verbose=verbose, llm=llm, allow_delegation=False)
+        self.agent = Agent(
+            role=self.role, 
+            goal=self.goal, 
+            backstory=self.backstory, 
+            verbose=verbose, 
+            llm=llm, 
+            allow_delegation=False,
+            max_iter=10 if verbose else 5  # More iterations in debug mode
+        )
 
     def save(self, *args, **kwargs) -> None:
         """Documentation agents don't save results directly."""

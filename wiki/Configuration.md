@@ -36,20 +36,29 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 
 ## 🐛 Debug Logging
 
-To enable verbose debug logging for troubleshooting:
+To enable maximum verbose debug logging for troubleshooting:
 
 ```bash
 export AUTODOC_LOG_LEVEL="DEBUG"
 ```
 
-This will enable debug output for:
-- All autodoc_ai components
-- CrewAI agent execution steps
-- LiteLLM API calls
-- Git diff processing details
-- Task execution callbacks
+This will enable the most verbose output for:
+- All autodoc_ai components with full details
+- CrewAI agent execution steps with complete traces
+- LiteLLM API calls with request/response details
+- Git diff processing with full content preview
+- Task execution callbacks with complete output
+- Agent reasoning and decision-making process
+- Step-by-step execution flow
+- Complete API payloads and responses
 
-**Note**: Debug mode generates extensive output. Use it only when troubleshooting issues.
+Additional debug features in DEBUG mode:
+- Timestamps and file paths in logs
+- Extended agent iterations (10 vs 5)
+- Full task and agent object details
+- Complete diff content (first 1000 chars)
+
+**Warning**: Debug mode generates VERY extensive output. Use it only when troubleshooting complex issues or understanding the AI's decision process.
 
 ---
 
