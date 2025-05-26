@@ -1,5 +1,6 @@
 """Additional tests for crew classes to increase coverage."""
 
+import os
 import subprocess
 from unittest.mock import MagicMock, patch
 
@@ -372,15 +373,14 @@ class TestPipelineCrew:
 
     def test_execute_debug_diff_preview(self, monkeypatch, caplog):
         """Test debug mode shows diff preview."""
-        monkeypatch.setenv("AUTODOC_LOG_LEVEL", "DEBUG")
         monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        monkeypatch.setenv("AUTODOC_LOG_LEVEL", "DEBUG")
 
         crew = PipelineCrew()
-
         long_diff = "x" * 2000  # Long diff for preview
 
         with (
-            patch.object(crew, "_get_git_diff", return_value=long_diff),
+            patch("subprocess.check_output", return_value=long_diff),
             patch.object(crew, "_process_documents", return_value={"suggestions": {}, "selected_articles": []}),
             patch.object(crew, "_write_outputs"),
             caplog.at_level("DEBUG"),
