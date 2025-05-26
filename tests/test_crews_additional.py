@@ -1,6 +1,5 @@
 """Additional tests for crew classes to increase coverage."""
 
-import os
 import subprocess
 from unittest.mock import MagicMock, patch
 
