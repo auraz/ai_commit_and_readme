@@ -15,6 +15,7 @@ class BaseCrew:
         """Initialize base crew."""
         self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
         self.agents = []
+        logger.debug(f"Initialized {self.__class__.__name__} with model: {self.model}")
 
     def _create_crew(self, tasks: List[Task], verbose: bool = True) -> Crew:
         """Create crew with agents and tasks."""
@@ -22,12 +23,14 @@ class BaseCrew:
         def step_callback(agent, task, step_output):
             """Callback for each step in task execution."""
             logger.info(f"🔄 Step: Agent '{agent.role}' working on task '{task.description[:50]}...'")
+            logger.debug(f"Step output: {step_output}")
 
         def task_callback(task, output):
             """Callback for task completion."""
             logger.info(f"✅ Task completed: '{task.description[:50]}...'")
             if hasattr(output, "raw"):
                 logger.info(f"   Output preview: {str(output.raw)[:100]}...")
+                logger.debug(f"Full task output: {output.raw}")
 
         def before_kickoff(crew):
             """Callback before crew execution starts."""

@@ -18,6 +18,7 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 | `WIKI_URL_BASE`       | Base URL for Wiki articles                             | No       | –                                            |
 | `AUTODOC_TARGET_SCORE`| Target score for document improvement (0-100)          | No       | `85`                                         |
 | `AUTODOC_MAX_ITERATIONS`| Max iterations for document improvement              | No       | `3`                                          |
+| `AUTODOC_LOG_LEVEL`   | Logging level (DEBUG, INFO, WARNING, ERROR)           | No       | `INFO`                                       |
 
 ---
 
@@ -30,6 +31,25 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 - `gpt-3.5-turbo` - 16K context window
 
 **Note**: When using time-based enrichment (`just enrich-days`), large diffs may exceed model context limits. For very large diffs, reduce the time period or use staged changes instead.
+
+---
+
+## 🐛 Debug Logging
+
+To enable verbose debug logging for troubleshooting:
+
+```bash
+export AUTODOC_LOG_LEVEL="DEBUG"
+```
+
+This will enable debug output for:
+- All autodoc_ai components
+- CrewAI agent execution steps
+- LiteLLM API calls
+- Git diff processing details
+- Task execution callbacks
+
+**Note**: Debug mode generates extensive output. Use it only when troubleshooting issues.
 
 ---
 

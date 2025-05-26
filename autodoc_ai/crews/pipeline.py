@@ -81,6 +81,8 @@ class PipelineCrew(BaseCrew):
             if not diff:
                 logger.info("✅ No staged changes detected. Nothing to enrich.")
                 raise ValueError("No staged changes")
+            logger.debug(f"Git diff length: {len(diff)} characters")
+            logger.debug(f"Git diff preview: {diff[:500]}...")
             return diff
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Error getting diff: {e}")
@@ -99,14 +101,17 @@ class PipelineCrew(BaseCrew):
                 raise ValueError(f"No commits in the last {days} days")
 
             logger.info(f"📊 Found {len(commit_hashes)} commits in the last {days} days")
+            logger.debug(f"Commit hashes: {commit_hashes[:5]}...")  # Show first 5
 
             # Get the oldest commit's parent to create a combined diff
             oldest_commit = commit_hashes[-1]
             try:
                 base_commit = subprocess.check_output(["git", "rev-parse", f"{oldest_commit}^"], text=True).strip()
+                logger.debug(f"Base commit: {base_commit}")
             except subprocess.CalledProcessError:
                 # If oldest commit has no parent (initial commit), use empty tree
                 base_commit = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+                logger.debug("Using empty tree as base (initial commit)")
 
             # Get combined diff from base to HEAD
             diff = subprocess.check_output(["git", "diff", base_commit, "HEAD", "-U1"], text=True)

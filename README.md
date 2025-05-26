@@ -29,6 +29,9 @@ just install
 # Set OpenAI API key
 export OPENAI_API_KEY="your-key-here"
 
+# Optional: Enable debug logging
+export AUTODOC_LOG_LEVEL="DEBUG"
+
 # In your repository
 cd your-project
 autodoc-ai  # Enriches your README and Wiki based on staged changes

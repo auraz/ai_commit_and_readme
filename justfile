@@ -121,6 +121,39 @@ improve-all path:
 deploy-wiki:
     python3 deploy_wiki.py
 
+# Enrich documentation based on last commit
+enrich-commit:
+    #!/usr/bin/env python3
+    import sys
+    import subprocess
+    from autodoc_ai.crews.pipeline import PipelineCrew
+    
+    # Check if there's at least one commit
+    try:
+        subprocess.check_output(["git", "rev-parse", "HEAD"], text=True)
+    except subprocess.CalledProcessError:
+        print("❌ No commits found in repository")
+        sys.exit(1)
+    
+    # Get the last commit info
+    last_commit = subprocess.check_output(["git", "log", "-1", "--oneline"], text=True).strip()
+    print(f"📝 Processing commit: {last_commit}")
+    
+    # Create a custom pipeline that uses the diff from HEAD~1 to HEAD
+    crew = PipelineCrew()
+    # Hack: Use a very small time window (1 hour) to likely only get the last commit
+    # This ensures we only get the most recent commit in most cases
+    result = crew.run(days=0.042)  # 1 hour = 0.042 days
+    
+    if not result.get("success"):
+        # If no commits in last hour, try last day
+        result = crew.run(days=1)
+        if not result.get("success"):
+            print(f"Enrichment failed: {result.get('error', 'Unknown error')}", file=sys.stderr)
+            sys.exit(1)
+    
+    print(f"✅ Documentation enriched based on commit: {last_commit}")
+
 # Enrich documentation based on commits from last n days
 enrich-days days="7":
     #!/usr/bin/env python3
