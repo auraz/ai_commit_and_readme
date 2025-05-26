@@ -29,32 +29,32 @@ class BaseCrew:
             verbose = True
             logger.debug(f"Debug mode: Forcing verbose=True for crew execution")
 
-        def step_callback(agent, task, step_output):
+        def step_callback(step_output):
             """Callback for each step in task execution."""
-            logger.info(f"🔄 Step: Agent '{agent.role}' working on task '{task.description[:50]}...'")
+            logger.info(f"🔄 Step: {step_output}")
             if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
-                logger.debug(f"Step details:")
-                logger.debug(f"  Agent: {agent}")
-                logger.debug(f"  Task: {task}")
-                logger.debug(f"  Step output: {step_output}")
+                logger.debug(f"Step output details: {step_output}")
 
-        def task_callback(task, output):
+        def task_callback(output):
             """Callback for task completion."""
-            logger.info(f"✅ Task completed: '{task.description[:50]}...'")
+            # Extract task description from output if available
+            task_desc = "Task"
+            if hasattr(output, "task") and hasattr(output.task, "description"):
+                task_desc = output.task.description[:50]
+            logger.info(f"✅ Task completed: '{task_desc}...'")
             if hasattr(output, "raw"):
                 logger.info(f"   Output preview: {str(output.raw)[:100]}...")
                 if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
                     logger.debug(f"Full task output: {output.raw}")
-                    logger.debug(f"Task details: {task}")
                     logger.debug(f"Output object: {output}")
 
-        def before_kickoff(crew):
+        def before_kickoff(data):
             """Callback before crew execution starts."""
             logger.info(f"🚀 Starting crew execution with {len(tasks)} tasks...")
             for i, task in enumerate(tasks, 1):
                 logger.info(f"   Task {i}: {task.description[:60]}...")
 
-        def after_kickoff(crew, output):
+        def after_kickoff(output):
             """Callback after crew execution completes."""
             logger.info("🏁 Crew execution completed!")
 

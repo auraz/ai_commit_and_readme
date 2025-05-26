@@ -121,12 +121,13 @@ improve-all path:
 deploy-wiki:
     python3 deploy_wiki.py
 
-# Enrich documentation based on last commit
+# Enrich documentation based on last commit only
 enrich-commit:
     #!/usr/bin/env python3
     import sys
     import subprocess
     from autodoc_ai.crews.pipeline import PipelineCrew
+    from autodoc_ai import logger
     
     # Check if there's at least one commit
     try:
@@ -136,23 +137,41 @@ enrich-commit:
         sys.exit(1)
     
     # Get the last commit info
-    last_commit = subprocess.check_output(["git", "log", "-1", "--oneline"], text=True).strip()
-    print(f"📝 Processing commit: {last_commit}")
+    last_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    last_commit_info = subprocess.check_output(["git", "log", "-1", "--oneline"], text=True).strip()
+    print(f"📝 Processing single commit: {last_commit_info}")
     
-    # Create a custom pipeline that uses the diff from HEAD~1 to HEAD
+    # Get the diff for just the last commit
+    try:
+        # Check if this is the first commit
+        subprocess.check_output(["git", "rev-parse", "HEAD~1"], text=True)
+        # Not the first commit, get diff from parent
+        diff = subprocess.check_output(["git", "diff", "HEAD~1", "HEAD", "-U1"], text=True)
+    except subprocess.CalledProcessError:
+        # This is the first commit, get diff from empty tree
+        diff = subprocess.check_output(["git", "diff", "4b825dc642cb6eb9a060e54bf8d69288fbee4904", "HEAD", "-U1"], text=True)
+    
+    if not diff:
+        print("✅ No changes in the last commit")
+        sys.exit(0)
+    
+    # Create pipeline and process with the specific diff
     crew = PipelineCrew()
-    # Hack: Use a very small time window (1 hour) to likely only get the last commit
-    # This ensures we only get the most recent commit in most cases
-    result = crew.run(days=0.042)  # 1 hour = 0.042 days
+    # Directly call the internal methods to process this specific diff
+    ctx = crew._create_context()
     
-    if not result.get("success"):
-        # If no commits in last hour, try last day
-        result = crew.run(days=1)
-        if not result.get("success"):
-            print(f"Enrichment failed: {result.get('error', 'Unknown error')}", file=sys.stderr)
-            sys.exit(1)
+    logger.info(f"📏 Your changes are {len(diff):,} characters long!")
+    logger.info(f"🔢 That's about {crew._count_tokens(diff):,} tokens for the AI to read.")
     
-    print(f"✅ Documentation enriched based on commit: {last_commit}")
+    # Process documents with this specific diff
+    logger.info("📝 Processing documents...")
+    result_data = crew._process_documents(diff, ctx)
+    
+    # Write outputs
+    crew._write_outputs(result_data["suggestions"], ctx)
+    
+    logger.info("✅ Pipeline complete!")
+    print(f"✅ Documentation enriched based on single commit: {last_commit_info}")
 
 # Enrich documentation based on commits from last n days
 enrich-days days="7":

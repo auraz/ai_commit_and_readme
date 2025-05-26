@@ -48,7 +48,9 @@
       "Bash(uv venv:*)",
       "Bash(git reset:*)",
       "Bash(gh run list:*)",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "WebFetch(domain:docs.crewai.com)",
+      "WebFetch(domain:community.crewai.com)"
     ],
     "deny": []
   }
