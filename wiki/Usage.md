@@ -1,78 +1,78 @@
-# Usage
+# Usage Documentation for Project
 
-This project utilizes a Makefile to simplify common development tasks. Below are the main commands, their descriptions, and usage examples:
+This project utilizes a Makefile to streamline and enhance common development tasks. Below is a comprehensive overview of the available commands, including their descriptions and usage examples.
 
 ---
 
 ## 🛠️ Makefile Commands Overview
 
-The Makefile is equipped with various commands to facilitate building and managing the project. Below, you'll find a list of currently supported commands and their descriptions:
+The Makefile provides a set of commands designed to simplify building, testing, and managing the project efficiently. Below is the list of supported commands:
 
-- `make build` - Compiles the source code into an executable.
-- `make test` - Runs the test suite to validate the integrity of the code.
-- `make install` - Sets up a virtual environment, installs Python dependencies, and installs `aicommit`.
-- `make clean` - Removes any generated files and cleans the build environment.
-- `make doc` - Generates the project documentation.
-- `make all` - Executes the `build`, `test`, and `doc` commands in sequence.
-- `make cm` - Stages all changes, generates an AI-powered commit message, and pushes to the remote repository. This command now runs both `ai-commit-and-readme` and `aicommit`.
-- `make deploy-wiki` - Copies the contents of your local `wiki/` directory to the GitHub Wiki repository and pushes the changes.
+- **`make build`**: Compiles the source code into an executable file.
+- **`make test`**: Executes the test suite to ensure code integrity and functionality.
+- **`make install`**: Sets up a virtual environment, installs Python dependencies, and installs the `aicommit` tool.
+- **`make clean`**: Cleans up generated files and resets the build environment.
+- **`make doc`**: Generates comprehensive documentation for the project.
+- **`make all`**: Runs the `build`, `test`, and `doc` commands sequentially to prepare the project for deployment.
+- **`make cm`**: Stages all changes, generates an AI-powered commit message, and pushes to the remote repository. This command now integrates both `ai-commit-and-readme` and `aicommit` functionalities.
+- **`make deploy-wiki`**: Transfers the contents of your local `wiki/` directory to the GitHub Wiki repository and pushes the changes.
 
-Each command is designed to streamline the development process, ensuring a consistent and efficient workflow. Additionally, the Makefile is configured with sensible defaults and dependency checks to prevent unnecessary recompilation.
+These commands are crafted to enhance the development workflow, ensuring a consistent and efficient process. The Makefile incorporates sensible defaults and dependency checks to avoid unnecessary recompilation.
 
 ### Changelog
-- **New Commands:** Added `make doc`, `make cm`, and `make deploy-wiki`.
-- **Modified Commands:** Updated the `make install` command to include virtual environment setup.
-- **Deprecated Commands:** None.
+- **New Commands**: Added `make doc`, `make cm`, and `make deploy-wiki`.
+- **Modified Commands**: Enhanced the `make install` command to include the setup of a virtual environment.
+- **Deprecated Commands**: None.
 
-### Examples
-Here are some examples of command usage:
-
-- To install all dependencies and set up the environment, run:
-  ```sh
+### Examples of Command Usage
+Below are examples demonstrating how to use the various commands:
+- To install all dependencies and set up the environment, execute:
+  
   make install
-  ```
-- To test the code, execute:
-  ```sh
+
+- To run the test suite, use:
+  
   make test
-  ```
 
 ---
 
 ## 🚀 Common Workflows
 
-### Install Everything
+### Install All Dependencies
 ```sh
 make install
 ```
-- Sets up a virtual environment, installs Python dependencies, and installs `aicommit`.
+- This command sets up a virtual environment, installs the required Python dependencies, and also installs the `aicommit` tool.
 
-### Testing
+### Testing the Code
 ```sh
 make test
 ```
-- Runs all tests using pytest.
+- This command runs all tests using pytest to ensure code quality and correctness.
 
-### Cleaning
+### Cleaning the Build Environment
 ```sh
 make clean
 ```
-- Removes build artifacts, caches, and all `__pycache__` directories.
+- This command removes build artifacts, caches, and all `__pycache__` directories, providing a clean state for further development.
 
-### AI Commit and Push
+### AI Commit and Push Changes
 ```sh
 make cm
 ```
-- Stages all changes, generates an AI-powered commit message, and pushes to the remote repository.
+- This command stages all changes in the repository, generates an AI-enhanced commit message, and pushes the updates to the remote repository.
 
-### Deploy Wiki
+### Deploying Wiki Content
 ```sh
 make deploy-wiki
 ```
-- Copies the contents of your local `wiki/` directory to the GitHub Wiki repository and pushes the changes.
+- This command copies the contents of your local `wiki/` directory to the GitHub Wiki repository and pushes the updates.
 
 ---
 
-## 📝 Notes
-- All commands assume you are in the project root directory.
-- For more advanced usage and automation, see the [FAQ](FAQ) and [Configuration](Configuration) pages.
-- If you encounter issues, check your environment variables and configuration.
+## 📝 Important Notes
+- All commands should be executed from the project root directory to ensure proper functionality.
+- For advanced usage scenarios and automation tips, please refer to the [FAQ](FAQ) and [Configuration](Configuration) pages.
+- If you encounter any issues, ensure that your environment variables and configuration settings are correctly set up.
+
+By following this updated documentation, users will gain a clearer understanding of the available commands and workflows, enhancing their overall experience with the project.
