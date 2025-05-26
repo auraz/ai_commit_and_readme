@@ -4,8 +4,8 @@ from typing import Any, List, Optional
 
 from crewai import Crew, Task
 
+from .. import logger
 from ..settings import Settings
-from ..tools import logger
 
 
 class BaseCrew:

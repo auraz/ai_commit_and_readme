@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 
 from evcrew import DocumentCrew
 
-from ..tools import logger
+from .. import logger
 
 # Wiki page type detection patterns
 WIKI_TYPE_PATTERNS = {

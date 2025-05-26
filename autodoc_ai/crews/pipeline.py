@@ -8,8 +8,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import tiktoken
 
+from .. import logger
 from ..settings import Settings
-from ..tools import logger
 from .base import BaseCrew
 from .commit_summary import CommitSummaryCrew
 from .enrichment import EnrichmentCrew
