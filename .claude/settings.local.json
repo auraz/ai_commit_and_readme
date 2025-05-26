@@ -61,7 +61,8 @@
       "Bash(coverage report)",
       "Bash(coverage report:*)",
       "Bash(coverage erase:*)",
-      "Bash(uv sync:*)"
+      "Bash(uv sync:*)",
+      "Bash(gh workflow list:*)"
     ],
     "deny": []
   }

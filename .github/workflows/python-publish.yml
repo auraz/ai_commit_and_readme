@@ -34,10 +34,16 @@ jobs:
           ruff check .
           ruff format --check .
       - name: Run tests
+        env:
+          OPENAI_API_KEY: test-key
+          CHROMA_OPENAI_API_KEY: test-key
         run: |
           source .venv/bin/activate
           pytest
       - name: Run tests with coverage
+        env:
+          OPENAI_API_KEY: test-key
+          CHROMA_OPENAI_API_KEY: test-key
         run: |
           source .venv/bin/activate
           coverage run -m pytest
