@@ -12,7 +12,7 @@ install:
 
 # Development install
 dev:
-    uv venv  
+    uv venv
     uv pip install -e ".[dev]"
 
 # Run linter and formatter
@@ -124,7 +124,11 @@ deploy-wiki:
 # Enrich documentation based on commits from last n days
 enrich-days days="7":
     #!/usr/bin/env python3
+    import os
     import sys
+    # Set model BEFORE importing any autodoc modules
+    os.environ["AUTODOC_MODEL"] = "gpt-4o-mini"
+    # Now import after setting the environment variable
     from autodoc_ai.crews.pipeline import PipelineCrew
     crew = PipelineCrew()
     result = crew.run(days={{days}})
@@ -137,10 +141,14 @@ enrich-days days="7":
 # Update documentation for a release (based on commits since last tag)
 enrich-release:
     #!/usr/bin/env python3
+    import os
     import subprocess
     import sys
+    # Set model BEFORE importing any autodoc modules
+    os.environ["AUTODOC_MODEL"] = "gpt-4o-mini"
+    # Now import after setting the environment variable
     from autodoc_ai.crews.pipeline import PipelineCrew
-    
+
     # Get the last tag
     try:
         last_tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True).strip()
@@ -148,17 +156,17 @@ enrich-release:
         tag_date = subprocess.check_output(["git", "log", "-1", "--format=%ci", last_tag], text=True).strip()
         days_since = subprocess.check_output(["git", "log", "-1", "--format=%cr", last_tag], text=True).strip()
         print(f"📌 Last tag: {last_tag} ({days_since})")
-        
+
         # Get commits since last tag
         commits = subprocess.check_output(["git", "log", f"{last_tag}..HEAD", "--oneline"], text=True).strip()
         if not commits:
             print("✅ No new commits since last release")
             sys.exit(0)
-            
+
         print(f"📝 Commits since {last_tag}:")
         print(commits)
         print()
-        
+
         # Create diff from last tag to HEAD
         crew = PipelineCrew()
         # Use a large number of days to ensure we capture all changes

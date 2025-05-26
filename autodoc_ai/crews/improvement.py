@@ -6,7 +6,6 @@ from typing import Any, Dict, Optional
 
 from evcrew import DocumentCrew
 
-from ..settings import Settings
 from .evaluation import EvaluationCrew
 
 
@@ -15,8 +14,8 @@ class ImprovementCrew(DocumentCrew):
 
     def __init__(self, target_score: Optional[int] = None, max_iterations: Optional[int] = None):
         """Initialize improvement crew."""
-        target_score = target_score or Settings.TARGET_SCORE
-        max_iterations = max_iterations or Settings.MAX_ITERATIONS
+        target_score = target_score or int(os.getenv("AUTODOC_TARGET_SCORE", "85"))
+        max_iterations = max_iterations or int(os.getenv("AUTODOC_MAX_ITERATIONS", "3"))
         super().__init__(target_score=target_score, max_iterations=max_iterations)
         self.evaluation_crew = EvaluationCrew()
 

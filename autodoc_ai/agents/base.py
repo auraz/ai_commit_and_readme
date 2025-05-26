@@ -1,10 +1,9 @@
 """Base agent class for all documentation agents."""
 
+import os
 from pathlib import Path
 
 from crewai import Agent
-
-from ..settings import Settings
 
 
 class BaseAgent:
@@ -15,7 +14,7 @@ class BaseAgent:
         self.role = role
         self.goal = goal
         self.backstory = backstory
-        self.model = Settings.get_model()
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
         
         # Create the CrewAI agent
         self.agent = Agent(

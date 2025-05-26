@@ -1,11 +1,11 @@
 """Base crew class for all documentation crews."""
 
+import os
 from typing import Any, List, Optional
 
 from crewai import Crew, Task
 
 from .. import logger
-from ..settings import Settings
 
 
 class BaseCrew:
@@ -13,7 +13,7 @@ class BaseCrew:
 
     def __init__(self):
         """Initialize base crew."""
-        self.model = Settings.get_model()
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
         self.agents = []
 
     def _create_crew(self, tasks: List[Task], verbose: bool = True) -> Crew:

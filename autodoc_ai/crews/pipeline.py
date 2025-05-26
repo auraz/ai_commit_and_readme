@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import tiktoken
 
 from .. import logger
-from ..settings import Settings
 from .base import BaseCrew
 from .commit_summary import CommitSummaryCrew
 from .enrichment import EnrichmentCrew
@@ -25,7 +24,7 @@ class PipelineCrew(BaseCrew):
         self.enrichment_crew = EnrichmentCrew()
         self.wiki_selector_crew = WikiSelectorCrew()
         self.commit_summary_crew = CommitSummaryCrew()
-        self.model = Settings.get_model()
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
 
     def _get_wiki_files(self, wiki_path: str) -> Tuple[List[str], Dict[str, str]]:
         """Get list of wiki files and their paths."""
@@ -36,9 +35,9 @@ class PipelineCrew(BaseCrew):
 
     def _create_context(self) -> Dict[str, Any]:
         """Create pipeline context with all required fields."""
-        api_key = Settings.get_api_key()
+        api_key = os.getenv("OPENAI_API_KEY")
         readme_path = os.path.join(os.getcwd(), "README.md")
-        wiki_path = Settings.WIKI_PATH
+        wiki_path = os.getenv("WIKI_PATH", "wiki")
 
         wiki_files, wiki_file_paths = self._get_wiki_files(wiki_path)
         return {
@@ -66,11 +65,6 @@ class PipelineCrew(BaseCrew):
 
     def _count_tokens(self, text: str) -> int:
         """Count tokens in text for specific model."""
-        # Use cl100k_base for Claude models
-        if self.model.startswith("claude"):
-            enc = tiktoken.get_encoding("cl100k_base")
-            return len(enc.encode(text))
-
         # Try to get encoding for specific model
         try:
             enc = tiktoken.encoding_for_model(self.model)
@@ -209,7 +203,7 @@ class PipelineCrew(BaseCrew):
 
         # Check API key
         if not ctx.get("api_key"):
-            logger.warning("🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.")
+            logger.warning("🔑 No API key found. Set OPENAI_API_KEY.")
             return {"success": False, "error": "No API key available"}
 
         # Get git diff based on mode
