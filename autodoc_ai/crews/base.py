@@ -5,9 +5,7 @@ from typing import Any, List
 from crewai import Crew, Task
 
 from ..settings import Settings
-from ..tools import get_logger
-
-logger = get_logger(__name__)
+from ..tools import logger
 
 
 class BaseCrew:

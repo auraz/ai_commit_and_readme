@@ -30,7 +30,9 @@
       "Bash(uv run:*)",
       "WebFetch(domain:pypi.org)",
       "WebFetch(domain:github.com)",
-      "Bash(just lint)"
+      "Bash(just lint)",
+      "Bash(just enrich:*)",
+      "Bash(pip install:*)"
     ],
     "deny": []
   }

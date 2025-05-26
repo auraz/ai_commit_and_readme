@@ -1,135 +1,18 @@
 """AI enrichment utilities and context management."""
 
-import glob
 import logging
 import os
-import re
-import subprocess
 import sys
-from typing import Any, Dict, List, Optional, Tuple, TypedDict
+from typing import Any, Dict, Optional
 
 import tiktoken
 from anthropic import Anthropic
 from openai import OpenAI
 from rich.logging import RichHandler
 
-
-class PipelineContext(TypedDict, total=False):
-    """Type definition for pipeline context with all possible fields."""
-
-    readme_path: str
-    wiki_path: str
-    api_key: Optional[str]
-    wiki_url: str
-    wiki_url_base: str
-    model: str
-    file_paths: Dict[str, Any]
-    ai_suggestions: Dict[str, Any]
-    wiki_files: List[str]
-    wiki_file_paths: Dict[str, str]
-    diff: str
-    diff_tokens: int
-    selected_wiki_articles: List[str]
-
-
 # Configure logging on import
 logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[RichHandler(markup=True)])
-
-
-def get_logger(name: str) -> logging.Logger:
-    """Get logger instance for module."""
-    return logging.getLogger(name)
-
-
-class LogMessages:
-    """Centralized log message templates."""
-
-    DIFF_SIZE = "📏 Your staged changes are {:,} characters long!"
-    DIFF_TOKENS = "🔢 That's about {:,} tokens for the AI to read."
-    FILE_SIZE = "📄 Update to {} is currently {:,} characters."
-    FILE_TOKENS = "🔢 That's {:,} tokens in update to {}!"
-    NO_CHANGES = "✅ No staged changes detected. Nothing to enrich."
-    LARGE_DIFF = '⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".'
-    API_ERROR = "❌ Error from API: {}"
-    NO_API_KEY = "🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY."
-    SUCCESS = "🎉✨ SUCCESS: {} enriched and staged with AI suggestions for {}! ✨🎉"
-    NO_ENRICHMENT = "👍 No enrichment needed for {}."
-    NO_WIKI_ARTICLES = "[i] No valid wiki articles selected."
-    GETTING_DIFF = "📊 Getting staged changes..."
-    DIFF_ERROR = "❌ Error getting diff: {}"
-
-
-logger = get_logger(__name__)
-
-
-def create_context(
-    api_key: Optional[str] = None,
-    model: Optional[str] = None,
-    readme_path: Optional[str] = None,
-    wiki_path: Optional[str] = None,
-    wiki_url: str = "https://github.com/auraz/autodoc-ai/wiki/",
-    wiki_url_base: Optional[str] = None,
-) -> PipelineContext:
-    """Create fresh pipeline context with all required fields."""
-    # Import here to avoid circular imports
-    from .settings import Settings
-
-    # Use settings and environment variables as fallbacks
-    model = model or Settings.get_model()
-    api_key = api_key or Settings.get_api_key()
-    readme_path = readme_path or os.path.join(os.getcwd(), "README.md")
-    wiki_path = wiki_path or Settings.WIKI_PATH
-    wiki_url_base = wiki_url_base or Settings.WIKI_URL_BASE
-
-    wiki_files, wiki_file_paths = get_wiki_files(wiki_path)
-    return {
-        "readme_path": readme_path,
-        "wiki_path": wiki_path,
-        "api_key": api_key,
-        "wiki_url": wiki_url,
-        "wiki_url_base": wiki_url_base,
-        "model": model,
-        "file_paths": {"README.md": readme_path, "wiki": wiki_file_paths},
-        "ai_suggestions": {"README.md": None, "wiki": {}},
-        "wiki_files": wiki_files,
-        "wiki_file_paths": wiki_file_paths,
-        "diff": "",
-        "diff_tokens": 0,
-        "selected_wiki_articles": [],
-    }
-
-
-def get_wiki_files(wiki_path: str) -> Tuple[list[str], Dict[str, str]]:
-    """Get list of wiki files and their paths."""
-    files = glob.glob(f"{wiki_path}/*.md")
-    filenames = [os.path.basename(f) for f in files]
-    file_paths = {os.path.basename(f): f for f in files}
-    return filenames, file_paths
-
-
-def get_diff(ctx: Dict[str, Any]) -> Dict[str, Any]:
-    """Get git diff and add to context."""
-    diff_text = get_diff_text()
-    ctx["diff"] = diff_text
-    return ctx
-
-
-def get_diff_text(cmd: Optional[list[str]] = None) -> str:
-    """Get git diff text from staged changes."""
-    logger.info(LogMessages.GETTING_DIFF)
-    cmd = cmd or ["git", "diff", "--cached", "-U1"]
-
-    try:
-        diff = subprocess.check_output(cmd, text=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(LogMessages.DIFF_ERROR.format(e))
-        sys.exit(1)
-
-    if not diff:
-        logger.info(LogMessages.NO_CHANGES)
-        sys.exit(0)
-
-    return diff
+logger = logging.getLogger("autodoc_ai")
 
 
 def load_file(file_path: str) -> Optional[str]:
@@ -142,53 +25,55 @@ def load_file(file_path: str) -> Optional[str]:
         return None
 
 
+def _get_anthropic_response(prompt: str, model_name: str, api_key: str, temperature: float) -> Any:
+    """Get response from Anthropic API."""
+    client = Anthropic(api_key=api_key)
+    try:
+        response = client.messages.create(model=model_name, messages=[{"role": "user", "content": prompt}], temperature=temperature, max_tokens=4096)
+
+        # Wrap Anthropic response to match OpenAI format
+        class AnthropicWrapper:
+            def __init__(self, content):
+                self.choices = [type("obj", (object,), {"message": type("obj", (object,), {"content": content})()})]
+
+        return AnthropicWrapper(response.content[0].text)
+    except Exception as e:
+        logger.error(f"❌ Error from API: {e}")
+        sys.exit(1)
+
+
+def _get_openai_response(prompt: str, model_name: str, api_key: str, temperature: float, json_response: bool) -> Any:
+    """Get response from OpenAI API."""
+    client = OpenAI(api_key=api_key)
+    try:
+        kwargs = {"model": model_name, "messages": [{"role": "user", "content": prompt}], "temperature": temperature}
+        if json_response:
+            kwargs["response_format"] = {"type": "json_object"}
+        return client.chat.completions.create(**kwargs)
+    except Exception as e:
+        logger.error(f"❌ Error from API: {e}")
+        sys.exit(1)
+
+
 def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None, json_response: bool = False, temperature: float = 0.5) -> Any:
     """Get response from AI API (OpenAI or Anthropic)."""
     from .settings import Settings
 
     model_name = ctx.get("model", Settings.get_model()) if ctx else Settings.get_model()
+    is_claude = model_name.startswith("claude")
 
-    # Determine which API to use based on model name
-    if model_name.startswith("claude"):
-        # Use Anthropic API
-        api_key = ctx.get("api_key") if ctx else os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            logger.error(LogMessages.NO_API_KEY)
-            sys.exit(1)
+    # Get API key based on model type
+    env_key = "ANTHROPIC_API_KEY" if is_claude else "OPENAI_API_KEY"
+    api_key = ctx.get("api_key") if ctx else os.getenv(env_key)
 
-        client = Anthropic(api_key=api_key)
+    if not api_key:
+        logger.error("🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.")
+        sys.exit(1)
 
-        try:
-            response = client.messages.create(model=model_name, messages=[{"role": "user", "content": prompt}], temperature=temperature, max_tokens=4096)
-
-            # Wrap Anthropic response to match OpenAI format
-            class AnthropicWrapper:
-                def __init__(self, content):
-                    self.choices = [type("obj", (object,), {"message": type("obj", (object,), {"content": content})()})]
-
-            return AnthropicWrapper(response.content[0].text)
-        except Exception as e:
-            logger.error(LogMessages.API_ERROR.format(e))
-            sys.exit(1)
-    else:
-        # Use OpenAI API
-        api_key = ctx.get("api_key") if ctx else os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            logger.error(LogMessages.NO_API_KEY)
-            sys.exit(1)
-
-        client = OpenAI(api_key=api_key)
-
-        try:
-            kwargs = {"model": model_name, "messages": [{"role": "user", "content": prompt}], "temperature": temperature}
-            if json_response:
-                kwargs["response_format"] = {"type": "json_object"}
-            response = client.chat.completions.create(**kwargs)
-        except Exception as e:
-            logger.error(LogMessages.API_ERROR.format(e))
-            sys.exit(1)
-
-        return response
+    # Call appropriate API
+    if is_claude:
+        return _get_anthropic_response(prompt, model_name, api_key, temperature)
+    return _get_openai_response(prompt, model_name, api_key, temperature, json_response)
 
 
 def extract_ai_content(response: Any) -> str:
@@ -204,50 +89,17 @@ def extract_ai_content(response: Any) -> str:
     return ""
 
 
-def append_suggestion_and_stage(file_path: str, ai_suggestion: Optional[str], label: str) -> None:
-    """Append AI suggestion to file and stage it."""
-    if not ai_suggestion or ai_suggestion == "NO CHANGES":
-        logger.info(LogMessages.NO_ENRICHMENT.format(file_path))
-        return
-
-    section_header_match = re.match(r"^(## .+)$", ai_suggestion.strip(), re.MULTILINE)
-    if section_header_match:
-        _update_with_section_header(file_path, ai_suggestion, section_header_match.group(1))
-    else:
-        with open(file_path, "a", encoding="utf-8") as f:
-            f.write(ai_suggestion)
-
-    logger.info(LogMessages.SUCCESS.format(file_path, label))
-    subprocess.run(["git", "add", file_path])
-
-
-def _update_with_section_header(file_path: str, ai_suggestion: str, section_header: str) -> None:
-    """Update file content with section replacement."""
-    with open(file_path, encoding="utf-8") as f:
-        file_content = f.read()
-
-    suggestion_content = ai_suggestion.strip().split("\n", 1)[1].strip()
-    pattern = rf"({re.escape(section_header)}\n)(.*?)(?=\n## |\Z)"
-    replacement = f"\\1{suggestion_content}\n"
-    new_content, count = re.subn(pattern, replacement, file_content, flags=re.DOTALL)
-
-    if count == 0:
-        new_content = file_content + f"\n\n{ai_suggestion.strip()}\n"
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(new_content)
-
-
 def count_tokens(text: str, model_name: str) -> int:
     """Count tokens in text for specific model."""
+    # Use cl100k_base for Claude models
     if model_name.startswith("claude"):
-        # Anthropic uses a similar tokenization to GPT-4
-        # Use cl100k_base encoding as approximation
         enc = tiktoken.get_encoding("cl100k_base")
-    else:
-        try:
-            enc = tiktoken.encoding_for_model(model_name)
-        except KeyError:
-            # Fallback to cl100k_base for unknown models
-            enc = tiktoken.get_encoding("cl100k_base")
+        return len(enc.encode(text))
+
+    # Try to get encoding for specific model
+    try:
+        enc = tiktoken.encoding_for_model(model_name)
+    except KeyError:
+        enc = tiktoken.get_encoding("cl100k_base")
+
     return len(enc.encode(text))

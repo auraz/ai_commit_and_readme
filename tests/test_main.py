@@ -188,8 +188,8 @@ class TestAIEnrich:
 class TestFileOps:
     """Tests for file operations like append_suggestion_and_stage."""
 
-    def test_append_suggestion_and_stage(self, tmp_path: Path, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture) -> None:
-        """Should append suggestion to file and stage it with git."""
+    def test_write_suggestion_and_stage(self, tmp_path: Path, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture) -> None:
+        """Should write suggestion to file and stage it with git."""
         file_path: Path = tmp_path / "README.md"
         file_path.write_text("start")
         called: dict[str, bool] = {}
@@ -200,14 +200,14 @@ class TestFileOps:
 
         monkeypatch.setattr("autodoc_ai.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
-            mod.append_suggestion_and_stage(str(file_path), "SUG", "README")
+            mod.write_suggestion_and_stage(str(file_path), "SUG", "README")
         content = file_path.read_text()
-        assert "SUG" in content
+        assert content.strip() == "SUG"
         assert called.get("ran")
         assert "enriched and staged" in caplog.text
 
-    def test_append_suggestion_and_stage_no_changes(self, tmp_path: Path, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture) -> None:
-        """Should not append or stage if suggestion is "NO CHANGES"."""
+    def test_write_suggestion_and_stage_no_changes(self, tmp_path: Path, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture) -> None:
+        """Should not write or stage if suggestion is "NO CHANGES"."""
         file_path: Path = tmp_path / "README.md"
         file_path.write_text("start")
         called: dict[str, bool] = {}
@@ -218,8 +218,8 @@ class TestFileOps:
 
         monkeypatch.setattr("autodoc_ai.tools.subprocess.run", fake_run)
         with caplog.at_level("INFO"):
-            mod.append_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
+            mod.write_suggestion_and_stage(str(file_path), "NO CHANGES", "README")
         content = file_path.read_text()
-        assert "NO CHANGES" not in content
+        assert content.strip() == "start"
         assert "No enrichment needed" in caplog.text
         assert not called.get("ran", False)

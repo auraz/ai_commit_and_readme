@@ -102,4 +102,4 @@ Run tests with coverage using `make coverage`.
 - when writing python or justfile code, be pythonic
 - no backward compatibility support
 - no fallbacks
-- avoid nested ifs or else
+- refactor to avoid nested ifs or else within if or else

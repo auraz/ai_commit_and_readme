@@ -1,17 +1,17 @@
 """Main pipeline crew for orchestrating document enrichment."""
 
 import contextlib
+import glob
+import os
 import subprocess
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..settings import Settings
-from ..tools import LogMessages, append_suggestion_and_stage, count_tokens, create_context, get_logger, load_file
+from ..tools import count_tokens, load_file, logger
 from .base import BaseCrew
 from .commit_summary import CommitSummaryCrew
 from .enrichment import EnrichmentCrew
 from .wiki_selector import WikiSelectorCrew
-
-logger = get_logger(__name__)
 
 
 class PipelineCrew(BaseCrew):
@@ -25,17 +25,54 @@ class PipelineCrew(BaseCrew):
         self.commit_summary_crew = CommitSummaryCrew()
         self.model = Settings.get_model()
 
+    def _get_wiki_files(self, wiki_path: str) -> Tuple[List[str], Dict[str, str]]:
+        """Get list of wiki files and their paths."""
+        files = glob.glob(f"{wiki_path}/*.md")
+        filenames = [os.path.basename(f) for f in files]
+        file_paths = {os.path.basename(f): f for f in files}
+        return filenames, file_paths
+
+    def _create_context(self) -> Dict[str, Any]:
+        """Create pipeline context with all required fields."""
+        api_key = Settings.get_api_key()
+        readme_path = os.path.join(os.getcwd(), "README.md")
+        wiki_path = Settings.WIKI_PATH
+
+        wiki_files, wiki_file_paths = self._get_wiki_files(wiki_path)
+        return {
+            "readme_path": readme_path,
+            "wiki_path": wiki_path,
+            "api_key": api_key,
+            "model": self.model,
+            "wiki_files": wiki_files,
+            "wiki_file_paths": wiki_file_paths,
+        }
+
+    def _write_suggestion_and_stage(self, file_path: str, ai_suggestion: Optional[str], label: str) -> None:
+        """Write AI suggestion to file and stage it."""
+        if not ai_suggestion or ai_suggestion == "NO CHANGES":
+            logger.info(f"👍 No enrichment needed for {file_path}.")
+            return
+
+        # Write complete document
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(ai_suggestion.strip() + "\n")
+
+        # Stage the file
+        logger.info(f"🎉✨ SUCCESS: {file_path} enriched and staged with AI suggestions for {label}! ✨🎉")
+        subprocess.run(["git", "add", file_path])
+
     def _get_git_diff(self) -> str:
         """Get git diff from staged changes."""
-        logger.info(LogMessages.GETTING_DIFF)
+        logger.info("📊 Getting staged changes...")
         try:
             diff = subprocess.check_output(["git", "diff", "--cached", "-U1"], text=True)
             if not diff:
-                logger.info(LogMessages.NO_CHANGES)
+                logger.info("✅ No staged changes detected. Nothing to enrich.")
                 raise ValueError("No staged changes")
             return diff
         except subprocess.CalledProcessError as e:
-            logger.error(LogMessages.DIFF_ERROR.format(e))
+            logger.error(f"❌ Error getting diff: {e}")
             raise ValueError(f"Git diff error: {e}") from e
 
     def _process_documents(self, diff: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -45,8 +82,8 @@ class PipelineCrew(BaseCrew):
         # Process README
         readme_content = load_file(ctx["readme_path"])
         if readme_content:
-            logger.info(LogMessages.FILE_SIZE.format("README.md", len(readme_content)))
-            logger.info(LogMessages.FILE_TOKENS.format(count_tokens(readme_content, self.model), "README.md"))
+            logger.info(f"📄 Update to README.md is currently {len(readme_content):,} characters.")
+            logger.info(f"🔢 That's {count_tokens(readme_content, self.model):,} tokens in update to README.md!")
 
             needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=readme_content, doc_type="README", file_path="README.md")
 
@@ -58,15 +95,15 @@ class PipelineCrew(BaseCrew):
         if ctx["wiki_files"]:
             selected_articles = self.wiki_selector_crew.run(diff, ctx["wiki_files"])
             if not selected_articles:
-                logger.info(LogMessages.NO_WIKI_ARTICLES)
+                logger.info("[i] No valid wiki articles selected.")
 
             for filename in selected_articles:
                 filepath = ctx["wiki_file_paths"].get(filename)
                 if filepath:
                     content = load_file(filepath)
                     if content:
-                        logger.info(LogMessages.FILE_SIZE.format(filename, len(content)))
-                        logger.info(LogMessages.FILE_TOKENS.format(count_tokens(content, self.model), filename))
+                        logger.info(f"📄 Update to {filename} is currently {len(content):,} characters.")
+                        logger.info(f"🔢 That's {count_tokens(content, self.model):,} tokens in update to {filename}!")
 
                         needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=content, doc_type="wiki", file_path=filename)
 
@@ -78,21 +115,21 @@ class PipelineCrew(BaseCrew):
     def _write_outputs(self, ai_suggestions: Dict[str, Any], ctx: Dict[str, Any]) -> None:
         """Write suggestions to files and stage them."""
         if ai_suggestions.get("README.md"):
-            append_suggestion_and_stage(ctx["readme_path"], ai_suggestions["README.md"], "README")
+            self._write_suggestion_and_stage(ctx["readme_path"], ai_suggestions["README.md"], "README")
 
         for filename, suggestion in ai_suggestions.get("wiki", {}).items():
             filepath = ctx["wiki_file_paths"].get(filename)
             if filepath:
-                append_suggestion_and_stage(filepath, suggestion, filename)
+                self._write_suggestion_and_stage(filepath, suggestion, filename)
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the enrichment pipeline."""
         # Create context
-        ctx = create_context(model=self.model)
+        ctx = self._create_context()
 
         # Check API key
         if not ctx.get("api_key"):
-            logger.warning(LogMessages.NO_API_KEY)
+            logger.warning("🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.")
             return {"success": False, "error": "No API key available"}
 
         # Get git diff
@@ -102,8 +139,8 @@ class PipelineCrew(BaseCrew):
             return {"success": False, "error": str(e)}
 
         # Log diff stats
-        logger.info(LogMessages.DIFF_SIZE.format(len(diff)))
-        logger.info(LogMessages.DIFF_TOKENS.format(count_tokens(diff, self.model)))
+        logger.info(f"📏 Your staged changes are {len(diff):,} characters long!")
+        logger.info(f"🔢 That's about {count_tokens(diff, self.model):,} tokens for the AI to read.")
 
         # Process documents
         result = self._process_documents(diff, ctx)
