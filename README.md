@@ -40,6 +40,11 @@ just cm  # Enriches docs, commits, and pushes
 just enrich-days 7  # Update based on last 7 days of commits
 just enrich-release  # Update based on commits since last tag
 
+# Note: For large diffs (many commits), you may need to:
+# - Use a model with larger context (e.g., AUTODOC_MODEL="gpt-4-turbo")
+# - Reduce the number of days
+# - Or split the operation into smaller chunks
+
 # Evaluate documentation quality
 just eval README.md  # Auto-detects as README type
 just eval wiki/Usage.md  # Auto-detects wiki page type

@@ -38,7 +38,12 @@
       "Bash(git checkout:*)",
       "Bash(just summary:*)",
       "Bash(chmod:*)",
-      "Bash(just deploy-wiki:*)"
+      "Bash(just deploy-wiki:*)",
+      "Bash(export AUTODOC_MODEL=\"gpt-4-turbo-preview\")",
+      "Bash(AUTODOC_MODEL=\"gpt-4-turbo-preview\" just enrich-days 7)",
+      "Bash(AUTODOC_MODEL=\"gpt-4-turbo\" just enrich-days 7)",
+      "Bash(AUTODOC_MODEL=\"gpt-4o\" just enrich-days 7)",
+      "Bash(AUTODOC_MODEL=\"claude-3-opus-20240229\" just enrich-days 7)"
     ],
     "deny": []
   }
