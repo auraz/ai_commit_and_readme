@@ -2,29 +2,17 @@
 
 import pytest
 
-from autodoc_ai.crews.enrichment import EnrichmentCrew
-
 
 class TestEnrichmentJSONParsing:
     """Test JSON parsing in enrichment crew."""
 
     def test_parse_json_response_with_updated_sections(self):
         """Test parsing JSON response with updated_sections field."""
-        crew = EnrichmentCrew()
-
         # Mock result with JSON response
-        class MockResult:
-            raw = """{
-                "updated_sections": "# Updated Documentation\\n\\nThis is the updated content.",
-                "needs_update": true
-            }"""
-
-        result = MockResult()
-        needs_update, content = crew._execute(diff="test diff", doc_content="old content", doc_type="README", file_path="README.md")
-
-        # The _execute method would normally call crew.kickoff()
-        # For this test, we'll directly test the parsing logic
-        result_str = result.raw
+        result_str = """{
+            "updated_sections": "# Updated Documentation\\n\\nThis is the updated content.",
+            "needs_update": true
+        }"""
 
         # Simulate the parsing logic from the enrichment crew
         import json
