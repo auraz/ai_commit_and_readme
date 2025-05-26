@@ -21,7 +21,26 @@ class WikiSelectorCrew(BaseCrew):
         crew = self._create_crew([task], verbose=False)
         result = crew.kickoff()
 
-        return result.pydantic.selected_articles
+        # Handle string output from CrewAI
+        if isinstance(result, str):
+            # Parse the output to extract selected articles
+            import re
+            # Look for list patterns in the output
+            matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result)
+            if matches:
+                return [m for m in matches if m in wiki_files]
+            # Fallback: look for wiki file names mentioned in the text
+            selected = []
+            for wiki_file in wiki_files:
+                if wiki_file in result:
+                    selected.append(wiki_file)
+            return selected
+        
+        # If result has pydantic attribute (future compatibility)
+        if hasattr(result, 'pydantic'):
+            return result.pydantic.selected_articles
+        
+        return []
 
     def _handle_error(self, error: Exception) -> List[str]:
         """Handle selection errors."""

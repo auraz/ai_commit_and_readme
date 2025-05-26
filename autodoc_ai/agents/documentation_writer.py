@@ -1,7 +1,6 @@
 """Agent for updating documentation."""
 
 from crewai import Task
-from crewai.tools import tool as crewai_tool
 from pydantic import BaseModel
 
 from .base import BaseAgent
@@ -24,13 +23,6 @@ class DocumentationWriterAgent(BaseAgent):
             goal="Update documentation to reflect code changes accurately",
             backstory="You are a world-class technical writer who creates clear documentation.",
         )
-
-        @crewai_tool("read_documentation")
-        def read_documentation(file_path: str, content: str) -> str:
-            """Read and understand current documentation."""
-            return f"Read {file_path} with {len(content.splitlines())} lines"
-
-        self.agent.tools = [read_documentation]
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create task for updating documentation."""

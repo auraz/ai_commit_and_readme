@@ -32,7 +32,13 @@
       "WebFetch(domain:github.com)",
       "Bash(just lint)",
       "Bash(just enrich:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(.venv/bin/pip show:*)",
+      "Bash(uv pip show:*)",
+      "Bash(git checkout:*)",
+      "Bash(just summary:*)",
+      "Bash(chmod:*)",
+      "Bash(just deploy-wiki:*)"
     ],
     "deny": []
   }

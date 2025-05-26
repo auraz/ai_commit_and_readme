@@ -1,25 +1,31 @@
 """Base agent class for all documentation agents."""
 
-import sys
 from pathlib import Path
 
-# Add parent directory to path to import from sibling repo
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
-from autodoceval_crewai.evcrew.agents.base import BaseAgent as ExternalBaseAgent
+from crewai import Agent
 
 from ..settings import Settings
 
 
-class BaseAgent(ExternalBaseAgent):
+class BaseAgent:
     """Base agent with common functionality for all documentation agents."""
 
     def __init__(self, role: str, goal: str, backstory: str):
         """Initialize base agent with common configuration."""
-        super().__init__(role=role, goal=goal, backstory=backstory)
+        self.role = role
+        self.goal = goal
+        self.backstory = backstory
         self.model = Settings.get_model()
-        self.agent.llm_model = self.model
-        self.agent.verbose = True
-        self.agent.tools = []
+        
+        # Create the CrewAI agent
+        self.agent = Agent(
+            role=self.role,
+            goal=self.goal,
+            backstory=self.backstory,
+            verbose=True,
+            llm_model=self.model,
+            allow_delegation=False
+        )
 
     def save(self, *args, **kwargs) -> None:
         """Documentation agents don't save results directly."""

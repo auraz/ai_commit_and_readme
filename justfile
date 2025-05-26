@@ -116,3 +116,7 @@ improve-all path:
                 print(f"✅ Improved from {result['initial_score']}% to {result['final_score']}%")
                 print(f"   Iterations: {result['iterations']}")
                 print(f"   Target reached: {'Yes' if result['target_reached'] else 'No'}")
+
+# Deploy wiki to GitHub
+deploy-wiki:
+    python3 deploy_wiki.py

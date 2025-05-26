@@ -19,7 +19,20 @@ class CommitSummaryCrew(BaseCrew):
         crew = self._create_crew([task], verbose=False)
         result = crew.kickoff()
 
-        return result.pydantic.summary
+        # Handle string output from CrewAI
+        if isinstance(result, str):
+            # Extract summary from the string output
+            # Remove any extra formatting or quotes
+            summary = result.strip()
+            if summary.startswith('"') and summary.endswith('"'):
+                summary = summary[1:-1]
+            return summary if summary else "Update codebase"
+        
+        # If result has pydantic attribute (future compatibility)
+        if hasattr(result, 'pydantic'):
+            return result.pydantic.summary
+        
+        return "Update codebase"
 
     def _handle_error(self, error: Exception) -> str:
         """Handle summary generation errors."""

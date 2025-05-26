@@ -3,7 +3,6 @@
 from typing import List
 
 from crewai import Task
-from crewai.tools import tool as crewai_tool
 from pydantic import BaseModel
 
 from .base import BaseAgent
@@ -26,13 +25,6 @@ class CodeAnalystAgent(BaseAgent):
             goal="Analyze code changes and identify documentation impacts",
             backstory="You are an expert at understanding code changes and their implications.",
         )
-
-        @crewai_tool("analyze_diff")
-        def analyze_diff(diff: str) -> str:
-            """Analyze git diff to understand code changes."""
-            return f"Analyzed diff with {len(diff.splitlines())} lines of changes"
-
-        self.agent.tools = [analyze_diff]
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create task for analyzing code changes."""

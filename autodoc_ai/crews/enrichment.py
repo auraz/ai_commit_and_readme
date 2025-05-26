@@ -24,8 +24,30 @@ class EnrichmentCrew(BaseCrew):
         crew = self._create_crew([analysis_task, update_task])
         result = crew.kickoff()
 
-        update_result = result.pydantic
-        return update_result.needs_update, update_result.updated_sections
+        # Handle string output from CrewAI
+        if isinstance(result, str):
+            # Check if the output indicates updates are needed
+            needs_update = "NO CHANGES" not in result.upper()
+            
+            # Extract the updated content
+            if needs_update:
+                # Remove any markdown code blocks if present
+                import re
+                # Look for content between markdown code blocks
+                code_block_match = re.search(r'```(?:markdown)?\n(.*?)\n```', result, re.DOTALL)
+                if code_block_match:
+                    return True, code_block_match.group(1)
+                # Otherwise return the entire result
+                return True, result
+            else:
+                return False, "NO CHANGES"
+        
+        # If result has pydantic attribute (future compatibility)
+        if hasattr(result, 'pydantic'):
+            update_result = result.pydantic
+            return update_result.needs_update, update_result.updated_sections
+        
+        return False, "NO CHANGES"
 
     def _handle_error(self, error: Exception) -> Tuple[bool, str]:
         """Handle enrichment errors."""
