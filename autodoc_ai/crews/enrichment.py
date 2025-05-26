@@ -48,15 +48,30 @@ class EnrichmentCrew(BaseCrew):
 
             # Extract the updated content
             if needs_update:
-                # Remove any markdown code blocks if present
+                import json
                 import re
 
-                # Look for content between markdown code blocks
-                code_block_match = re.search(r"```(?:markdown)?\n(.*?)\n```", result_str, re.DOTALL)
-                if code_block_match:
-                    return True, code_block_match.group(1)
-                # Otherwise return the entire result
-                return True, result_str
+                # Try to parse as JSON first
+                try:
+                    # Remove any markdown code blocks around JSON
+                    json_match = re.search(r"```(?:json)?\n(.*?)\n```", result_str, re.DOTALL)
+                    json_str = json_match.group(1) if json_match else result_str
+                    
+                    # Parse JSON
+                    parsed = json.loads(json_str)
+                    if isinstance(parsed, dict):
+                        # Extract updated_sections if it exists
+                        if "updated_sections" in parsed:
+                            return parsed.get("needs_update", True), parsed["updated_sections"]
+                        # Otherwise return the whole parsed content
+                        return True, json.dumps(parsed, indent=2)
+                except (json.JSONDecodeError, AttributeError):
+                    # Not JSON, try markdown extraction
+                    code_block_match = re.search(r"```(?:markdown)?\n(.*?)\n```", result_str, re.DOTALL)
+                    if code_block_match:
+                        return True, code_block_match.group(1)
+                    # Otherwise return the entire result
+                    return True, result_str
             else:
                 return False, "NO CHANGES"
 

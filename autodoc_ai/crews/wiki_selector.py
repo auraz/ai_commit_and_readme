@@ -40,21 +40,43 @@ class WikiSelectorCrew(BaseCrew):
         # Handle string output from CrewAI
         if result_str:
             # Parse the output to extract selected articles
+            import json
             import re
 
-            # Look for list patterns in the output
-            matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result_str)
-            if matches:
-                filtered = [m for m in matches if m in wiki_files]
-                logger.debug(f"Regex matches: {matches}, filtered: {filtered}")
-                return filtered
-            # Fallback: look for wiki file names mentioned in the text
-            selected = []
-            for wiki_file in wiki_files:
-                if wiki_file in result_str:
-                    selected.append(wiki_file)
-            logger.debug(f"Fallback selected: {selected}")
-            return selected
+            # Try to parse as JSON first
+            try:
+                # Remove any markdown code blocks around JSON
+                json_match = re.search(r"```(?:json)?\n(.*?)\n```", result_str, re.DOTALL)
+                json_str = json_match.group(1) if json_match else result_str
+                
+                # Parse JSON
+                parsed = json.loads(json_str)
+                if isinstance(parsed, dict) and "selected_articles" in parsed:
+                    selected = parsed["selected_articles"]
+                    # Filter to only include valid wiki files
+                    filtered = [f for f in selected if f in wiki_files]
+                    logger.debug(f"JSON parsed articles: {selected}, filtered: {filtered}")
+                    return filtered
+                elif isinstance(parsed, list):
+                    # Direct list of articles
+                    filtered = [f for f in parsed if f in wiki_files]
+                    logger.debug(f"JSON list articles: {parsed}, filtered: {filtered}")
+                    return filtered
+            except (json.JSONDecodeError, AttributeError):
+                # Not JSON, fall back to regex parsing
+                # Look for list patterns in the output
+                matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result_str)
+                if matches:
+                    filtered = [m for m in matches if m in wiki_files]
+                    logger.debug(f"Regex matches: {matches}, filtered: {filtered}")
+                    return filtered
+                # Fallback: look for wiki file names mentioned in the text
+                selected = []
+                for wiki_file in wiki_files:
+                    if wiki_file in result_str:
+                        selected.append(wiki_file)
+                logger.debug(f"Fallback selected: {selected}")
+                return selected
 
         # If result has pydantic attribute (future compatibility)
         if hasattr(result, "pydantic"):
