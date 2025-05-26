@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import tiktoken
 
 from ..settings import Settings
-from ..tools import load_file, logger
+from ..tools import logger
 from .base import BaseCrew
 from .commit_summary import CommitSummaryCrew
 from .enrichment import EnrichmentCrew
@@ -97,7 +97,7 @@ class PipelineCrew(BaseCrew):
         ai_suggestions = {"README.md": None, "wiki": {}}
 
         # Process README
-        readme_content = load_file(ctx["readme_path"])
+        readme_content = self.load_file(ctx["readme_path"])
         if readme_content:
             logger.info(f"📄 Update to README.md is currently {len(readme_content):,} characters.")
             logger.info(f"🔢 That's {self._count_tokens(readme_content):,} tokens in update to README.md!")
@@ -117,7 +117,7 @@ class PipelineCrew(BaseCrew):
             for filename in selected_articles:
                 filepath = ctx["wiki_file_paths"].get(filename)
                 if filepath:
-                    content = load_file(filepath)
+                    content = self.load_file(filepath)
                     if content:
                         logger.info(f"📄 Update to {filename} is currently {len(content):,} characters.")
                         logger.info(f"🔢 That's {self._count_tokens(content):,} tokens in update to {filename}!")

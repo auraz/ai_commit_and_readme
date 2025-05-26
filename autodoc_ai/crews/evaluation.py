@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 
 from evcrew import DocumentCrew
 
-from ..tools import load_file, logger
+from ..tools import logger
 
 # Wiki page type detection patterns
 WIKI_TYPE_PATTERNS = {
@@ -39,7 +39,7 @@ class EvaluationCrew(DocumentCrew):
 
     def run(self, doc_path: str, doc_type: Optional[str] = None, extra_criteria: Optional[str] = None) -> Tuple[int, str]:
         """Evaluate a document's quality with type-specific prompts."""
-        content = load_file(doc_path)
+        content = self.load_file(doc_path)
         if not content:
             return 0, f"Document not found or empty: {doc_path}"
 

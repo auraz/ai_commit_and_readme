@@ -7,7 +7,6 @@ from typing import Any, Dict, Optional
 from evcrew import DocumentCrew
 
 from ..settings import Settings
-from ..tools import load_file
 from .evaluation import EvaluationCrew
 
 
@@ -23,7 +22,12 @@ class ImprovementCrew(DocumentCrew):
 
     def run(self, doc_path: str, output_dir: str = "./improved", doc_type: Optional[str] = None) -> Dict[str, Any]:
         """Iteratively improve a document until target score is reached."""
-        content = load_file(doc_path)
+        # Since we don't inherit from BaseCrew, use file reading directly
+        try:
+            with open(doc_path, encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            content = None
         if not content:
             return {"error": f"Document not found or empty: {doc_path}"}
 

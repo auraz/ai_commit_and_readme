@@ -1,6 +1,6 @@
 """Base crew class for all documentation crews."""
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 from crewai import Crew, Task
 
@@ -35,3 +35,12 @@ class BaseCrew:
     def _handle_error(self, error: Exception) -> Any:
         """Handle errors. Override in subclasses for custom error handling."""
         return None
+
+    def load_file(self, file_path: str) -> Optional[str]:
+        """Load file content."""
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return None
