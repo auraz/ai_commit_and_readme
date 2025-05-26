@@ -1,12 +1,12 @@
 # ❓ Frequently Asked Questions (FAQ)
 
-Find answers to common questions about **ai_commit_and_readme**. For more details, see the [Wiki](Home).
+Find answers to common questions about **autodoc_ai**. For more details, see the [Wiki](Home).
 
 ---
 
 ### 🚀 Getting Started
 
-**Q: How do I set up ai_commit_and_readme for my project?**
+**Q: How do I set up autodoc_ai for my project?**
 - **A:** Follow the [Installation](Installation) and [Configuration](Configuration) guides in the Wiki.
 
 **Q: How do I create and activate a virtual environment?**
@@ -67,6 +67,6 @@ Find answers to common questions about **ai_commit_and_readme**. For more detail
 ### 🌟 Advanced & More Help
 
 - See [Usage](Usage) for advanced workflows and automation.
-- For more help, open an [issue on GitHub](https://github.com/auraz/ai_commit_and_readme/issues) or join the discussion!
+- For more help, open an [issue on GitHub](https://github.com/auraz/autodoc_ai/issues) or join the discussion!
 
 ---

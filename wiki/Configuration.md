@@ -1,6 +1,6 @@
 # ⚙️ Configuration
 
-Easily configure **ai_commit_and_readme** to fit your workflow using environment variables and optional config files. This page covers all available options, best practices, and troubleshooting tips.
+Easily configure **autodoc_ai** to fit your workflow using environment variables and optional config files. This page covers all available options, best practices, and troubleshooting tips.
 
 ---
 
@@ -13,7 +13,7 @@ Easily configure **ai_commit_and_readme** to fit your workflow using environment
 | `AICOMMIT_CONFIG_PATH`| Path to a custom aicommit config file                   | No       | `.aicommit/config.toml`                      |
 | `WIKI_PATH`           | Path to your Wiki directory                            | No       | `wiki`                                       |
 | `README_PATH`         | Path to your README file                               | No       | `README.md`                                  |
-| `WIKI_URL`            | Base URL for your Wiki (for links in README)           | No       | `https://github.com/auraz/ai_commit_and_readme/wiki/` |
+| `WIKI_URL`            | Base URL for your Wiki (for links in README)           | No       | `https://github.com/auraz/autodoc_ai/wiki/` |
 | `WIKI_URL_BASE`       | Base URL for Wiki articles                             | No       | –                                            |
 | `MODEL`               | OpenAI model to use (e.g., `gpt-4o`, `gpt-4`)          | No       | `gpt-4.1`                                     |
 

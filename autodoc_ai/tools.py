@@ -9,6 +9,7 @@ import sys
 from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import tiktoken
+from anthropic import Anthropic
 from openai import OpenAI
 from rich.logging import RichHandler
 
@@ -49,8 +50,8 @@ class LogMessages:
     FILE_TOKENS = "🔢 That's {:,} tokens in update to {}!"
     NO_CHANGES = "✅ No staged changes detected. Nothing to enrich."
     LARGE_DIFF = '⚠️  Diff is too large (>100000 characters). Falling back to "git diff --cached --name-only".'
-    API_ERROR = "❌ Error from OpenAI API: {}"
-    NO_API_KEY = "🔑 OPENAI_API_KEY not set. Skipping README update."
+    API_ERROR = "❌ Error from API: {}"
+    NO_API_KEY = "🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY."
     SUCCESS = "🎉✨ SUCCESS: {} enriched and staged with AI suggestions for {}! ✨🎉"
     NO_ENRICHMENT = "👍 No enrichment needed for {}."
     NO_WIKI_ARTICLES = "[i] No valid wiki articles selected."
@@ -63,18 +64,22 @@ logger = get_logger(__name__)
 
 def create_context(
     api_key: Optional[str] = None,
-    model: str = "gpt-4o-mini",
+    model: Optional[str] = None,
     readme_path: Optional[str] = None,
     wiki_path: Optional[str] = None,
     wiki_url: str = "https://github.com/auraz/autodoc-ai/wiki/",
     wiki_url_base: Optional[str] = None,
 ) -> PipelineContext:
     """Create fresh pipeline context with all required fields."""
-    # Use environment variables as fallbacks
-    api_key = api_key or os.getenv("OPENAI_API_KEY")
+    # Import here to avoid circular imports
+    from .settings import Settings
+
+    # Use settings and environment variables as fallbacks
+    model = model or Settings.get_model()
+    api_key = api_key or Settings.get_api_key()
     readme_path = readme_path or os.path.join(os.getcwd(), "README.md")
-    wiki_path = wiki_path or os.getenv("WIKI_PATH", "wiki")
-    wiki_url_base = wiki_url_base or os.getenv("WIKI_URL_BASE")
+    wiki_path = wiki_path or Settings.WIKI_PATH
+    wiki_url_base = wiki_url_base or Settings.WIKI_URL_BASE
 
     wiki_files, wiki_file_paths = get_wiki_files(wiki_path)
     return {
@@ -138,25 +143,52 @@ def load_file(file_path: str) -> Optional[str]:
 
 
 def get_ai_response(prompt: str, ctx: Optional[Dict[str, Any]] = None, json_response: bool = False, temperature: float = 0.5) -> Any:
-    """Get response from OpenAI API."""
-    api_key = ctx.get("api_key") if ctx else os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        logger.error(LogMessages.NO_API_KEY)
-        sys.exit(1)
+    """Get response from AI API (OpenAI or Anthropic)."""
+    from .settings import Settings
 
-    client = OpenAI(api_key=api_key)
+    model_name = ctx.get("model", Settings.get_model()) if ctx else Settings.get_model()
 
-    try:
-        model_name = ctx.get("model", "gpt-4o-mini") if ctx else "gpt-4o-mini"
-        kwargs = {"model": model_name, "messages": [{"role": "user", "content": prompt}], "temperature": temperature}
-        if json_response:
-            kwargs["response_format"] = {"type": "json_object"}
-        response = client.chat.completions.create(**kwargs)
-    except Exception as e:
-        logger.error(LogMessages.API_ERROR.format(e))
-        sys.exit(1)
+    # Determine which API to use based on model name
+    if model_name.startswith("claude"):
+        # Use Anthropic API
+        api_key = ctx.get("api_key") if ctx else os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            logger.error(LogMessages.NO_API_KEY)
+            sys.exit(1)
 
-    return response
+        client = Anthropic(api_key=api_key)
+
+        try:
+            response = client.messages.create(model=model_name, messages=[{"role": "user", "content": prompt}], temperature=temperature, max_tokens=4096)
+
+            # Wrap Anthropic response to match OpenAI format
+            class AnthropicWrapper:
+                def __init__(self, content):
+                    self.choices = [type("obj", (object,), {"message": type("obj", (object,), {"content": content})()})]
+
+            return AnthropicWrapper(response.content[0].text)
+        except Exception as e:
+            logger.error(LogMessages.API_ERROR.format(e))
+            sys.exit(1)
+    else:
+        # Use OpenAI API
+        api_key = ctx.get("api_key") if ctx else os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.error(LogMessages.NO_API_KEY)
+            sys.exit(1)
+
+        client = OpenAI(api_key=api_key)
+
+        try:
+            kwargs = {"model": model_name, "messages": [{"role": "user", "content": prompt}], "temperature": temperature}
+            if json_response:
+                kwargs["response_format"] = {"type": "json_object"}
+            response = client.chat.completions.create(**kwargs)
+        except Exception as e:
+            logger.error(LogMessages.API_ERROR.format(e))
+            sys.exit(1)
+
+        return response
 
 
 def extract_ai_content(response: Any) -> str:
@@ -208,5 +240,14 @@ def _update_with_section_header(file_path: str, ai_suggestion: str, section_head
 
 def count_tokens(text: str, model_name: str) -> int:
     """Count tokens in text for specific model."""
-    enc = tiktoken.encoding_for_model(model_name)
+    if model_name.startswith("claude"):
+        # Anthropic uses a similar tokenization to GPT-4
+        # Use cl100k_base encoding as approximation
+        enc = tiktoken.get_encoding("cl100k_base")
+    else:
+        try:
+            enc = tiktoken.encoding_for_model(model_name)
+        except KeyError:
+            # Fallback to cl100k_base for unknown models
+            enc = tiktoken.get_encoding("cl100k_base")
     return len(enc.encode(text))

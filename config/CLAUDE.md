@@ -4,44 +4,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`ai_commit_and_readme` is an AI-powered tool that automates commit message generation and documentation enrichment using OpenAI's API. It analyzes git diffs to generate meaningful commit messages and automatically updates README.md and Wiki documentation based on code changes.
+`autodoc_ai` is an AI-powered tool that automates commit message generation and documentation enrichment using OpenAI's API. It analyzes git diffs to generate meaningful commit messages and automatically updates README.md and Wiki documentation based on code changes.
 
 ## Key Commands
 
 ### Development Setup
 
 ```bash
-make dev-install    # Set up development environment with all dependencies
+just dev            # Set up development environment with all dependencies
 ```
 
 ### Code Quality
 
 ```bash
-make lint           # Run ruff linter
-make format         # Format code with ruff
-make check          # Run both lint and format
+just check          # Run ruff linter and formatter
 ```
 
 ### Testing
 
 ```bash
-make coverage       # Run tests with coverage report (also runs lint/format)
+just test           # Run tests with coverage report (also runs lint/format)
 ```
 
 ### Build & Deploy
 
 ```bash
-make build          # Build distribution packages
-make upload-pypi    # Upload to PyPI
-make tag            # Create git tag for current version
-make github-release # Create GitHub release
-make deploy         # Full deployment: changelog, build, PyPI, tag, release
+just build          # Build distribution packages
+just deploy         # Full deployment: build, PyPI, tag, release
 ```
 
 ### Workflow Commands
 
 ```bash
-make cm             # Stage all changes, run AI enrichment, commit, and push
+just cm             # Stage all changes, run AI enrichment, commit, and push
 ```
 
 ## Architecture
@@ -69,7 +64,7 @@ Key modules:
 
 ## Testing Approach
 
-The project uses pytest for testing. Test files are located in `ai_commit_and_readme/tests/` and cover:
+The project uses pytest for testing. Test files are located in `autodoc_ai/tests/` and cover:
 
 - CLI functionality (`test_cli.py`)
 - Main pipeline logic (`test_main.py`)
@@ -107,3 +102,4 @@ Run tests with coverage using `make coverage`.
 - when writing python or justfile code, be pythonic
 - no backward compatibility support
 - no fallbacks
+- avoid nested ifs or else

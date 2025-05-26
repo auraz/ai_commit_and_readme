@@ -1,10 +1,10 @@
 # Architecture
 
-This document provides an overview of the architecture for the `ai_commit_and_readme` tool, explaining how the various components work together.
+This document provides an overview of the architecture for the `autodoc_ai` tool, explaining how the various components work together.
 
 ## System Overview
 
-`ai_commit_and_readme` is designed with a modular architecture that follows the single responsibility principle. The system processes git repository information, sends it to OpenAI's API, and formats the results for user consumption.
+`autodoc_ai` is designed with a modular architecture that follows the single responsibility principle. The system processes git repository information, sends it to OpenAI's API, and formats the results for user consumption.
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -95,7 +95,7 @@ Used for creating different types of processors based on file types or processin
 ### Package Structure
 
 ```
-ai_commit_and_readme/
+autodoc_ai/
 ├── __init__.py           # Package initialization
 ├── cli.py                # Command-line interface
 ├── config.py             # Configuration management

@@ -1,10 +1,10 @@
 # Continuous Integration and Continuous Deployment (CI/CD)
 
-This guide explains the CI/CD setup for the `ai_commit_and_readme` project, helping contributors understand how automated testing and deployment works.
+This guide explains the CI/CD setup for the `autodoc_ai` project, helping contributors understand how automated testing and deployment works.
 
 ## Overview
 
-Continuous Integration (CI) automatically builds and tests code changes, while Continuous Deployment (CD) automatically deploys approved changes to production environments. For `ai_commit_and_readme`, we use GitHub Actions to automate these processes.
+Continuous Integration (CI) automatically builds and tests code changes, while Continuous Deployment (CD) automatically deploys approved changes to production environments. For `autodoc_ai`, we use GitHub Actions to automate these processes.
 
 ## CI/CD Pipeline Architecture
 
@@ -42,7 +42,7 @@ ruff format .
 pyright
 
 # Run tests with coverage
-pytest --cov=ai_commit_and_readme
+pytest --cov=autodoc_ai
 ```
 
 ## Release Process

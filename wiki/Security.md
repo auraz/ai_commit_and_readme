@@ -1,10 +1,10 @@
 # Security Best Practices
 
-This guide outlines security best practices for working with the `ai_commit_and_readme` tool, particularly regarding API key management and sensitive information.
+This guide outlines security best practices for working with the `autodoc_ai` tool, particularly regarding API key management and sensitive information.
 
 ## API Key Management
 
-The `ai_commit_and_readme` tool requires an OpenAI API key to function. Proper API key management is essential to prevent unauthorized access and potential abuse.
+The `autodoc_ai` tool requires an OpenAI API key to function. Proper API key management is essential to prevent unauthorized access and potential abuse.
 
 ### DO:
 

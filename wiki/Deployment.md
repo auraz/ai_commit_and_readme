@@ -1,6 +1,6 @@
 # Deploying to PyPI
 
-This guide covers the process of deploying the `ai_commit_and_readme` package to the Python Package Index (PyPI), making it available for installation via pip.
+This guide covers the process of deploying the `autodoc_ai` package to the Python Package Index (PyPI), making it available for installation via pip.
 
 ## Prerequisites
 
@@ -20,14 +20,14 @@ Before each release, update the version number in:
 1. `pyproject.toml`:
    ```toml
    [project]
-   name = "ai_commit_and_readme"
+   name = "autodoc_ai"
    version = "1.0.2"  # Update this version
    ```
 
 2. `setup.py`:
    ```python
    setup(
-       name="ai_commit_and_readme",
+       name="autodoc_ai",
        version="1.0.2",  # Update this version to match pyproject.toml
        # ...
    )
@@ -63,8 +63,8 @@ python -m build
 ```
 
 This will create the distribution files in the `dist/` directory:
-- `ai_commit_and_readme-x.y.z-py3-none-any.whl` (wheel package)
-- `ai_commit_and_readme-x.y.z.tar.gz` (source archive)
+- `autodoc_ai-x.y.z-py3-none-any.whl` (wheel package)
+- `autodoc_ai-x.y.z.tar.gz` (source archive)
 
 ## Testing with TestPyPI (Recommended)
 
@@ -77,7 +77,7 @@ Before publishing to the main PyPI repository, it's good practice to test with T
 
 2. Install from TestPyPI in a clean environment:
    ```bash
-   pip install --index-url https://test.pypi.org/simple/ --no-deps ai_commit_and_readme
+   pip install --index-url https://test.pypi.org/simple/ --no-deps autodoc_ai
    pip install openai tiktoken rich pipetools  # Install dependencies separately
    ```
 
@@ -101,14 +101,14 @@ TWINE_USERNAME=__token__ TWINE_PASSWORD=pypi-xxxx twine upload dist/*
 Verify the package can be installed from PyPI:
 
 ```bash
-pip install --no-cache-dir ai_commit_and_readme
+pip install --no-cache-dir autodoc_ai
 ```
 
 Test that the installed package works correctly:
 
 ```bash
 # Run a basic test with your CLI
-ai-commit-and-readme --help
+autodoc-ai --help
 ```
 
 After deployment, confirm that:
@@ -131,7 +131,7 @@ The deployment process now fully automates changelog generation using git commit
 1. The current version is automatically extracted from `pyproject.toml`
 2. The system finds the previous git tag (or uses all commits if no tag exists)
 3. Commit messages between the previous tag and current HEAD are extracted
-4. If no commits are found, the tool automatically invokes `ai-commit-and-readme --summary-only` 
+4. If no commits are found, the tool automatically invokes `autodoc-ai --summary-only` 
    - This feature uses AI to analyze code changes and generate a meaningful summary
    - It's completely automated and requires no user input
 5. The changelog is automatically updated with the new version and generated entries
@@ -197,7 +197,7 @@ The project includes a set of modular commands that can be used independently or
        fi; \
        if [ -z "$$COMMITS" ]; then \
            echo "$(YELLOW)⚠️  No commits found. Using AI to generate summary.$(RESET)"; \
-           COMMITS="- $$(ai-commit-and-readme --summary-only)"; \
+           COMMITS="- $$(autodoc-ai --summary-only)"; \
        fi; \
        tempfile=$$(mktemp) && echo "$$COMMITS" > $$tempfile && \
        sed -i.bak "2i\\\\n## v$(VERSION)" wiki/Changelog.md && \

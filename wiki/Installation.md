@@ -1,6 +1,6 @@
 # Installation
 
-This guide covers how to install and set up `ai_commit_and_readme` for both regular usage and development.
+This guide covers how to install and set up `autodoc_ai` for both regular usage and development.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ For persistent storage, add it to your shell profile or use a `.env` file (see [
 ### Option 1: Install from PyPI (Recommended for Users)
 
 ```sh
-uv pip install ai-commit-and-readme
+uv pip install autodoc-ai
 ```
 
 ### Option 2: Install from Source (Recommended for Contributors)
@@ -43,8 +43,8 @@ uv pip install ai-commit-and-readme
 Clone the repository and install in development mode:
 
 ```sh
-git clone https://github.com/auraz/ai_commit_and_readme.git
-cd ai_commit_and_readme
+git clone https://github.com/auraz/autodoc_ai.git
+cd autodoc_ai
 just install
 ```
 
@@ -117,7 +117,7 @@ After installation, verify everything works correctly:
 
 ```sh
 # Test that the command-line tool works
-ai-commit-and-readme --help
+autodoc-ai --help
 
 # For developers, run the test suite
 just test
@@ -137,7 +137,7 @@ just test
 3. **uv not found:**
    - Install using the official installer: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
-For other issues, please [open an issue](https://github.com/auraz/ai_commit_and_readme/issues) on GitHub.
+For other issues, please [open an issue](https://github.com/auraz/autodoc_ai/issues) on GitHub.
 
 ## Next Steps
 

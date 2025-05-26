@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering contributing to **ai_commit_and_readme**! This document outlines the process and guidelines for contributing to this project.
+Thank you for considering contributing to **autodoc_ai**! This document outlines the process and guidelines for contributing to this project.
 
 ## Code of Conduct
 
@@ -95,4 +95,4 @@ There are several ways you can contribute to the project:
 - Follow the guidelines in the [Security](Security) wiki page
 - Report security vulnerabilities privately to maintainers
 
-Thank you for contributing to `ai_commit_and_readme`! Your efforts help make this project better for everyone.
+Thank you for contributing to `autodoc_ai`! Your efforts help make this project better for everyone.

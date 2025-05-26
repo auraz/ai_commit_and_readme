@@ -5,10 +5,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from autodoc_ai.doc_eval import evaluate_all, evaluate_doc
+from autodoc_ai.doceval import evaluate_all, evaluate_doc
 
 
-@patch("autodoc_ai.doc_eval.DocumentCrew")
+@patch("autodoc_ai.doceval.DocumentCrew")
 def test_evaluate_readme(mock_crew_class):
     """Test README evaluation."""
     mock_crew = MagicMock()
@@ -26,7 +26,7 @@ def test_evaluate_readme(mock_crew_class):
         assert "Score: 85/100" in report
 
 
-@patch("autodoc_ai.doc_eval.DocumentCrew")
+@patch("autodoc_ai.doceval.DocumentCrew")
 def test_evaluate_missing_file(mock_crew_class):
     """Test evaluation of non-existent file."""
     score, report = evaluate_doc("/nonexistent/file.md", "readme")
@@ -34,7 +34,7 @@ def test_evaluate_missing_file(mock_crew_class):
     assert "Document not found or empty" in report
 
 
-@patch("autodoc_ai.doc_eval.DocumentCrew")
+@patch("autodoc_ai.doceval.DocumentCrew")
 def test_evaluate_with_extra_prompt(mock_crew_class):
     """Test evaluation with extra prompt criteria."""
     mock_crew = MagicMock()
@@ -57,7 +57,7 @@ def test_evaluate_with_extra_prompt(mock_crew_class):
         assert "Focus on authentication and authorization practices" in call_args
 
 
-@patch("autodoc_ai.doc_eval.DocumentCrew")
+@patch("autodoc_ai.doceval.DocumentCrew")
 def test_evaluate_all(mock_crew_class):
     """Test evaluating directory of documents."""
     mock_crew = MagicMock()

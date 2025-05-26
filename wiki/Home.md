@@ -1,6 +1,6 @@
-# Welcome to **ai_commit_and_readme** 🚀
+# Welcome to **autodoc_ai** 🚀
 
-**ai_commit_and_readme** is your all-in-one toolkit for automating commit message generation and enriching your README and Wiki documentation using AI. Designed for seamless integration into any development workflow, it helps you keep your project documentation and commit history clear, up-to-date, and high quality—with minimal effort.
+**autodoc_ai** is your all-in-one toolkit for automating commit message generation and enriching your README and Wiki documentation using AI. Designed for seamless integration into any development workflow, it helps you keep your project documentation and commit history clear, up-to-date, and high quality—with minimal effort.
 
 ---
 
