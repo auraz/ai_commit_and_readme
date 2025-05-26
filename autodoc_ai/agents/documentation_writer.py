@@ -37,9 +37,19 @@ class DocumentationWriterAgent(BaseAgent):
         doc_type = kwargs.get("doc_type", "documentation")
         file_path = kwargs.get("file_path", "document")
         context_tasks = kwargs.get("context_tasks", [])
+        other_docs = kwargs.get("other_docs", {})
 
         prompt_template = self.load_prompt("documentation_writer")
-        description = prompt_template.format(doc_type=doc_type, file_path=file_path, content=content)
+
+        # Format other docs info if provided
+        other_docs_info = ""
+        if other_docs and doc_type == "wiki":
+            other_docs_info = "\n\nOther wiki documents in this project:\n"
+            for doc_name, summary in other_docs.items():
+                other_docs_info += f"- {doc_name}: {summary}\n"
+            other_docs_info += "\nEnsure this document has unique content that doesn't duplicate what's covered in other wiki files."
+
+        description = prompt_template.format(doc_type=doc_type, file_path=file_path, content=content) + other_docs_info
 
         return Task(
             description=description,

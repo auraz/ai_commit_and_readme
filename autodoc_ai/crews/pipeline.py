@@ -114,6 +114,19 @@ class PipelineCrew(BaseCrew):
             if not selected_articles:
                 logger.info("[i] No valid wiki articles selected.")
 
+            # Build wiki context map to prevent duplication
+            wiki_summaries = {}
+            for filename in selected_articles:
+                filepath = ctx["wiki_file_paths"].get(filename)
+                if filepath:
+                    content = self.load_file(filepath)
+                    if content:
+                        # Extract title and first paragraph as summary
+                        lines = content.strip().split("\n")
+                        title = lines[0].strip("# ") if lines else filename
+                        first_para = next((p for p in content.split("\n\n")[1:3] if p.strip()), "")[:200]
+                        wiki_summaries[filename] = f"{title}: {first_para}..."
+
             for filename in selected_articles:
                 filepath = ctx["wiki_file_paths"].get(filename)
                 if filepath:
@@ -122,7 +135,10 @@ class PipelineCrew(BaseCrew):
                         logger.info(f"📄 Update to {filename} is currently {len(content):,} characters.")
                         logger.info(f"🔢 That's {self._count_tokens(content):,} tokens in update to {filename}!")
 
-                        needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=content, doc_type="wiki", file_path=filename)
+                        # Get summaries of other wiki files
+                        other_wikis = {k: v for k, v in wiki_summaries.items() if k != filename}
+
+                        needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=content, doc_type="wiki", file_path=filename, other_docs=other_wikis)
 
                         if needs_update and suggestion != "NO CHANGES":
                             ai_suggestions["wiki"][filename] = suggestion
