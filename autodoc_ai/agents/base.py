@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from crewai import Agent, LLM
+from crewai import LLM, Agent
 
 
 class BaseAgent:
@@ -15,22 +15,12 @@ class BaseAgent:
         self.goal = goal
         self.backstory = backstory
         self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
-        
+
         # Create LLM instance
-        llm = LLM(
-            model=self.model,
-            temperature=0.7
-        )
-        
+        llm = LLM(model=self.model, temperature=0.7)
+
         # Create the CrewAI agent
-        self.agent = Agent(
-            role=self.role,
-            goal=self.goal,
-            backstory=self.backstory,
-            verbose=True,
-            llm=llm,
-            allow_delegation=False
-        )
+        self.agent = Agent(role=self.role, goal=self.goal, backstory=self.backstory, verbose=True, llm=llm, allow_delegation=False)
 
     def save(self, *args, **kwargs) -> None:
         """Documentation agents don't save results directly."""

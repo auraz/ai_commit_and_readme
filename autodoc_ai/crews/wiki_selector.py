@@ -18,12 +18,12 @@ class WikiSelectorCrew(BaseCrew):
     def _execute(self, diff: str, wiki_files: List[str]) -> List[str]:
         """Execute wiki article selection."""
         from .. import logger
-        
+
         logger.info(f"🗂️ Starting wiki selection from {len(wiki_files)} available articles")
-        
+
         task = self.selector.create_task(diff, wiki_files=wiki_files)
         crew = self._create_crew([task], verbose=True)
-        
+
         logger.info("🎯 Kicking off wiki selector crew...")
         result = crew.kickoff()
         logger.info("✨ Wiki selector crew completed")
@@ -32,6 +32,7 @@ class WikiSelectorCrew(BaseCrew):
         if isinstance(result, str):
             # Parse the output to extract selected articles
             import re
+
             # Look for list patterns in the output
             matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result)
             if matches:
@@ -42,11 +43,11 @@ class WikiSelectorCrew(BaseCrew):
                 if wiki_file in result:
                     selected.append(wiki_file)
             return selected
-        
+
         # If result has pydantic attribute (future compatibility)
-        if hasattr(result, 'pydantic'):
+        if hasattr(result, "pydantic"):
             return result.pydantic.selected_articles
-        
+
         return []
 
     def _handle_error(self, error: Exception) -> List[str]:

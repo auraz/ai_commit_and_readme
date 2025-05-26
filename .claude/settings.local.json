@@ -46,7 +46,9 @@
       "Bash(AUTODOC_MODEL=\"claude-3-opus-20240229\" just enrich-days 7)",
       "Bash(uv pip list:*)",
       "Bash(uv venv:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": []
   }

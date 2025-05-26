@@ -18,35 +18,35 @@ class BaseCrew:
 
     def _create_crew(self, tasks: List[Task], verbose: bool = True) -> Crew:
         """Create crew with agents and tasks."""
-        
+
         def step_callback(agent, task, step_output):
             """Callback for each step in task execution."""
             logger.info(f"🔄 Step: Agent '{agent.role}' working on task '{task.description[:50]}...'")
-            
+
         def task_callback(task, output):
             """Callback for task completion."""
             logger.info(f"✅ Task completed: '{task.description[:50]}...'")
-            if hasattr(output, 'raw'):
+            if hasattr(output, "raw"):
                 logger.info(f"   Output preview: {str(output.raw)[:100]}...")
-                
+
         def before_kickoff(crew):
             """Callback before crew execution starts."""
             logger.info(f"🚀 Starting crew execution with {len(tasks)} tasks...")
             for i, task in enumerate(tasks, 1):
                 logger.info(f"   Task {i}: {task.description[:60]}...")
-                
+
         def after_kickoff(crew, output):
             """Callback after crew execution completes."""
-            logger.info(f"🏁 Crew execution completed!")
-            
+            logger.info("🏁 Crew execution completed!")
+
         return Crew(
-            agents=[agent.agent for agent in self.agents], 
-            tasks=tasks, 
+            agents=[agent.agent for agent in self.agents],
+            tasks=tasks,
             verbose=verbose,
             step_callback=step_callback,
             task_callback=task_callback,
             before_kickoff_callbacks=[before_kickoff],
-            after_kickoff_callbacks=[after_kickoff]
+            after_kickoff_callbacks=[after_kickoff],
         )
 
     def run(self, *args, **kwargs) -> Any:
