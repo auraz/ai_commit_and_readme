@@ -151,6 +151,8 @@ enrich-commit:
         # This is the first commit, get diff from empty tree
         diff = subprocess.check_output(["git", "diff", "4b825dc642cb6eb9a060e54bf8d69288fbee4904", "HEAD", "-U1"], text=True)
     
+    print(f"📊 Git diff length: {len(diff)} characters")
+    
     if not diff:
         print("✅ No changes in the last commit")
         sys.exit(0)

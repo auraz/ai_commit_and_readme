@@ -27,6 +27,12 @@ class WikiSelectorCrew(BaseCrew):
         logger.info("🎯 Kicking off wiki selector crew...")
         result = crew.kickoff()
         logger.info("✨ Wiki selector crew completed")
+        logger.debug(f"Raw wiki selector result: {result}")
+
+        # Handle None result (error case)
+        if result is None:
+            logger.warning("Wiki selector returned None - likely due to an error")
+            return []
 
         # Handle string output from CrewAI
         if isinstance(result, str):
@@ -36,18 +42,24 @@ class WikiSelectorCrew(BaseCrew):
             # Look for list patterns in the output
             matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result)
             if matches:
-                return [m for m in matches if m in wiki_files]
+                filtered = [m for m in matches if m in wiki_files]
+                logger.debug(f"Regex matches: {matches}, filtered: {filtered}")
+                return filtered
             # Fallback: look for wiki file names mentioned in the text
             selected = []
             for wiki_file in wiki_files:
                 if wiki_file in result:
                     selected.append(wiki_file)
+            logger.debug(f"Fallback selected: {selected}")
             return selected
 
         # If result has pydantic attribute (future compatibility)
         if hasattr(result, "pydantic"):
-            return result.pydantic.selected_articles
+            selected = result.pydantic.selected_articles
+            logger.debug(f"Selected articles from pydantic: {selected}")
+            return selected
 
+        logger.debug("No articles selected")
         return []
 
     def _handle_error(self, error: Exception) -> List[str]:

@@ -81,8 +81,8 @@ class PipelineCrew(BaseCrew):
             if not diff:
                 logger.info("✅ No staged changes detected. Nothing to enrich.")
                 raise ValueError("No staged changes")
+            logger.debug(f"Git diff length: {len(diff)} characters")
             if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
-                logger.debug(f"Git diff length: {len(diff)} characters")
                 logger.debug(f"Git diff preview (first 1000 chars):")
                 logger.debug("="*80)
                 logger.debug(diff[:1000])
@@ -168,9 +168,13 @@ class PipelineCrew(BaseCrew):
                         wiki_summaries[filename] = f"{title}: {first_para}..."
 
             logger.info(f"📚 Processing {len(selected_articles)} wiki articles...")
+            logger.debug(f"Selected articles: {selected_articles}")
+            logger.debug(f"Wiki file paths: {ctx['wiki_file_paths']}")
+            
             for idx, filename in enumerate(selected_articles, 1):
                 logger.info(f"  [{idx}/{len(selected_articles)}] {filename}")
                 filepath = ctx["wiki_file_paths"].get(filename)
+                logger.debug(f"Looking for {filename} -> {filepath}")
                 if filepath:
                     content = self.load_file(filepath)
                     if content:
