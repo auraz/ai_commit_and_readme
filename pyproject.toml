@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "autodoc-ai"
-version = "1.0.4"
+name = "autodoc_ai"
+version = "2.0.0"
 description = "AI-powered documentation generation and maintenance tool"
 readme = "README.md"
 authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
@@ -28,6 +28,9 @@ classifiers = [
 "Homepage" = "https://github.com/auraz/autodoc_ai"
 "Bug Tracker" = "https://github.com/auraz/autodoc_ai/issues"
 "Documentation" = "https://github.com/auraz/autodoc_ai/wiki"
+
+[project.scripts]
+autodoc_ai = "autodoc_ai.__main__:main"
 
 
 [tool.setuptools]

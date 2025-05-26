@@ -1,10 +1,10 @@
-# autodoc-ai 🚀
+# autodoc_ai 🚀
 
-[![PyPI](https://img.shields.io/pypi/v/autodoc-ai)](https://pypi.org/project/autodoc-ai/)
+[![PyPI](https://img.shields.io/pypi/v/autodoc_ai)](https://pypi.org/project/autodoc_ai/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/auraz/autodoc_ai/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/autodoc_ai/actions)
 
-**autodoc-ai** is an AI-powered tool designed to automatically generate meaningful commit messages and keep documentation up-to-date. It integrates seamlessly into any repository, ensuring that your README and Wiki documentation remain current and useful.
+**autodoc_ai** is an AI-powered tool designed to automatically generate meaningful commit messages and keep documentation up-to-date. It integrates seamlessly into any repository, ensuring that your README and Wiki documentation remain current and useful.
 
 ## Features
 
@@ -22,15 +22,15 @@
 
 ## Quick Start
 
-Integrate `autodoc-ai` into your repository to keep documentation synchronized:
+Integrate `autodoc_ai` into your repository to keep documentation synchronized:
 
 ```bash
 # Install globally
-pip install autodoc-ai
+pip install autodoc_ai
 
 # Or install from source
 git clone https://github.com/auraz/autodoc_ai.git
-cd autodoc-ai
+cd autodoc_ai
 just install
 
 # Set your OpenAI API key
@@ -42,7 +42,7 @@ export AUTODOC_DISABLE_CALLBACKS="true"  # Disable CrewAI callbacks if needed
 
 # In your project directory
 cd your-project
-autodoc-ai  # Automatically enriches your README and Wiki based on staged changes
+autodoc_ai  # Automatically enriches your README and Wiki based on staged changes
 ```
 
 ### Additional Configuration Options
