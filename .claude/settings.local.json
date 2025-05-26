@@ -64,7 +64,10 @@
       "Bash(uv sync:*)",
       "Bash(gh workflow list:*)",
       "Bash(just commit:*)",
-      "Bash(just cm:*)"
+      "Bash(just cm:*)",
+      "Bash(gh repo rename:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/autodoc-ai)](https://pypi.org/project/autodoc-ai/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/auraz/autodoc-ai/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/autodoc-ai/actions)
+[![Tests](https://github.com/auraz/autodoc_ai/actions/workflows/test.yml/badge.svg)](https://github.com/auraz/autodoc_ai/actions)
 
 **autodoc-ai** is an AI-powered tool designed to automatically generate meaningful commit messages and keep documentation up-to-date. It integrates seamlessly into any repository, ensuring that your README and Wiki documentation remain current and useful.
 
@@ -29,7 +29,7 @@ Integrate `autodoc-ai` into your repository to keep documentation synchronized:
 pip install autodoc-ai
 
 # Or install from source
-git clone https://github.com/auraz/autodoc-ai.git
+git clone https://github.com/auraz/autodoc_ai.git
 cd autodoc-ai
 just install
 
@@ -68,16 +68,16 @@ autodoc-ai  # Automatically enriches your README and Wiki based on staged change
 
 ## Changelog
 
-Stay informed about recent modifications and new features. Refer to the [Changelog](https://github.com/auraz/autodoc-ai/wiki/Changelog) for updates.
+Stay informed about recent modifications and new features. Refer to the [Changelog](https://github.com/auraz/autodoc_ai/wiki/Changelog) for updates.
 
 ## Documentation
 
-For comprehensive guidance, visit the [GitHub Wiki](https://github.com/auraz/autodoc-ai/wiki):
+For comprehensive guidance, visit the [GitHub Wiki](https://github.com/auraz/autodoc_ai/wiki):
 
-- [Installation Guide](https://github.com/auraz/autodoc-ai/wiki/Installation)
-- [Usage & Commands](https://github.com/auraz/autodoc-ai/wiki/Usage)
-- [Configuration](https://github.com/auraz/autodoc-ai/wiki/Configuration)
-- [Architecture](https://github.com/auraz/autodoc-ai/wiki/Architecture)
+- [Installation Guide](https://github.com/auraz/autodoc_ai/wiki/Installation)
+- [Usage & Commands](https://github.com/auraz/autodoc_ai/wiki/Usage)
+- [Configuration](https://github.com/auraz/autodoc_ai/wiki/Configuration)
+- [Architecture](https://github.com/auraz/autodoc_ai/wiki/Architecture)
 
 ## License
 

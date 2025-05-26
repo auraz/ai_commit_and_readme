@@ -25,9 +25,9 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/auraz/autodoc-ai"
-"Bug Tracker" = "https://github.com/auraz/autodoc-ai/issues"
-"Documentation" = "https://github.com/auraz/autodoc-ai/wiki"
+"Homepage" = "https://github.com/auraz/autodoc_ai"
+"Bug Tracker" = "https://github.com/auraz/autodoc_ai/issues"
+"Documentation" = "https://github.com/auraz/autodoc_ai/wiki"
 
 
 [tool.setuptools]
