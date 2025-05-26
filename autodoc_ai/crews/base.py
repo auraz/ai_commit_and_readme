@@ -58,15 +58,23 @@ class BaseCrew:
             """Callback after crew execution completes."""
             logger.info("🏁 Crew execution completed!")
 
-        return Crew(
-            agents=[agent.agent for agent in self.agents],
-            tasks=tasks,
-            verbose=verbose,
-            step_callback=step_callback,
-            task_callback=task_callback,
-            before_kickoff_callbacks=[before_kickoff],
-            after_kickoff_callbacks=[after_kickoff],
-        )
+        # Temporarily disable callbacks to debug
+        crew_params = {
+            "agents": [agent.agent for agent in self.agents],
+            "tasks": tasks,
+            "verbose": verbose
+        }
+        
+        # Only add callbacks if not causing issues
+        if os.getenv("AUTODOC_DISABLE_CALLBACKS", "false").lower() != "true":
+            crew_params.update({
+                "step_callback": step_callback,
+                "task_callback": task_callback,
+                "before_kickoff_callbacks": [before_kickoff],
+                "after_kickoff_callbacks": [after_kickoff],
+            })
+        
+        return Crew(**crew_params)
 
     def run(self, *args, **kwargs) -> Any:
         """Run the crew with error handling."""
