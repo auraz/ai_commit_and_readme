@@ -58,7 +58,10 @@
       "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days:*)",
       "Bash(pip uninstall:*)",
       "Bash(coverage run:*)",
-      "Bash(coverage report)"
+      "Bash(coverage report)",
+      "Bash(coverage report:*)",
+      "Bash(coverage erase:*)",
+      "Bash(uv sync:*)"
     ],
     "deny": []
   }
