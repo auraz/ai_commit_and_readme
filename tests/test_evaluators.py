@@ -38,9 +38,10 @@ def test_evaluate_with_extra_prompt():
     crew = EvaluationCrew()
 
     # Mock the evaluate_one method on the instance
-    with patch.object(crew, "evaluate_one", return_value=(90.0, "Excellent documentation with security focus.")), tempfile.NamedTemporaryFile(
-        mode="w+", suffix=".md"
-    ) as tmp:
+    with (
+        patch.object(crew, "evaluate_one", return_value=(90.0, "Excellent documentation with security focus.")),
+        tempfile.NamedTemporaryFile(mode="w+", suffix=".md") as tmp,
+    ):
         tmp.write("# Security Guide\n\nThis document covers security best practices.")
         tmp.flush()
 

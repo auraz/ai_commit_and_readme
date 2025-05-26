@@ -1,7 +1,5 @@
 """Crew for enriching documentation."""
 
-from typing import Dict, Optional, Tuple
-
 from ..agents import CodeAnalystAgent, DocumentationWriterAgent
 from .base import BaseCrew
 
@@ -16,7 +14,7 @@ class EnrichmentCrew(BaseCrew):
         self.doc_writer = DocumentationWriterAgent()
         self.agents = [self.code_analyst, self.doc_writer]
 
-    def _execute(self, diff: str, doc_content: str, doc_type: str, file_path: str, other_docs: Optional[Dict[str, str]] = None) -> Tuple[bool, str]:
+    def _execute(self, diff: str, doc_content: str, doc_type: str, file_path: str, other_docs: dict[str, str] | None = None) -> tuple[bool, str]:
         """Execute documentation enrichment."""
         from .. import logger
 
@@ -69,6 +67,6 @@ class EnrichmentCrew(BaseCrew):
 
         return False, "NO CHANGES"
 
-    def _handle_error(self, error: Exception) -> Tuple[bool, str]:
+    def _handle_error(self, error: Exception) -> tuple[bool, str]:
         """Handle enrichment errors."""
         return False, "NO CHANGES"

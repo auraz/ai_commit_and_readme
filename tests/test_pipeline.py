@@ -201,12 +201,11 @@ class TestPipelineCrew:
 
         assert summary == "No changes to summarize"
 
-
     @patch("subprocess.check_output")
     def test_get_commits_diff_no_commits(self, mock_subprocess, pipeline_crew):
         """Test getting commits diff with no commits in time period."""
         mock_subprocess.return_value = ""  # No commits
-        
+
         with pytest.raises(ValueError, match="No commits in the last"):
             pipeline_crew._get_commits_diff(7)
 
@@ -217,11 +216,11 @@ class TestPipelineCrew:
             "initial-hash",  # git log output (only one commit)
             subprocess.CalledProcessError(1, "git"),  # git rev-parse fails (no parent)
             "diff content",  # git diff output
-            "Initial commit"  # git log --oneline output
+            "Initial commit",  # git log --oneline output
         ]
-        
+
         diff = pipeline_crew._get_commits_diff(7)
-        
+
         assert diff == "diff content"
         # Should use empty tree hash when no parent
         assert mock_subprocess.call_args_list[2][0][0] == ["git", "diff", "4b825dc642cb6eb9a060e54bf8d69288fbee4904", "HEAD", "-U1"]
@@ -230,7 +229,7 @@ class TestPipelineCrew:
     def test_get_git_diff_error(self, mock_subprocess, pipeline_crew):
         """Test git diff with subprocess error."""
         mock_subprocess.side_effect = subprocess.CalledProcessError(1, "git diff")
-        
+
         with pytest.raises(ValueError, match="Git diff error"):
             pipeline_crew._get_git_diff()
 
@@ -239,45 +238,41 @@ class TestPipelineCrew:
         readme_path = tmp_path / "README.md"
         wiki_path = tmp_path / "wiki"
         wiki_path.mkdir()
-        
+
         mock_run = MagicMock()
         monkeypatch.setattr("subprocess.run", mock_run)
-        
-        ctx = {
-            "readme_path": str(readme_path),
-            "wiki_file_paths": {
-                "Usage.md": str(wiki_path / "Usage.md"),
-                "API.md": str(wiki_path / "API.md")
-            }
-        }
-        
+
+        ctx = {"readme_path": str(readme_path), "wiki_file_paths": {"Usage.md": str(wiki_path / "Usage.md"), "API.md": str(wiki_path / "API.md")}}
+
         suggestions = {
             "README.md": "New README content",
             "wiki": {
                 "Usage.md": "New usage content",
-                "API.md": "NO CHANGES"  # Should not be written
-            }
+                "API.md": "NO CHANGES",  # Should not be written
+            },
         }
-        
+
         pipeline_crew._write_outputs(suggestions, ctx)
-        
+
         # Check files were written
         assert readme_path.read_text() == "New README content\n"
         assert (wiki_path / "Usage.md").read_text() == "New usage content\n"
         assert not (wiki_path / "API.md").exists()
-        
+
         # Check git add was called for written files
         assert mock_run.call_count == 2
 
     def test_execute_with_days(self, pipeline_crew, monkeypatch):
         """Test execute with days parameter."""
         monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-        
-        with patch.object(pipeline_crew, '_get_commits_diff', return_value="commits diff") as mock_commits:
-            with patch.object(pipeline_crew, '_process_documents', return_value={"suggestions": {}, "selected_articles": []}):
-                with patch.object(pipeline_crew, '_write_outputs'):
-                    result = pipeline_crew._execute(days=30)
-        
+
+        with (
+            patch.object(pipeline_crew, "_get_commits_diff", return_value="commits diff") as mock_commits,
+            patch.object(pipeline_crew, "_process_documents", return_value={"suggestions": {}, "selected_articles": []}),
+            patch.object(pipeline_crew, "_write_outputs"),
+        ):
+            result = pipeline_crew._execute(days=30)
+
         assert result["success"] is True
         mock_commits.assert_called_once_with(30)
 
@@ -285,17 +280,17 @@ class TestPipelineCrew:
 def test_get_git_diff_debug_logging(monkeypatch, caplog):
     """Test debug logging in git diff."""
     monkeypatch.setenv("AUTODOC_LOG_LEVEL", "DEBUG")
-    
+
     crew = PipelineCrew()
     long_diff = "x" * 2000  # Longer than 1000 chars
-    
-    with patch('subprocess.run') as mock_run:
+
+    with patch("subprocess.run") as mock_run:
         mock_run.return_value.stdout = long_diff
         mock_run.return_value.returncode = 0
-        
+
         with caplog.at_level("DEBUG"):
             diff = crew._get_git_diff()
-            
+
             assert "Git diff preview (first 1000 chars):" in caplog.text
             assert "x" * 1000 in caplog.text  # First 1000 chars
             assert diff == long_diff
@@ -304,32 +299,30 @@ def test_get_git_diff_debug_logging(monkeypatch, caplog):
 def test_process_documents_no_wiki_articles_selected(caplog):
     """Test when wiki selector returns empty list."""
     crew = PipelineCrew()
-    
-    ctx = {
-        "readme_path": "/tmp/README.md",
-        "wiki_files": ["Usage.md", "API.md"],
-        "wiki_file_paths": {"Usage.md": "/tmp/wiki/Usage.md", "API.md": "/tmp/wiki/API.md"}
-    }
-    
-    with patch.object(crew, 'load_file', return_value="README content"):
-        with patch.object(crew.enrichment_crew, 'run', return_value=(False, "NO CHANGES")):
-            with patch.object(crew.wiki_selector_crew, 'run', return_value=[]):  # Empty selection
-                with caplog.at_level("INFO"):
-                    result = crew._process_documents("test diff", ctx)
-                    
-                    assert "[i] No valid wiki articles selected." in caplog.text
-                    assert result["selected_articles"] == []
+
+    ctx = {"readme_path": "/tmp/README.md", "wiki_files": ["Usage.md", "API.md"], "wiki_file_paths": {"Usage.md": "/tmp/wiki/Usage.md", "API.md": "/tmp/wiki/API.md"}}
+
+    with (
+        patch.object(crew, "load_file", return_value="README content"),
+        patch.object(crew.enrichment_crew, "run", return_value=(False, "NO CHANGES")),
+        patch.object(crew.wiki_selector_crew, "run", return_value=[]),
+        caplog.at_level("INFO"),
+    ):
+        result = crew._process_documents("test diff", ctx)
+
+        assert "[i] No valid wiki articles selected." in caplog.text
+        assert result["selected_articles"] == []
 
 
 def test_execute_git_diff_value_error(monkeypatch):
     """Test handling ValueError from git diff."""
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-    
+
     crew = PipelineCrew()
-    
-    with patch.object(crew, '_get_git_diff', side_effect=ValueError("No staged changes")):
+
+    with patch.object(crew, "_get_git_diff", side_effect=ValueError("No staged changes")):
         result = crew._execute()
-        
+
         assert result["success"] is False
         assert result["error"] == "No staged changes"
 

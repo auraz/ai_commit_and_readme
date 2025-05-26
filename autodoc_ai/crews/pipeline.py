@@ -4,7 +4,7 @@ import contextlib
 import glob
 import os
 import subprocess
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import tiktoken
 
@@ -26,14 +26,14 @@ class PipelineCrew(BaseCrew):
         self.commit_summary_crew = CommitSummaryCrew()
         self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
 
-    def _get_wiki_files(self, wiki_path: str) -> Tuple[List[str], Dict[str, str]]:
+    def _get_wiki_files(self, wiki_path: str) -> tuple[list[str], dict[str, str]]:
         """Get list of wiki files and their paths."""
         files = glob.glob(f"{wiki_path}/*.md")
         filenames = [os.path.basename(f) for f in files]
         file_paths = {os.path.basename(f): f for f in files}
         return filenames, file_paths
 
-    def _create_context(self) -> Dict[str, Any]:
+    def _create_context(self) -> dict[str, Any]:
         """Create pipeline context with all required fields."""
         api_key = os.getenv("OPENAI_API_KEY")
         readme_path = os.path.join(os.getcwd(), "README.md")
@@ -49,7 +49,7 @@ class PipelineCrew(BaseCrew):
             "wiki_file_paths": wiki_file_paths,
         }
 
-    def _write_suggestion_and_stage(self, file_path: str, ai_suggestion: Optional[str], label: str) -> None:
+    def _write_suggestion_and_stage(self, file_path: str, ai_suggestion: str | None, label: str) -> None:
         """Write AI suggestion to file and stage it."""
         if not ai_suggestion or ai_suggestion == "NO CHANGES":
             logger.info(f"👍 No enrichment needed for {file_path}.")
@@ -130,7 +130,7 @@ class PipelineCrew(BaseCrew):
             logger.error(f"❌ Error getting commits diff: {e}")
             raise ValueError(f"Git commits error: {e}") from e
 
-    def _process_documents(self, diff: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_documents(self, diff: str, ctx: dict[str, Any]) -> dict[str, Any]:
         """Process README and wiki documents."""
         ai_suggestions = {"README.md": None, "wiki": {}}
 
@@ -196,7 +196,7 @@ class PipelineCrew(BaseCrew):
 
         return {"suggestions": ai_suggestions, "selected_articles": selected_articles}
 
-    def _write_outputs(self, ai_suggestions: Dict[str, Any], ctx: Dict[str, Any]) -> None:
+    def _write_outputs(self, ai_suggestions: dict[str, Any], ctx: dict[str, Any]) -> None:
         """Write suggestions to files and stage them."""
         logger.debug(f"Writing outputs - suggestions: {list(ai_suggestions.keys())}")
         logger.debug(f"Wiki suggestions: {list(ai_suggestions.get('wiki', {}).keys())}")
@@ -209,7 +209,7 @@ class PipelineCrew(BaseCrew):
             if filepath:
                 self._write_suggestion_and_stage(filepath, suggestion, filename)
 
-    def _execute(self, days: Optional[int] = None) -> Dict[str, Any]:
+    def _execute(self, days: int | None = None) -> dict[str, Any]:
         """Execute the enrichment pipeline."""
         # Create context
         logger.info("🚀 Starting pipeline...")
@@ -244,11 +244,11 @@ class PipelineCrew(BaseCrew):
             "selected_wiki_articles": result["selected_articles"],
         }
 
-    def _handle_error(self, error: Exception) -> Dict[str, Any]:
+    def _handle_error(self, error: Exception) -> dict[str, Any]:
         """Handle pipeline errors."""
         return {"success": False, "error": str(error)}
 
-    def generate_summary(self, diff: Optional[str] = None) -> str:
+    def generate_summary(self, diff: str | None = None) -> str:
         """Generate commit summary from diff."""
         if not diff:
             # Try staged changes first

@@ -1,7 +1,7 @@
 """Base crew class for all documentation crews."""
 
 import os
-from typing import Any, List, Optional
+from typing import Any
 
 from crewai import Crew, Task
 
@@ -17,7 +17,7 @@ class BaseCrew:
         self.agents = []
         logger.debug(f"Initialized {self.__class__.__name__} with model: {self.model}")
 
-    def _create_crew(self, tasks: List[Task], verbose: Optional[bool] = None) -> Crew:
+    def _create_crew(self, tasks: list[Task], verbose: bool | None = None) -> Crew:
         """Create crew with agents and tasks."""
 
         # Set verbose based on log level if not specified
@@ -94,7 +94,7 @@ class BaseCrew:
         """Handle errors. Override in subclasses for custom error handling."""
         return None
 
-    def load_file(self, file_path: str) -> Optional[str]:
+    def load_file(self, file_path: str) -> str | None:
         """Load file content."""
         try:
             with open(file_path, encoding="utf-8") as f:

@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from evcrew import DocumentCrew
 
@@ -12,14 +12,14 @@ from .evaluation import EvaluationCrew
 class ImprovementCrew(DocumentCrew):
     """Crew for iteratively improving documentation using evcrew."""
 
-    def __init__(self, target_score: Optional[int] = None, max_iterations: Optional[int] = None):
+    def __init__(self, target_score: int | None = None, max_iterations: int | None = None):
         """Initialize improvement crew."""
         target_score = target_score or int(os.getenv("AUTODOC_TARGET_SCORE", "85"))
         max_iterations = max_iterations or int(os.getenv("AUTODOC_MAX_ITERATIONS", "3"))
         super().__init__(target_score=target_score, max_iterations=max_iterations)
         self.evaluation_crew = EvaluationCrew()
 
-    def run(self, doc_path: str, output_dir: str = "./improved", doc_type: Optional[str] = None) -> Dict[str, Any]:
+    def run(self, doc_path: str, output_dir: str = "./improved", doc_type: str | None = None) -> dict[str, Any]:
         """Iteratively improve a document until target score is reached."""
         # Since we don't inherit from BaseCrew, use file reading directly
         try:

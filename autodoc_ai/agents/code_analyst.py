@@ -1,7 +1,5 @@
 """Agent for analyzing code changes."""
 
-from typing import List
-
 from crewai import Task
 from pydantic import BaseModel
 
@@ -12,7 +10,7 @@ class CodeAnalysisResult(BaseModel):
     """Result of code diff analysis."""
 
     changes_summary: str
-    documentation_impacts: List[str]
+    documentation_impacts: list[str]
 
 
 class CodeAnalystAgent(BaseAgent):

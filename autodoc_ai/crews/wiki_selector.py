@@ -1,7 +1,5 @@
 """Crew for selecting wiki articles."""
 
-from typing import List
-
 from ..agents import WikiSelectorAgent
 from .base import BaseCrew
 
@@ -15,7 +13,7 @@ class WikiSelectorCrew(BaseCrew):
         self.selector = WikiSelectorAgent()
         self.agents = [self.selector]
 
-    def _execute(self, diff: str, wiki_files: List[str]) -> List[str]:
+    def _execute(self, diff: str, wiki_files: list[str]) -> list[str]:
         """Execute wiki article selection."""
         from .. import logger
 
@@ -67,6 +65,6 @@ class WikiSelectorCrew(BaseCrew):
         logger.debug("No articles selected")
         return []
 
-    def _handle_error(self, error: Exception) -> List[str]:
+    def _handle_error(self, error: Exception) -> list[str]:
         """Handle selection errors."""
         return []

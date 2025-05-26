@@ -1,7 +1,5 @@
 """Agent for selecting wiki articles."""
 
-from typing import List
-
 from crewai import Task
 from pydantic import BaseModel
 
@@ -11,7 +9,7 @@ from .base import BaseAgent
 class WikiSelectionResult(BaseModel):
     """Result of wiki article selection."""
 
-    selected_articles: List[str]
+    selected_articles: list[str]
 
 
 class WikiSelectorAgent(BaseAgent):

@@ -30,9 +30,9 @@ if result.stderr:
     print(result.stderr)
 
 # Generate coverage report
-print("\n" + "="*80)
+print("\n" + "=" * 80)
 print("COVERAGE REPORT")
-print("="*80)
+print("=" * 80)
 
 # Run coverage report
 report_cmd = ["coverage", "report", "-m", "--skip-covered", "--skip-empty"]

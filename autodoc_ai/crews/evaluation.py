@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-from typing import Optional, Tuple
 
 from evcrew import DocumentCrew
 
@@ -37,7 +36,7 @@ class EvaluationCrew(DocumentCrew):
                 prompts[page_type] = f.read()
         return prompts
 
-    def load_file(self, file_path: str) -> Optional[str]:
+    def load_file(self, file_path: str) -> str | None:
         """Load file content."""
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -46,7 +45,7 @@ class EvaluationCrew(DocumentCrew):
             logger.error(f"Error reading file {file_path}: {e}")
             return None
 
-    def run(self, doc_path: str, doc_type: Optional[str] = None, extra_criteria: Optional[str] = None) -> Tuple[int, str]:
+    def run(self, doc_path: str, doc_type: str | None = None, extra_criteria: str | None = None) -> tuple[int, str]:
         """Evaluate a document's quality with type-specific prompts."""
         content = self.load_file(doc_path)
         if not content:
