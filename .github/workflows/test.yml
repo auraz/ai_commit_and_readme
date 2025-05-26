@@ -40,6 +40,9 @@ jobs:
         
       - name: Run coverage
         if: matrix.python-version == '3.11'
+        env:
+          OPENAI_API_KEY: test-key
+          CHROMA_OPENAI_API_KEY: test-key
         run: |
           uv run coverage run -m pytest
           uv run coverage report
