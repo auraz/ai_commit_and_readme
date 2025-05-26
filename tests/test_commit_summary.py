@@ -60,8 +60,12 @@ class TestCommitSummaryCrew:
         """Test handling empty raw output."""
         crew = CommitSummaryCrew()
 
-        mock_output = MagicMock()
-        mock_output.raw = ""
+        # Create a mock output object that has empty raw but no pydantic
+        class MockOutput:
+            def __init__(self):
+                self.raw = ""
+        
+        mock_output = MockOutput()
 
         with patch.object(crew, "_create_crew") as mock_create_crew:
             mock_crew_instance = MagicMock()

@@ -23,15 +23,13 @@ class TestEnrichmentCrew:
 
         # Mock crew output with markdown content
         mock_output = MagicMock()
-        mock_output.raw = """
-        The documentation needs updating. Here's the updated content:
-        
-        ```markdown
-        # Updated README
-        
-        This is the new content with improvements.
-        ```
-        """
+        mock_output.raw = """The documentation needs updating. Here's the updated content:
+
+```markdown
+# Updated README
+
+This is the new content with improvements.
+```"""
 
         with patch.object(crew, "_create_crew") as mock_create_crew:
             mock_crew_instance = MagicMock()

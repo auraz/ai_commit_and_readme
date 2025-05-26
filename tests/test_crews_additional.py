@@ -147,17 +147,15 @@ class TestEnrichmentCrew:
         crew = EnrichmentCrew()
 
         mock_output = MagicMock()
-        mock_output.raw = """
-        Here's the updated documentation:
-        
-        ```markdown
-        # Updated Documentation
-        
-        This is the extracted content from the code block.
-        ```
-        
-        End of output.
-        """
+        mock_output.raw = """Here's the updated documentation:
+
+```markdown
+# Updated Documentation
+
+This is the extracted content from the code block.
+```
+
+End of output."""
 
         with patch.object(crew, "_create_crew") as mock_create_crew:
             mock_crew_instance = MagicMock()

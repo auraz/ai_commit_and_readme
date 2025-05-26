@@ -27,10 +27,13 @@ class CommitSummaryCrew(BaseCrew):
         logger.info("✨ Commit summary crew completed")
 
         # Extract raw output from CrewOutput object
+        if result is None:
+            return "Update codebase"
+        
         result_str = str(result.raw) if hasattr(result, "raw") else str(result)
 
         # Handle string output from CrewAI
-        if result_str:
+        if result_str and result_str != "None":
             # Extract summary from the string output
             # Remove any extra formatting or quotes
             summary = result_str.strip()

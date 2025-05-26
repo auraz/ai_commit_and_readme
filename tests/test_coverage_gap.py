@@ -105,7 +105,7 @@ class TestPipelineCrew:
         ctx = {"readme_path": "/tmp/README.md", "wiki_files": ["Usage.md"], "wiki_file_paths": {"Usage.md": "/tmp/wiki/Usage.md"}}
 
         with (
-            patch.object(crew, "load_file", side_effect=["README content", "Wiki content"]),
+            patch.object(crew, "load_file", side_effect=["README content", "Wiki content", "Wiki content"]),
             patch.object(crew.enrichment_crew, "run", return_value=(False, "NO CHANGES")),
             patch.object(crew.wiki_selector_crew, "run", return_value=["Usage.md"]),
             caplog.at_level("INFO"),
@@ -124,7 +124,7 @@ class TestWikiSelectorCrew:
         crew = WikiSelectorCrew()
 
         mock_output = MagicMock()
-        mock_output.raw = None  # Trigger pydantic check
+        mock_output.raw = ""  # Empty string to trigger pydantic check
 
         # Create a mock that properly handles hasattr
         class MockPydantic:
