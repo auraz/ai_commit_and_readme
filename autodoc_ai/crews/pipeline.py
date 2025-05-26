@@ -24,7 +24,7 @@ class PipelineCrew(BaseCrew):
         self.enrichment_crew = EnrichmentCrew()
         self.wiki_selector_crew = WikiSelectorCrew()
         self.commit_summary_crew = CommitSummaryCrew()
-        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
 
     def _get_wiki_files(self, wiki_path: str) -> Tuple[List[str], Dict[str, str]]:
         """Get list of wiki files and their paths."""

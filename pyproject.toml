@@ -9,12 +9,13 @@ description = "AI-powered documentation generation and maintenance tool"
 readme = "README.md"
 authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
 license = "MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
-    "openai>=1.0.0",
-    "tiktoken>=0.5.1",
-    "rich>=13.0.0",
-    "autodoceval-crewai>=0.1.0",
+    "openai>=1.75.0",
+    "tiktoken>=0.9.0",
+    "rich>=13.9.4",
+    "crewai>=0.121.0",
+    "autodoceval-crewai>=0.2.0",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

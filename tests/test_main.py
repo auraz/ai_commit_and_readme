@@ -40,7 +40,7 @@ def make_ctx(**kwargs: Any) -> Dict[str, Any]:
     ctx: Dict[str, Any] = {
         "readme_path": "README.md",
         "api_key": "test",
-        "model": "gpt-4o",
+        "model": "gpt-4o-mini",
         "file_paths": {"README.md": "README.md", "wiki": "wiki"},
         "ai_suggestions": {"README.md": None, "wiki": {}},
         "wiki_files": ["Usage.md"],

@@ -31,7 +31,7 @@ Find answers to common questions about **autodoc_ai**. For more details, see the
 - **A:** Set the `WIKI_PATH` and `README_PATH` environment variables.
 
 **Q: Can I use a different OpenAI model?**
-- **A:** Yes, set the `MODEL` environment variable (e.g., `gpt-4o`, `gpt-4`).
+- **A:** Yes, set the `MODEL` environment variable (e.g., `gpt-4o-mini`, `gpt-4o`, `gpt-4`).
 
 ---
 

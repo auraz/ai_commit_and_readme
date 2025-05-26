@@ -13,7 +13,7 @@ class BaseCrew:
 
     def __init__(self):
         """Initialize base crew."""
-        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
         self.agents = []
 
     def _create_crew(self, tasks: List[Task], verbose: bool = True) -> Crew:

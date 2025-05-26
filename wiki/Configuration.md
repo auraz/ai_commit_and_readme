@@ -9,7 +9,7 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 | Variable              | Description                                              | Required | Default                                      |
 |-----------------------|----------------------------------------------------------|----------|----------------------------------------------|
 | `OPENAI_API_KEY`      | API key for OpenAI (enables AI features)                | Yes      | –                                            |
-| `AUTODOC_MODEL`       | OpenAI model to use (see supported models below)       | No       | `gpt-4o`                                     |
+| `AUTODOC_MODEL`       | OpenAI model to use (see supported models below)       | No       | `gpt-4o-mini`                                |
 | `AICOMMIT_API_KEY`    | API key for aicommit (if different from OpenAI)         | No       | –                                            |
 | `AICOMMIT_CONFIG_PATH`| Path to a custom aicommit config file                   | No       | `.aicommit/config.toml`                      |
 | `WIKI_PATH`           | Path to your Wiki directory                            | No       | `wiki`                                       |
@@ -23,8 +23,8 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 
 ## 🤖 Supported Models
 
-- `gpt-4o` (default) - 128K context window
-- `gpt-4o-mini` - 128K context window, faster and cheaper
+- `gpt-4o-mini` (default) - 128K context window, faster and cheaper
+- `gpt-4o` - 128K context window
 - `gpt-4-turbo` - 128K context window
 - `gpt-4` - 8K context window
 - `gpt-3.5-turbo` - 16K context window

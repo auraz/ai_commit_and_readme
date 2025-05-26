@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from crewai import Agent
+from crewai import Agent, LLM
 
 
 class BaseAgent:
@@ -14,7 +14,13 @@ class BaseAgent:
         self.role = role
         self.goal = goal
         self.backstory = backstory
-        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o")
+        self.model = os.getenv("AUTODOC_MODEL", "gpt-4o-mini")
+        
+        # Create LLM instance
+        llm = LLM(
+            model=self.model,
+            temperature=0.7
+        )
         
         # Create the CrewAI agent
         self.agent = Agent(
@@ -22,7 +28,7 @@ class BaseAgent:
             goal=self.goal,
             backstory=self.backstory,
             verbose=True,
-            llm_model=self.model,
+            llm=llm,
             allow_delegation=False
         )
 
