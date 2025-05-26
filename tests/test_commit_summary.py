@@ -64,7 +64,7 @@ class TestCommitSummaryCrew:
         class MockOutput:
             def __init__(self):
                 self.raw = ""
-        
+
         mock_output = MockOutput()
 
         with patch.object(crew, "_create_crew") as mock_create_crew:

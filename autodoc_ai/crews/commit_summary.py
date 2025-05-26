@@ -29,7 +29,7 @@ class CommitSummaryCrew(BaseCrew):
         # Extract raw output from CrewOutput object
         if result is None:
             return "Update codebase"
-        
+
         result_str = str(result.raw) if hasattr(result, "raw") else str(result)
 
         # Handle string output from CrewAI
