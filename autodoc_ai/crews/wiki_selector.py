@@ -34,13 +34,21 @@ class WikiSelectorCrew(BaseCrew):
             logger.warning("Wiki selector returned None - likely due to an error")
             return []
 
+        # Extract raw output from CrewOutput object
+        if hasattr(result, 'raw'):
+            result_str = str(result.raw)
+        else:
+            result_str = str(result)
+            
+        logger.debug(f"Extracted wiki selector result string: {result_str}")
+
         # Handle string output from CrewAI
-        if isinstance(result, str):
+        if result_str:
             # Parse the output to extract selected articles
             import re
 
             # Look for list patterns in the output
-            matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result)
+            matches = re.findall(r'["\']([A-Za-z-]+\.md)["\']', result_str)
             if matches:
                 filtered = [m for m in matches if m in wiki_files]
                 logger.debug(f"Regex matches: {matches}, filtered: {filtered}")
@@ -48,7 +56,7 @@ class WikiSelectorCrew(BaseCrew):
             # Fallback: look for wiki file names mentioned in the text
             selected = []
             for wiki_file in wiki_files:
-                if wiki_file in result:
+                if wiki_file in result_str:
                     selected.append(wiki_file)
             logger.debug(f"Fallback selected: {selected}")
             return selected

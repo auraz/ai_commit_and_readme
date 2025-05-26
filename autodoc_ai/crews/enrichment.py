@@ -38,10 +38,18 @@ class EnrichmentCrew(BaseCrew):
             logger.warning(f"Enrichment crew returned None for {file_path} - likely due to an error")
             return False, "NO CHANGES"
 
+        # Extract raw output from CrewOutput object
+        if hasattr(result, 'raw'):
+            result_str = str(result.raw)
+        else:
+            result_str = str(result)
+        
+        logger.debug(f"Extracted result string: {result_str[:200]}...")
+
         # Handle string output from CrewAI
-        if isinstance(result, str):
+        if result_str:
             # Check if the output indicates updates are needed
-            needs_update = "NO CHANGES" not in result.upper()
+            needs_update = "NO CHANGES" not in result_str.upper()
 
             # Extract the updated content
             if needs_update:
@@ -49,11 +57,11 @@ class EnrichmentCrew(BaseCrew):
                 import re
 
                 # Look for content between markdown code blocks
-                code_block_match = re.search(r"```(?:markdown)?\n(.*?)\n```", result, re.DOTALL)
+                code_block_match = re.search(r"```(?:markdown)?\n(.*?)\n```", result_str, re.DOTALL)
                 if code_block_match:
                     return True, code_block_match.group(1)
                 # Otherwise return the entire result
-                return True, result
+                return True, result_str
             else:
                 return False, "NO CHANGES"
 
