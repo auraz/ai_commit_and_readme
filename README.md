@@ -37,8 +37,8 @@ autodoc-ai  # Enriches your README and Wiki based on staged changes
 just cm  # Enriches docs, commits, and pushes
 
 # Update docs based on recent commits
-just enrich-days 7  # Update based on last 7 days of commits (uses gpt-4o-mini)
-just enrich-release  # Update based on commits since last tag (uses gpt-4o-mini)
+just enrich-days 7  # Update based on last 7 days of commits
+just enrich-release  # Update based on commits since last tag
 
 # Evaluate documentation quality
 just eval README.md  # Auto-detects as README type

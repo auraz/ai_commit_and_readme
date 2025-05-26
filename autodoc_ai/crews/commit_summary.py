@@ -15,9 +15,16 @@ class CommitSummaryCrew(BaseCrew):
 
     def _execute(self, diff: str) -> str:
         """Execute commit summary generation."""
+        from .. import logger
+        
+        logger.info("💬 Starting commit summary generation...")
+        
         task = self.summary_agent.create_task(diff)
-        crew = self._create_crew([task], verbose=False)
+        crew = self._create_crew([task], verbose=True)
+        
+        logger.info("🎯 Kicking off commit summary crew...")
         result = crew.kickoff()
+        logger.info("✨ Commit summary crew completed")
 
         # Handle string output from CrewAI
         if isinstance(result, str):

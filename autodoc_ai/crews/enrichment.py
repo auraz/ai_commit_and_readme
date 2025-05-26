@@ -18,11 +18,18 @@ class EnrichmentCrew(BaseCrew):
 
     def _execute(self, diff: str, doc_content: str, doc_type: str, file_path: str, other_docs: Optional[Dict[str, str]] = None) -> Tuple[bool, str]:
         """Execute documentation enrichment."""
+        from .. import logger
+        
+        logger.info(f"🔍 Starting enrichment for {doc_type} file: {file_path}")
+        
         analysis_task = self.code_analyst.create_task(diff, diff=diff)
         update_task = self.doc_writer.create_task(doc_content, doc_type=doc_type, file_path=file_path, other_docs=other_docs, context_tasks=[analysis_task])
 
         crew = self._create_crew([analysis_task, update_task])
+        
+        logger.info(f"🎯 Kicking off enrichment crew for {file_path}...")
         result = crew.kickoff()
+        logger.info(f"✨ Enrichment crew completed for {file_path}")
 
         # Handle string output from CrewAI
         if isinstance(result, str):

@@ -138,6 +138,7 @@ class PipelineCrew(BaseCrew):
         ai_suggestions = {"README.md": None, "wiki": {}}
 
         # Process README
+        logger.info("📄 Processing README...")
         readme_content = self.load_file(ctx["readme_path"])
         if readme_content:
             logger.info(f"📄 Update to README.md is currently {len(readme_content):,} characters.")
@@ -151,6 +152,7 @@ class PipelineCrew(BaseCrew):
         # Select and process wiki articles
         selected_articles = []
         if ctx["wiki_files"]:
+            logger.info("🔍 Selecting wiki articles...")
             selected_articles = self.wiki_selector_crew.run(diff, ctx["wiki_files"])
             if not selected_articles:
                 logger.info("[i] No valid wiki articles selected.")
@@ -168,7 +170,9 @@ class PipelineCrew(BaseCrew):
                         first_para = next((p for p in content.split("\n\n")[1:3] if p.strip()), "")[:200]
                         wiki_summaries[filename] = f"{title}: {first_para}..."
 
-            for filename in selected_articles:
+            logger.info(f"📚 Processing {len(selected_articles)} wiki articles...")
+            for idx, filename in enumerate(selected_articles, 1):
+                logger.info(f"  [{idx}/{len(selected_articles)}] {filename}")
                 filepath = ctx["wiki_file_paths"].get(filename)
                 if filepath:
                     content = self.load_file(filepath)
@@ -199,6 +203,7 @@ class PipelineCrew(BaseCrew):
     def _execute(self, days: Optional[int] = None) -> Dict[str, Any]:
         """Execute the enrichment pipeline."""
         # Create context
+        logger.info("🚀 Starting pipeline...")
         ctx = self._create_context()
 
         # Check API key
@@ -220,11 +225,13 @@ class PipelineCrew(BaseCrew):
         logger.info(f"🔢 That's about {self._count_tokens(diff):,} tokens for the AI to read.")
 
         # Process documents
+        logger.info("📝 Processing documents...")
         result = self._process_documents(diff, ctx)
 
         # Write outputs
         self._write_outputs(result["suggestions"], ctx)
-
+        
+        logger.info("✅ Pipeline complete!")
         return {
             "success": True,
             "suggestions": result["suggestions"],

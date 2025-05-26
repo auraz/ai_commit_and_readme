@@ -17,9 +17,16 @@ class WikiSelectorCrew(BaseCrew):
 
     def _execute(self, diff: str, wiki_files: List[str]) -> List[str]:
         """Execute wiki article selection."""
+        from .. import logger
+        
+        logger.info(f"🗂️ Starting wiki selection from {len(wiki_files)} available articles")
+        
         task = self.selector.create_task(diff, wiki_files=wiki_files)
-        crew = self._create_crew([task], verbose=False)
+        crew = self._create_crew([task], verbose=True)
+        
+        logger.info("🎯 Kicking off wiki selector crew...")
         result = crew.kickoff()
+        logger.info("✨ Wiki selector crew completed")
 
         # Handle string output from CrewAI
         if isinstance(result, str):

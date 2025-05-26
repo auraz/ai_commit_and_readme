@@ -124,11 +124,7 @@ deploy-wiki:
 # Enrich documentation based on commits from last n days
 enrich-days days="7":
     #!/usr/bin/env python3
-    import os
     import sys
-    # Set model BEFORE importing any autodoc modules
-    os.environ["AUTODOC_MODEL"] = "gpt-4o-mini"
-    # Now import after setting the environment variable
     from autodoc_ai.crews.pipeline import PipelineCrew
     crew = PipelineCrew()
     result = crew.run(days={{days}})
@@ -141,12 +137,8 @@ enrich-days days="7":
 # Update documentation for a release (based on commits since last tag)
 enrich-release:
     #!/usr/bin/env python3
-    import os
     import subprocess
     import sys
-    # Set model BEFORE importing any autodoc modules
-    os.environ["AUTODOC_MODEL"] = "gpt-4o-mini"
-    # Now import after setting the environment variable
     from autodoc_ai.crews.pipeline import PipelineCrew
 
     # Get the last tag
