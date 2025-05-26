@@ -35,11 +35,8 @@ class WikiSelectorCrew(BaseCrew):
             return []
 
         # Extract raw output from CrewOutput object
-        if hasattr(result, 'raw'):
-            result_str = str(result.raw)
-        else:
-            result_str = str(result)
-            
+        result_str = str(result.raw) if hasattr(result, "raw") else str(result)
+
         logger.debug(f"Extracted wiki selector result string: {result_str}")
 
         # Handle string output from CrewAI

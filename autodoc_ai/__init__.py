@@ -18,12 +18,12 @@ if log_level == "DEBUG":
     logging.getLogger("litellm").setLevel(logging.DEBUG)
     logging.getLogger("LiteLLM").setLevel(logging.DEBUG)
     logging.getLogger("LiteLLM.utils").setLevel(logging.DEBUG)
-    
+
     # Enable all LiteLLM verbose settings
     os.environ["LITELLM_LOG"] = "DEBUG"
     os.environ["LITELLM_VERBOSE"] = "True"
     os.environ["LITELLM_DEBUG"] = "True"
-    
+
     # Enable CrewAI verbose output
     os.environ["CREWAI_DEBUG"] = "True"
 else:

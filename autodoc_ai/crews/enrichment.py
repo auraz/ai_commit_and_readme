@@ -39,11 +39,8 @@ class EnrichmentCrew(BaseCrew):
             return False, "NO CHANGES"
 
         # Extract raw output from CrewOutput object
-        if hasattr(result, 'raw'):
-            result_str = str(result.raw)
-        else:
-            result_str = str(result)
-        
+        result_str = str(result.raw) if hasattr(result, "raw") else str(result)
+
         logger.debug(f"Extracted result string: {result_str[:200]}...")
 
         # Handle string output from CrewAI

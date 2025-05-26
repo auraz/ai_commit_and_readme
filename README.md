@@ -29,8 +29,9 @@ just install
 # Set OpenAI API key
 export OPENAI_API_KEY="your-key-here"
 
-# Optional: Enable debug logging
-export AUTODOC_LOG_LEVEL="DEBUG"
+# Optional: Configure logging and debug mode
+export AUTODOC_LOG_LEVEL="DEBUG"  # Enable debug logging
+export AUTODOC_DISABLE_CALLBACKS="true"  # Disable CrewAI callbacks if issues occur
 
 # In your repository
 cd your-project

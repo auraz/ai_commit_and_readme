@@ -83,10 +83,10 @@ class PipelineCrew(BaseCrew):
                 raise ValueError("No staged changes")
             logger.debug(f"Git diff length: {len(diff)} characters")
             if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
-                logger.debug(f"Git diff preview (first 1000 chars):")
-                logger.debug("="*80)
+                logger.debug("Git diff preview (first 1000 chars):")
+                logger.debug("=" * 80)
                 logger.debug(diff[:1000])
-                logger.debug("="*80)
+                logger.debug("=" * 80)
             return diff
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Error getting diff: {e}")
@@ -142,9 +142,9 @@ class PipelineCrew(BaseCrew):
             logger.info(f"🔢 That's {self._count_tokens(readme_content):,} tokens in update to README.md!")
 
             needs_update, suggestion = self.enrichment_crew.run(diff=diff, doc_content=readme_content, doc_type="README", file_path="README.md")
-            
+
             logger.debug(f"README enrichment result - needs_update: {needs_update}, suggestion length: {len(suggestion) if suggestion else 0}")
-            
+
             if needs_update and suggestion != "NO CHANGES":
                 ai_suggestions["README.md"] = suggestion
                 logger.info("📝 README will be updated")
@@ -175,7 +175,7 @@ class PipelineCrew(BaseCrew):
             logger.info(f"📚 Processing {len(selected_articles)} wiki articles...")
             logger.debug(f"Selected articles: {selected_articles}")
             logger.debug(f"Wiki file paths: {ctx['wiki_file_paths']}")
-            
+
             for idx, filename in enumerate(selected_articles, 1):
                 logger.info(f"  [{idx}/{len(selected_articles)}] {filename}")
                 filepath = ctx["wiki_file_paths"].get(filename)
@@ -200,7 +200,7 @@ class PipelineCrew(BaseCrew):
         """Write suggestions to files and stage them."""
         logger.debug(f"Writing outputs - suggestions: {list(ai_suggestions.keys())}")
         logger.debug(f"Wiki suggestions: {list(ai_suggestions.get('wiki', {}).keys())}")
-        
+
         if ai_suggestions.get("README.md"):
             self._write_suggestion_and_stage(ctx["readme_path"], ai_suggestions["README.md"], "README")
 

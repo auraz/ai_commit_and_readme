@@ -19,6 +19,7 @@ Easily configure **autodoc_ai** to fit your workflow using environment variables
 | `AUTODOC_TARGET_SCORE`| Target score for document improvement (0-100)          | No       | `85`                                         |
 | `AUTODOC_MAX_ITERATIONS`| Max iterations for document improvement              | No       | `3`                                          |
 | `AUTODOC_LOG_LEVEL`   | Logging level (DEBUG, INFO, WARNING, ERROR)           | No       | `INFO`                                       |
+| `AUTODOC_DISABLE_CALLBACKS`| Disable CrewAI callbacks (troubleshooting)       | No       | `false`                                      |
 
 ---
 
@@ -70,6 +71,9 @@ Additional debug features in DEBUG mode:
   - Ensure your user has read/write access to the configured files and directories.
 - **Unexpected Output?**
   - Double-check your environment variables and config file paths.
+- **CrewAI Callback Errors:**
+  - If you encounter issues with CrewAI callbacks returning None or causing errors, set `AUTODOC_DISABLE_CALLBACKS="true"` to disable them temporarily.
+  - This disables step-by-step execution tracking but allows the crews to complete successfully.
 
 ---
 

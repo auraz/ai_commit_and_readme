@@ -51,7 +51,11 @@
       "Bash(gh run view:*)",
       "WebFetch(domain:docs.crewai.com)",
       "WebFetch(domain:community.crewai.com)",
-      "Bash(export AUTODOC_LOG_LEVEL=DEBUG)"
+      "Bash(export AUTODOC_LOG_LEVEL=DEBUG)",
+      "Bash(git pull:*)",
+      "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-time:*)",
+      "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days 1 2 >& 1)",
+      "Bash(AUTODOC_LOG_LEVEL=DEBUG AUTODOC_DISABLE_CALLBACKS=false just enrich-days:*)"
     ],
     "deny": []
   }

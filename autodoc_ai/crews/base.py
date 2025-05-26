@@ -23,11 +23,11 @@ class BaseCrew:
         # Set verbose based on log level if not specified
         if verbose is None:
             verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
-        
+
         # Force verbose=True in debug mode
         if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
             verbose = True
-            logger.debug(f"Debug mode: Forcing verbose=True for crew execution")
+            logger.debug("Debug mode: Forcing verbose=True for crew execution")
 
         def step_callback(step_output):
             """Callback for each step in task execution."""
@@ -59,21 +59,19 @@ class BaseCrew:
             logger.info("🏁 Crew execution completed!")
 
         # Temporarily disable callbacks to debug
-        crew_params = {
-            "agents": [agent.agent for agent in self.agents],
-            "tasks": tasks,
-            "verbose": verbose
-        }
-        
+        crew_params = {"agents": [agent.agent for agent in self.agents], "tasks": tasks, "verbose": verbose}
+
         # Only add callbacks if not causing issues
         if os.getenv("AUTODOC_DISABLE_CALLBACKS", "false").lower() != "true":
-            crew_params.update({
-                "step_callback": step_callback,
-                "task_callback": task_callback,
-                "before_kickoff_callbacks": [before_kickoff],
-                "after_kickoff_callbacks": [after_kickoff],
-            })
-        
+            crew_params.update(
+                {
+                    "step_callback": step_callback,
+                    "task_callback": task_callback,
+                    "before_kickoff_callbacks": [before_kickoff],
+                    "after_kickoff_callbacks": [after_kickoff],
+                }
+            )
+
         return Crew(**crew_params)
 
     def run(self, *args, **kwargs) -> Any:
@@ -84,6 +82,7 @@ class BaseCrew:
             logger.error(f"Error in {self.__class__.__name__}: {e}")
             if os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG":
                 import traceback
+
                 logger.debug(f"Full traceback:\n{traceback.format_exc()}")
             return self._handle_error(e)
 

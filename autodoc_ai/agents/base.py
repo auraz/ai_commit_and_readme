@@ -22,13 +22,13 @@ class BaseAgent:
         # Create the CrewAI agent with maximum verbosity in debug mode
         verbose = os.getenv("AUTODOC_LOG_LEVEL", "INFO").upper() == "DEBUG"
         self.agent = Agent(
-            role=self.role, 
-            goal=self.goal, 
-            backstory=self.backstory, 
-            verbose=verbose, 
-            llm=llm, 
+            role=self.role,
+            goal=self.goal,
+            backstory=self.backstory,
+            verbose=verbose,
+            llm=llm,
             allow_delegation=False,
-            max_iter=10 if verbose else 5  # More iterations in debug mode
+            max_iter=10 if verbose else 5,  # More iterations in debug mode
         )
 
     def save(self, *args, **kwargs) -> None:
