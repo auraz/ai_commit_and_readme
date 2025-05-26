@@ -57,6 +57,7 @@ class BaseCrew:
         def after_kickoff(output):
             """Callback after crew execution completes."""
             logger.info("🏁 Crew execution completed!")
+            return output
 
         # Temporarily disable callbacks to debug
         crew_params = {"agents": [agent.agent for agent in self.agents], "tasks": tasks, "verbose": verbose}
