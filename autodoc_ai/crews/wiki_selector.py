@@ -48,7 +48,7 @@ class WikiSelectorCrew(BaseCrew):
                 # Remove any markdown code blocks around JSON
                 json_match = re.search(r"```(?:json)?\n(.*?)\n```", result_str, re.DOTALL)
                 json_str = json_match.group(1) if json_match else result_str
-                
+
                 # Parse JSON
                 parsed = json.loads(json_str)
                 if isinstance(parsed, dict) and "selected_articles" in parsed:
