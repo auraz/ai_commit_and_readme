@@ -36,6 +36,10 @@ autodoc-ai  # Enriches your README and Wiki based on staged changes
 # Or use with Just (if installed from source)
 just cm  # Enriches docs, commits, and pushes
 
+# Update docs based on recent commits
+just enrich-days 7  # Update based on last 7 days of commits
+just enrich-release  # Update based on commits since last tag
+
 # Evaluate documentation quality
 just eval README.md  # Auto-detects as README type
 just eval wiki/Usage.md  # Auto-detects wiki page type
@@ -43,6 +47,9 @@ just eval-all wiki/  # Evaluate all docs in directory
 
 # Evaluate with custom criteria
 just eval-with-prompt README.md "Check for clear installation instructions and examples"
+
+# Deploy wiki to GitHub
+just deploy-wiki  # Push wiki files to GitHub wiki
 ```
 
 ## Documentation

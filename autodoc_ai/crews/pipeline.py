@@ -92,6 +92,53 @@ class PipelineCrew(BaseCrew):
             logger.error(f"❌ Error getting diff: {e}")
             raise ValueError(f"Git diff error: {e}") from e
 
+    def _get_commits_diff(self, days: int) -> str:
+        """Get combined diff from commits in the last n days."""
+        logger.info(f"📅 Getting commits from the last {days} days...")
+        try:
+            # Get commit hashes from the last n days
+            since_date = f"{days}.days.ago"
+            commit_hashes = subprocess.check_output(
+                ["git", "log", f"--since={since_date}", "--format=%H"],
+                text=True
+            ).strip().split('\n')
+            
+            if not commit_hashes or commit_hashes == ['']:
+                logger.info(f"✅ No commits found in the last {days} days.")
+                raise ValueError(f"No commits in the last {days} days")
+            
+            logger.info(f"📊 Found {len(commit_hashes)} commits in the last {days} days")
+            
+            # Get the oldest commit's parent to create a combined diff
+            oldest_commit = commit_hashes[-1]
+            try:
+                base_commit = subprocess.check_output(
+                    ["git", "rev-parse", f"{oldest_commit}^"],
+                    text=True
+                ).strip()
+            except subprocess.CalledProcessError:
+                # If oldest commit has no parent (initial commit), use empty tree
+                base_commit = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+            
+            # Get combined diff from base to HEAD
+            diff = subprocess.check_output(
+                ["git", "diff", base_commit, "HEAD", "-U1"],
+                text=True
+            )
+            
+            # Log commit summary
+            commit_summary = subprocess.check_output(
+                ["git", "log", f"--since={since_date}", "--oneline"],
+                text=True
+            )
+            logger.info(f"📝 Commits included:\n{commit_summary}")
+            
+            return diff
+            
+        except subprocess.CalledProcessError as e:
+            logger.error(f"❌ Error getting commits diff: {e}")
+            raise ValueError(f"Git commits error: {e}") from e
+
     def _process_documents(self, diff: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         """Process README and wiki documents."""
         ai_suggestions = {"README.md": None, "wiki": {}}
@@ -155,7 +202,7 @@ class PipelineCrew(BaseCrew):
             if filepath:
                 self._write_suggestion_and_stage(filepath, suggestion, filename)
 
-    def _execute(self) -> Dict[str, Any]:
+    def _execute(self, days: Optional[int] = None) -> Dict[str, Any]:
         """Execute the enrichment pipeline."""
         # Create context
         ctx = self._create_context()
@@ -165,14 +212,17 @@ class PipelineCrew(BaseCrew):
             logger.warning("🔑 No API key found. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.")
             return {"success": False, "error": "No API key available"}
 
-        # Get git diff
+        # Get git diff based on mode
         try:
-            diff = self._get_git_diff()
+            if days is not None:
+                diff = self._get_commits_diff(days)
+            else:
+                diff = self._get_git_diff()
         except ValueError as e:
             return {"success": False, "error": str(e)}
 
         # Log diff stats
-        logger.info(f"📏 Your staged changes are {len(diff):,} characters long!")
+        logger.info(f"📏 Your changes are {len(diff):,} characters long!")
         logger.info(f"🔢 That's about {self._count_tokens(diff):,} tokens for the AI to read.")
 
         # Process documents

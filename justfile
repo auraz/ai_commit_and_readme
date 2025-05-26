@@ -120,3 +120,54 @@ improve-all path:
 # Deploy wiki to GitHub
 deploy-wiki:
     python3 deploy_wiki.py
+
+# Enrich documentation based on commits from last n days
+enrich-days days="7":
+    #!/usr/bin/env python3
+    import sys
+    from autodoc_ai.crews.pipeline import PipelineCrew
+    crew = PipelineCrew()
+    result = crew.run(days={{days}})
+    if not result.get("success"):
+        print(f"Enrichment failed: {result.get('error', 'Unknown error')}", file=sys.stderr)
+        sys.exit(1)
+    else:
+        print(f"✅ Documentation enriched based on {{days}} days of commits")
+
+# Update documentation for a release (based on commits since last tag)
+enrich-release:
+    #!/usr/bin/env python3
+    import subprocess
+    import sys
+    from autodoc_ai.crews.pipeline import PipelineCrew
+    
+    # Get the last tag
+    try:
+        last_tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True).strip()
+        # Count days since last tag
+        tag_date = subprocess.check_output(["git", "log", "-1", "--format=%ci", last_tag], text=True).strip()
+        days_since = subprocess.check_output(["git", "log", "-1", "--format=%cr", last_tag], text=True).strip()
+        print(f"📌 Last tag: {last_tag} ({days_since})")
+        
+        # Get commits since last tag
+        commits = subprocess.check_output(["git", "log", f"{last_tag}..HEAD", "--oneline"], text=True).strip()
+        if not commits:
+            print("✅ No new commits since last release")
+            sys.exit(0)
+            
+        print(f"📝 Commits since {last_tag}:")
+        print(commits)
+        print()
+        
+        # Create diff from last tag to HEAD
+        crew = PipelineCrew()
+        # Use a large number of days to ensure we capture all changes
+        result = crew.run(days=365)
+        if not result.get("success"):
+            print(f"Enrichment failed: {result.get('error', 'Unknown error')}", file=sys.stderr)
+            sys.exit(1)
+        else:
+            print(f"✅ Documentation enriched for release")
+    except subprocess.CalledProcessError:
+        print("❌ No tags found in repository")
+        sys.exit(1)
