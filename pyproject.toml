@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "autodoc_ai"
-version = "2.0.0"
+version = "2.0.2"
 description = "AI-powered documentation generation and maintenance tool"
 readme = "README.md"
 authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
