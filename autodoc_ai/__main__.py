@@ -10,11 +10,11 @@ def main():
     """Run the autodoc_ai pipeline."""
     crew = PipelineCrew()
     result = crew.run()
-    
+
     if not result.get("success"):
         print(f"Enrichment failed: {result.get('error', 'Unknown error')}", file=sys.stderr)
         sys.exit(1)
-    
+
     print("✅ Documentation enrichment complete!")
 
 
